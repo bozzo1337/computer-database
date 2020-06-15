@@ -68,7 +68,7 @@ public class LauncherCLI {
 			console.printf(cli.displayComputers() + ">");
 			break;
 		case "companies":
-			console.printf(cli.displayCompanies() + "%n>");
+			console.printf(cli.displayCompanies() + ">");
 			break;
 		case "computer":
 			console.printf("arg1 :%n>");
