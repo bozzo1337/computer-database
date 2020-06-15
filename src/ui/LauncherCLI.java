@@ -2,15 +2,26 @@ package ui;
 
 import java.io.Console;
 
+import persistence.CLI;
+
 public class LauncherCLI {
 	
 	private static Console console = System.console();
 	private static CLI cli = new CLI();
 	
 	public static void main(String[] args) {
+		boolean autolog = false; //Dev option ONLY -- TO REMOVE
 		if (args.length != 0) {
-			System.out.println("No-GUI activated // Remove arg to disable.");
-			System.exit(0);
+			switch (args[0]) {
+			case "nolaunch": //To Compile with Eclipse without NullPointerE from System.console
+				System.out.println("No-Launch activated // Remove arg to disable.");
+				System.exit(0);
+			case "autolog": //Lazy login
+				autolog = !autolog;
+				break;
+			default:		
+			}
+			
 		}
 		String login = "";
 		String password = "";
@@ -27,6 +38,11 @@ public class LauncherCLI {
 			console.printf("Password :%n>");
 			password = new String(console.readPassword());
 			console.printf("Connexion à la base...%n");
+			//DEV ONLY -- TO REMOVE
+			if (autolog) {
+				login = "admincdb";
+				password = "qwerty1234";
+			}
 		} while ((resultConn = cli.initConn(login, password)) != 0);
 		console.printf("Connexion OK%n");
 		console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
@@ -49,7 +65,7 @@ public class LauncherCLI {
 			console.printf("quit : Quitte le programme.%n>");
 			break;
 		case "computers":
-			console.printf(cli.displayComputers() + "%n>");
+			console.printf(cli.displayComputers() + ">");
 			break;
 		case "companies":
 			console.printf(cli.displayCompanies() + "%n>");
