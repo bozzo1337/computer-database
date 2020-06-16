@@ -7,7 +7,7 @@ Utilisation du système en mode console :
 - Ouvrez un terminal
 - Placez vous dans le dossier build/classes/
 - Assurez vous d'avoir le driver mysql connector dans votre CLASSPATH
-- Lancez 'java ui.LaunchCLI'
+- Lancez 'java ui.CLI'
 
 # Author
 Benjamin LONGA

@@ -1,7 +1,6 @@
 package ui;
 
 import java.io.Console;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.sql.Date;
@@ -59,98 +58,134 @@ public class CLI {
 	private static void nextCommand(String command) {
 		switch(command) {
 		case "help":
-			console.printf("Commandes disponibles : %n");
-			console.printf("help : Affiche la liste des commandes détaillées.%n");
-			console.printf("computers : Affiche la liste des ordinateurs.%n");
-			console.printf("companies : Affiche la liste des entreprises.%n");
-			console.printf("computer : Affiche les détails de l'ordinateur demandé.%n");
-			console.printf("create : Crée l'ordinateur indiqué.%n");
-			console.printf("update : Met à jour l'ordinateur ciblé.%n");
-			console.printf("delete : Supprime l'ordinateur ciblé.%n");
-			console.printf("quit : Quitte le programme.%n>");
+			commandHelp();
 			break;
 		case "computers":
-			console.printf(cli.displayComputers() + ">");
+			commandComputers();
 			break;
 		case "companies":
-			console.printf(cli.displayCompanies() + ">");
+			commandCompanies();
 			break;
 		case "computer":
-			console.printf("Sélection d'un ordinateur :%nID :%n>");
-			try {
-				Long idRead = Long.valueOf(console.readLine());
-				console.printf(cli.findComputer(idRead));
-			} catch (NumberFormatException e) {
-				console.printf("Format d'ID invalide, retour à l'accueil.%n>");
-			}
+			commandComputer();
 			break;
 		case "create":
-			console.printf("Création d'un nouvel ordinateur :%n");
-			console.printf("Nom (requis) :%n>");
-			String name = console.readLine();
-			if (name.trim().isEmpty()) {
-				console.printf("");
-			}
-			console.printf("Date intro :%n>");
-			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-			Date intro = null;
-			try {
-				intro = new Date(df.parse(console.readLine()).getTime());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			console.printf("Date disc (>intro) :%n>");
-			Date disc = null;
-			try {
-				disc = new Date(df.parse(console.readLine()).getTime());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Long compId = Long.valueOf(console.readLine());
-			if(cli.createComputer(name, intro, disc, compId) == 0) {
-				console.printf("Création réussie.%n>");
-			} else {
-				console.printf("Echec de la création.%n>");
-			}
+			commandCreate();
 			break;
 		case "update":
-			console.printf("Mise à jour d'un ordinateur :%n");
-			console.printf("arg1 :%n>");
-			String arg4 = console.readLine();
-			console.printf("arg2 :%n>");
-			String arg5 = console.readLine();
-			console.printf("arg3 :%n>");
-			String arg6 = console.readLine();
-			if(cli.updateComputer(arg4, arg5, arg6) == 0) {
-				console.printf("Mise à jour réussie.%n>");
-			} else {
-				console.printf("Echec de la mise à jour.%n>");
-			}
+			commandUpdate();
 			break;
 		case "delete":
-			console.printf("Suppression d'un ordinateur :%n");
-			console.printf("id :%n>");
-			String id = console.readLine();
-			if(cli.deleteComputer(id) == 0) {
-				console.printf("Suppression réussie.%n>");
-			} else {
-				console.printf("Echec de la suppression.%n>");
-			}
+			commandDelete();
 			break;
 		case "quit":
-			console.printf("Fermeture de la connexion...%n");
-			if (cli.closeConn() == 0) {
-				console.printf("Fin de connexion OK, au revoir !%n");
-				System.exit(0);
-			} else {
-				console.printf("Echec de la fermeture, au revoir quand même !%n");
-				System.exit(1);
-			}
+			commandQuit();
 			break;
 		default:
 			console.printf("Commande non reconnue, tapez 'help' pour plus d'informations.%n>");
+		}
+	}
+	
+	private static void commandHelp() {
+		console.printf("Commandes disponibles : %n");
+		console.printf("help : Affiche la liste des commandes détaillées.%n");
+		console.printf("computers : Affiche la liste des ordinateurs.%n");
+		console.printf("companies : Affiche la liste des entreprises.%n");
+		console.printf("computer : Affiche les détails de l'ordinateur demandé.%n");
+		console.printf("create : Crée l'ordinateur indiqué.%n");
+		console.printf("update : Met à jour l'ordinateur ciblé.%n");
+		console.printf("delete : Supprime l'ordinateur ciblé.%n");
+		console.printf("quit : Quitte le programme.%n>");
+	}
+	
+	private static void commandComputers() {
+		console.printf(cli.displayComputers() + ">");
+	}
+	
+	private static void commandCompanies() {
+		console.printf(cli.displayCompanies() + ">");
+	}
+	
+	private static void commandComputer() {
+		console.printf("Sélection d'un ordinateur :%nID :%n>");
+		try {
+			Long idRead = Long.valueOf(console.readLine());
+			console.printf(cli.findComputer(idRead));
+		} catch (NumberFormatException e) {
+			console.printf("Format d'ID invalide, retour à l'accueil.%n>");
+		}
+	}
+	
+	private static void commandCreate() {
+		console.printf("Création d'un nouvel ordinateur :%n");
+		console.printf("Nom (requis) :%n>");
+		String name = console.readLine();
+		if (name.trim().isEmpty()) {
+			console.printf("");
+		}
+		console.printf("Date intro (jj/mm/aaaa) :%n>");
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		Date intro = null;
+		try {
+			intro = new Date(df.parse(console.readLine()).getTime());
+		} catch (ParseException e) {
+			console.printf("Erreur de format. Valeur par défaut attribuée.%n");
+		}
+		console.printf("Date disc (>intro) :%n>");
+		Date disc = null;
+		try {
+			disc = new Date(df.parse(console.readLine()).getTime());
+		} catch (ParseException e) {
+			console.printf("Erreur de format. Valeur par défaut attribuée.%n");
+		}
+		Long compId = new Long(0);
+		console.printf("ID de l'entreprise :%n>");
+		try {
+			compId = Long.valueOf(console.readLine());
+		} catch (NumberFormatException e) {
+			console.printf("Format d'ID invalide.%n");
+		}
+		if(cli.createComputer(name, intro, disc, compId) == 0) {
+			console.printf("Création réussie.%n>");
+		} else {
+			console.printf("Echec de la création.%n>");
+		}
+	}
+	
+	private static void commandUpdate() {
+		console.printf("Mise à jour d'un ordinateur :%n");
+		console.printf("arg1 :%n>");
+		String arg4 = console.readLine();
+		console.printf("arg2 :%n>");
+		String arg5 = console.readLine();
+		console.printf("arg3 :%n>");
+		String arg6 = console.readLine();
+		if(cli.updateComputer(arg4, arg5, arg6) == 0) {
+			console.printf("Mise à jour réussie.%n>");
+		} else {
+			console.printf("Echec de la mise à jour.%n>");
+		}
+	}
+	
+	private static void commandDelete() {
+		console.printf("Suppression d'un ordinateur :%n");
+		console.printf("id :%n>");
+		String id = console.readLine();
+		if(cli.deleteComputer(id) == 0) {
+			console.printf("Suppression réussie.%n>");
+		} else {
+			console.printf("Echec de la suppression.%n>");
+		}
+	}
+	
+	private static void commandQuit() {
+		console.printf("Fermeture de la connexion...%n");
+		if (cli.closeConn() == 0) {
+			console.printf("Fin de connexion OK, au revoir !%n");
+			System.exit(0);
+		} else {
+			console.printf("Echec de la fermeture, au revoir quand même !%n");
+			System.exit(1);
 		}
 	}
 }

@@ -17,6 +17,7 @@ public class QueryExecutor {
 	public int initConn(String login, String password) {
 		try {
 			conn = DBConnector.getInstance().getConn(login, password);
+			conn.setAutoCommit(false);
 			return 0;
 		} catch (SQLException e) {
 			return 1;
@@ -98,18 +99,26 @@ public class QueryExecutor {
 	
 	public int createComputer(String name, Date intro, Date disc, Long compId) {
 		String query = "INSERT INTO computer('name', 'introduced', 'discontinued', 'company_id')";
-		query += " VALUES('?', '?', '?', '?');";
+		query += " VALUES(?, ?, ?, ?);";
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
 			ps.setString(1, name);
 			ps.setDate(2, intro);
 			ps.setDate(3, disc);
 			ps.setLong(4, compId);
+			ps.execute();
+			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				System.err.println("Rollback failed.\n");
+				e1.printStackTrace();
+			}
 			return 1;
 		}
-		return 1;
+		return 0;
 	}
 	
 	public int updateComputer(String arg1, String arg2, String arg3) {
