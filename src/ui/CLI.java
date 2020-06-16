@@ -1,13 +1,17 @@
 package ui;
 
 import java.io.Console;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.sql.Date;
 
-import persistence.CLI;
+import persistence.QueryExecutor;
 
-public class LauncherCLI {
+public class CLI {
 	
 	private static Console console = System.console();
-	private static CLI cli = new CLI();
+	private static QueryExecutor cli = new QueryExecutor();
 	
 	public static void main(String[] args) {
 		boolean autolog = false; //Dev option ONLY -- TO REMOVE
@@ -82,13 +86,30 @@ public class LauncherCLI {
 			break;
 		case "create":
 			console.printf("Création d'un nouvel ordinateur :%n");
-			console.printf("arg1 :%n>");
-			String arg1 = console.readLine();
-			console.printf("arg2 :%n>");
-			String arg2 = console.readLine();
-			console.printf("arg3 :%n>");
-			String arg3 = console.readLine();
-			if(cli.createComputer(arg1, arg2, arg3) == 0) {
+			console.printf("Nom (requis) :%n>");
+			String name = console.readLine();
+			if (name.trim().isEmpty()) {
+				console.printf("");
+			}
+			console.printf("Date intro :%n>");
+			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			Date intro = null;
+			try {
+				intro = new Date(df.parse(console.readLine()).getTime());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			console.printf("Date disc (>intro) :%n>");
+			Date disc = null;
+			try {
+				disc = new Date(df.parse(console.readLine()).getTime());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Long compId = Long.valueOf(console.readLine());
+			if(cli.createComputer(name, intro, disc, compId) == 0) {
 				console.printf("Création réussie.%n>");
 			} else {
 				console.printf("Echec de la création.%n>");

@@ -7,11 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class CLI {
+public class QueryExecutor {
 	
 	Connection conn = null;
 
-	public CLI() {	
+	public QueryExecutor() {	
 	}
 	
 	public int initConn(String login, String password) {
