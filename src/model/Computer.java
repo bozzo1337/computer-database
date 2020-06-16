@@ -8,14 +8,14 @@ public class Computer {
 	private String name;
 	private Date introduced;
 	private Date discontinued;
-	private Long company_id;
+	private Long companyId;
 	
 	public Computer() {
 		id = null;
 		name = null;
 		introduced = null;
 		discontinued = null;
-		company_id = null;
+		companyId = null;
 	}
 
 	public Long getId() {
@@ -50,11 +50,11 @@ public class Computer {
 		this.discontinued = discontinued;
 	}
 
-	public Long getCompany_id() {
-		return company_id;
+	public Long getCompanyId() {
+		return companyId;
 	}
 
-	public void setCompany_id(Long company_id) {
-		this.company_id = company_id;
+	public void setCompanyId(Long companyId) {
+		this.companyId = companyId;
 	}
 }
