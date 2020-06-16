@@ -111,7 +111,7 @@ public class CLI {
 	}
 	
 	private static Long commandComputer() {
-		console.printf("Sélection d'un ordinateur :%nID :%n>");
+		console.printf("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = null;
 		RequestResult rr = new RequestResult();
 		try {
@@ -122,6 +122,12 @@ public class CLI {
 			System.err.format("Format d'ID invalide.%n>");
 		}
 		return idRead = (rr.getStatus() == 0 ? idRead : new Long(0));
+	}
+	
+	private static void refreshComputer(Long validId) {
+		RequestResult rr = new RequestResult();
+		rr = cli.findComputer(validId);
+		console.printf(rr.toString() + "%n>");
 	}
 	
 	private static void commandCreate() {
@@ -154,42 +160,57 @@ public class CLI {
 		} catch (NumberFormatException e) {
 			System.err.format("ID invalide, valeur par défaut attribuée.%n");
 		}
-		if(cli.createComputer(name, intro, disc, compId).getStatus() == 0) {
-			console.printf("Création réussie.%n>");
-		} else {
-			System.err.format("Echec de la création.%n>");
-		}
+		console.printf(cli.createComputer(name, intro, disc, compId).toString() + ">");	
 	}
 	
 	private static void commandUpdate() {
 		console.printf("Mise à jour d'un ordinateur :%n");
-		//Long idSelected = commandComputer();
-		console.printf("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
-		String field = console.readLine();
-		switch (field) {
-		case "id":
-			System.err.format("Impossible de modifier ce champ !%n");
-			break;
-		case "name":
-			console.printf("Nouveau nom :%n>");
-			String newName = console.readLine();
-			if (!newName.trim().isEmpty()) {
-				if(cli.updateComputer(newName) != 0) {
-					console.printf("Mise à jour réussie.%n");
-				} else {
-					System.err.format("Echec de la mise à jour.%n");
-				}
-			} else {
-				System.err.format("Nom vide impossible !%n");
-			}
-			break;
-		case "introduced":
-			console.printf("Nouvelle date de mise en service :%n>");
-		case "discontinued":
-		case "company_id":
-		default:
-		
+		Long idRead = commandComputer();
+		while (idRead == 0) {
+			idRead = commandComputer();
 		}
+		String field = "";
+		do {
+			console.printf("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
+			field = console.readLine();
+			switch (field) {
+			case "id":
+				System.err.format("Impossible de modifier ce champ !%n");
+				break;
+			case "name":
+				console.printf("Nouveau nom :%n>");
+				String newName = console.readLine();
+				if (!newName.trim().isEmpty()) {
+					console.printf(cli.updateComputer(idRead, newName).toString());
+					refreshComputer(idRead);
+				} else {
+					System.err.format("Nom vide impossible !%n");
+				}
+				break;
+			case "introduced":
+				console.printf("Nouvelle date de mise en service :%n>");
+				break;
+			case "discontinued":
+				break;
+			case "company_id":
+				console.printf("Nouvel identifiant d'entreprise :%n>");
+				Long newCompId;
+				try {
+					newCompId = Long.valueOf(console.readLine());
+					console.printf(cli.updateComputer(idRead, newCompId).toString());
+					refreshComputer(idRead);
+				} catch (NumberFormatException e) {
+					console.printf("ID invalide.%n");
+				}
+				break;
+			case "ok":
+				console.printf("Modification(s) terminée(s).%n>");
+				break;
+			default:
+				console.printf("Champ non reconnu.%n");
+			}
+		} while (!field.equals("ok"));
+		
 	}
 	
 	private static void commandDelete() {

@@ -12,10 +12,14 @@ import model.RequestResult;
 
 public class QueryExecutor {
 	
-	private Connection conn = null;
-	private RequestResult rr = new RequestResult();
+	private Connection conn;
+	private RequestResult rr;
+	private String query;
 
-	public QueryExecutor() {	
+	public QueryExecutor() {
+		conn = null;
+		rr = new RequestResult();
+		query = "";
 	}
 	
 	public int initConn(String login, String password) {
@@ -47,7 +51,7 @@ public class QueryExecutor {
 	
 	public RequestResult displayComputers() {
 		rr.reset();
-		String query = "SELECT * FROM computer;";
+		query = "SELECT * FROM computer;";
 		try {
 			ResultSet results = executeQueryCLI(query);
 			rr.appendResult("ID | Name | Date intro | Date disc | Comp ID");
@@ -67,7 +71,7 @@ public class QueryExecutor {
 	
 	public RequestResult displayCompanies() {
 		rr.reset();
-		String query = "SELECT * FROM company;";		
+		query = "SELECT * FROM company;";		
 		try {
 			ResultSet results = executeQueryCLI(query);
 			rr.appendResult("ID | Name");
@@ -85,7 +89,7 @@ public class QueryExecutor {
 	
 	public RequestResult findComputer(Long id) {
 		rr.reset();
-		String query = "SELECT * FROM computer WHERE id=" + id + ";";		
+		query = "SELECT * FROM computer WHERE id=" + id + ";";		
 		try {
 			ResultSet results = executeQueryCLI(query);
 			if (results.next()) {
@@ -104,7 +108,7 @@ public class QueryExecutor {
 	
 	public RequestResult createComputer(String name, Date intro, Date disc, Long compId) {
 		rr.reset();
-		String query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
+		query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
 		query += " VALUES(?, ?, ?, ?);";
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
@@ -119,6 +123,7 @@ public class QueryExecutor {
 			ps.executeUpdate();
 			conn.commit();
 			rr.setStatus(0);
+			rr.setResult("Création réussie.%n");
 		} catch (SQLException e) {
 			if (e instanceof SQLIntegrityConstraintViolationException) {
 				rr.setStatus(2);
@@ -133,16 +138,57 @@ public class QueryExecutor {
 		return rr;
 	}
 	
-	public int updateComputer(String newName) {
+	public RequestResult updateComputer(Long id, String newName) {
+		rr.reset();
+		query = "UPDATE computer SET name=? WHERE id=?;";
+		try {
+			PreparedStatement ps = conn.prepareStatement(query);	
+			ps.setString(1, newName);
+			ps.setLong(2, id);
+			ps.executeUpdate();
+			conn.commit();
+			rr.setStatus(0);
+			rr.setResult("Mise à jour réussie.%n");
+		} catch (SQLException e) {
+			rr.setStatus(1);
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				rr.setStatus(3);
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		return rr;
+	}
+	
+	public int updateComputer(Long id, String dateToUpdate, Date value) {
 		return 1;
 	}
 	
-	public int updateComputer(String dateToUpdate, Date value) {
-		return 1;
-	}
-	
-	public int updateComputer(Long newCompany) {
-		return 1;
+	public RequestResult updateComputer(Long id, Long newCompany) {
+		rr.reset();
+		query = "UPDATE computer SET company_id=? WHERE id=?;";
+		try {
+			PreparedStatement ps = conn.prepareStatement(query);	
+			ps.setLong(1, newCompany);
+			ps.setLong(2, id);
+			ps.executeUpdate();
+			conn.commit();
+			rr.setStatus(0);
+			rr.setResult("Mise à jour réussie.%n");
+		} catch (SQLException e) {
+			if (e instanceof SQLIntegrityConstraintViolationException) {
+				rr.setStatus(2);
+			}
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				rr.setStatus(3);
+				e1.printStackTrace();
+			}
+		}
+		return rr;
 	}
 	
 	public int deleteComputer(String arg1) {
