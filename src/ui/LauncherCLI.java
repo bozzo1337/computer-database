@@ -26,6 +26,7 @@ public class LauncherCLI {
 		String login = "";
 		String password = "";
 		int resultConn = -1;
+		console.printf("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier%n");
 		do {
 			switch (resultConn) {
 			case 1:
