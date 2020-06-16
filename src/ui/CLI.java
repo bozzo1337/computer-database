@@ -33,7 +33,7 @@ public class CLI {
 		do {
 			switch (resultConn) {
 			case 1:
-				console.printf("Erreur de connexion, veuillez réessayer...%n>");
+				System.err.format("Erreur de connexion, veuillez réessayer...%n>");
 				break;
 			default:
 			}
@@ -112,16 +112,17 @@ public class CLI {
 			Long idRead = Long.valueOf(console.readLine());
 			console.printf(cli.findComputer(idRead));
 		} catch (NumberFormatException e) {
-			console.printf("Format d'ID invalide, retour à l'accueil.%n>");
+			System.err.format("Format d'ID invalide, retour à l'accueil.%n>");
 		}
 	}
 	
-	private static void commandCreate() {
+	private static int commandCreate() {
 		console.printf("Création d'un nouvel ordinateur :%n");
 		console.printf("Nom (requis) :%n>");
 		String name = console.readLine();
 		if (name.trim().isEmpty()) {
-			console.printf("");
+			System.err.format("Nom requis ! Retour à l'accueil.%n>");
+			return 1;
 		}
 		console.printf("Date intro (jj/mm/aaaa) :%n>");
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -129,26 +130,28 @@ public class CLI {
 		try {
 			intro = new Date(df.parse(console.readLine()).getTime());
 		} catch (ParseException e) {
-			console.printf("Erreur de format. Valeur par défaut attribuée.%n");
+			System.err.format("Erreur de format. Valeur par défaut attribuée.%n");
 		}
 		console.printf("Date disc (>intro) :%n>");
 		Date disc = null;
 		try {
 			disc = new Date(df.parse(console.readLine()).getTime());
 		} catch (ParseException e) {
-			console.printf("Erreur de format. Valeur par défaut attribuée.%n");
+			System.err.format("Erreur de format. Valeur par défaut attribuée.%n");
 		}
-		Long compId = new Long(0);
+		Long compId = null;
 		console.printf("ID de l'entreprise :%n>");
 		try {
 			compId = Long.valueOf(console.readLine());
 		} catch (NumberFormatException e) {
-			console.printf("Format d'ID invalide.%n");
+			System.err.format("ID invalide, valeur par défaut attribuée.%n");
 		}
 		if(cli.createComputer(name, intro, disc, compId) == 0) {
 			console.printf("Création réussie.%n>");
+			return 0;
 		} else {
-			console.printf("Echec de la création.%n>");
+			System.err.format("Echec de la création.%n>");
+			return 1;
 		}
 	}
 	

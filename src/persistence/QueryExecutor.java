@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 public class QueryExecutor {
@@ -98,22 +99,28 @@ public class QueryExecutor {
 	}
 	
 	public int createComputer(String name, Date intro, Date disc, Long compId) {
-		String query = "INSERT INTO computer('name', 'introduced', 'discontinued', 'company_id')";
+		String query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
 		query += " VALUES(?, ?, ?, ?);";
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
 			ps.setString(1, name);
 			ps.setDate(2, intro);
 			ps.setDate(3, disc);
-			ps.setLong(4, compId);
+			if (compId != null) {
+				ps.setLong(4, compId);
+			} else {
+				ps.setNull(4, 7);
+			}
 			ps.execute();
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			if (e instanceof SQLIntegrityConstraintViolationException) {
+				System.err.format("ID Entreprise inconnu.%n");
+			}
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				System.err.println("Rollback failed.\n");
+				System.err.format("Rollback failed.%n");
 				e1.printStackTrace();
 			}
 			return 1;
