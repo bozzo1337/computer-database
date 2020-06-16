@@ -26,7 +26,7 @@ public class LauncherCLI {
 		String login = "";
 		String password = "";
 		int resultConn = -1;
-		console.printf("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier%n");
+		console.printf("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
 		do {
 			switch (resultConn) {
 			case 1:
@@ -72,8 +72,13 @@ public class LauncherCLI {
 			console.printf(cli.displayCompanies() + ">");
 			break;
 		case "computer":
-			console.printf("arg1 :%n>");
-			console.printf(cli.findComputer(console.readLine()) + "%n>");
+			console.printf("Sélection d'un ordinateur :%nID :%n>");
+			try {
+				Long idRead = Long.valueOf(console.readLine());
+				console.printf(cli.findComputer(idRead));
+			} catch (NumberFormatException e) {
+				console.printf("Format d'ID invalide, retour à l'accueil.%n>");
+			}
 			break;
 		case "create":
 			console.printf("Création d'un nouvel ordinateur :%n");
