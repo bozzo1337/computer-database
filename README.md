@@ -2,6 +2,7 @@
 Système de gestion de base de données d'ordinateur.
 
 # Usage
+/!\ Utilisation en terminal uniquement /!\
 Utilisation du système en mode console :
 - Compilez les sources
 - Ouvrez un terminal

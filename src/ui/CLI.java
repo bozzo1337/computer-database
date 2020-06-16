@@ -3,6 +3,9 @@ package ui;
 import java.io.Console;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import model.RequestResult;
+
 import java.sql.Date;
 
 import persistence.QueryExecutor;
@@ -48,6 +51,7 @@ public class CLI {
 				password = "qwerty1234";
 			}
 		} while ((resultConn = cli.initConn(login, password)) != 0);
+		password = "";
 		console.printf("Connexion OK%n");
 		console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
 		for (;;) {
@@ -106,23 +110,27 @@ public class CLI {
 		console.printf(cli.displayCompanies() + ">");
 	}
 	
-	private static void commandComputer() {
+	private static Long commandComputer() {
 		console.printf("Sélection d'un ordinateur :%nID :%n>");
+		Long idRead = null;
+		RequestResult rr = new RequestResult();
 		try {
-			Long idRead = Long.valueOf(console.readLine());
-			console.printf(cli.findComputer(idRead));
+			idRead = Long.valueOf(console.readLine());
+			rr = cli.findComputer(idRead);
+			console.printf(rr.toString() + "%n>");
 		} catch (NumberFormatException e) {
-			System.err.format("Format d'ID invalide, retour à l'accueil.%n>");
+			System.err.format("Format d'ID invalide.%n>");
 		}
+		return idRead = (rr.getStatus() == 0 ? idRead : new Long(0));
 	}
 	
-	private static int commandCreate() {
+	private static void commandCreate() {
 		console.printf("Création d'un nouvel ordinateur :%n");
 		console.printf("Nom (requis) :%n>");
 		String name = console.readLine();
 		if (name.trim().isEmpty()) {
 			System.err.format("Nom requis ! Retour à l'accueil.%n>");
-			return 1;
+			return;
 		}
 		console.printf("Date intro (jj/mm/aaaa) :%n>");
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -146,27 +154,41 @@ public class CLI {
 		} catch (NumberFormatException e) {
 			System.err.format("ID invalide, valeur par défaut attribuée.%n");
 		}
-		if(cli.createComputer(name, intro, disc, compId) == 0) {
+		if(cli.createComputer(name, intro, disc, compId).getStatus() == 0) {
 			console.printf("Création réussie.%n>");
-			return 0;
 		} else {
 			System.err.format("Echec de la création.%n>");
-			return 1;
 		}
 	}
 	
 	private static void commandUpdate() {
 		console.printf("Mise à jour d'un ordinateur :%n");
-		console.printf("arg1 :%n>");
-		String arg4 = console.readLine();
-		console.printf("arg2 :%n>");
-		String arg5 = console.readLine();
-		console.printf("arg3 :%n>");
-		String arg6 = console.readLine();
-		if(cli.updateComputer(arg4, arg5, arg6) == 0) {
-			console.printf("Mise à jour réussie.%n>");
-		} else {
-			console.printf("Echec de la mise à jour.%n>");
+		//Long idSelected = commandComputer();
+		console.printf("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
+		String field = console.readLine();
+		switch (field) {
+		case "id":
+			System.err.format("Impossible de modifier ce champ !%n");
+			break;
+		case "name":
+			console.printf("Nouveau nom :%n>");
+			String newName = console.readLine();
+			if (!newName.trim().isEmpty()) {
+				if(cli.updateComputer(newName) != 0) {
+					console.printf("Mise à jour réussie.%n");
+				} else {
+					System.err.format("Echec de la mise à jour.%n");
+				}
+			} else {
+				System.err.format("Nom vide impossible !%n");
+			}
+			break;
+		case "introduced":
+			console.printf("Nouvelle date de mise en service :%n>");
+		case "discontinued":
+		case "company_id":
+		default:
+		
 		}
 	}
 	

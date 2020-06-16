@@ -8,9 +8,12 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
+import model.RequestResult;
+
 public class QueryExecutor {
 	
-	Connection conn = null;
+	private Connection conn = null;
+	private RequestResult rr = new RequestResult();
 
 	public QueryExecutor() {	
 	}
@@ -42,63 +45,65 @@ public class QueryExecutor {
 		}
 	}
 	
-	public String displayComputers() {
-		String resultsStr = "";
+	public RequestResult displayComputers() {
+		rr.reset();
 		String query = "SELECT * FROM computer;";
 		try {
 			ResultSet results = executeQueryCLI(query);
-			resultsStr = "ID | Name | Date intro | Date disc | Comp ID";
+			rr.appendResult("ID | Name | Date intro | Date disc | Comp ID");
 			while (results.next()) {
-				resultsStr += results.getLong("id") + " | " + results.getString("name")
+				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
 					+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
-					+ " | " + results.getLong("company_id") + "%n";
+					+ " | " + results.getLong("company_id") + "%n");
 			}
+			rr.setStatus(0);
 		} catch (SQLException e) {
+			rr.setStatus(1);
 			e.printStackTrace();
-			return "Erreur lors de la requête !";
 		}
 		
-		return resultsStr;
+		return rr;
 	}
 	
-	public String displayCompanies() {
-		String query = "SELECT * FROM company;";
-		String resultsStr = "";
-		
+	public RequestResult displayCompanies() {
+		rr.reset();
+		String query = "SELECT * FROM company;";		
 		try {
 			ResultSet results = executeQueryCLI(query);
-			resultsStr = "ID | Name";
+			rr.appendResult("ID | Name");
 			while (results.next()) {
-				resultsStr += results.getLong("id") + " | " + results.getString("name") + "%n";
+				rr.appendResult(results.getLong("id") + " | " + results.getString("name") + "%n");
 			}
+			rr.setStatus(0);
 		} catch (SQLException e) {
+			rr.setStatus(1);
 			e.printStackTrace();
-			return "Erreur lors de la requête !";
 		}
 		
-		return resultsStr;
+		return rr;
 	}
 	
-	public String findComputer(Long id) {
-		String query = "SELECT * FROM computer WHERE id=" + id + ";";
-		String resultsStr = "Aucun résultat.";
-		
+	public RequestResult findComputer(Long id) {
+		rr.reset();
+		String query = "SELECT * FROM computer WHERE id=" + id + ";";		
 		try {
 			ResultSet results = executeQueryCLI(query);
 			if (results.next()) {
-				resultsStr = "ID | Name | Date intro | Date disc | Comp ID%n";
-				resultsStr += results.getLong("id") + " | " + results.getString("name")
+				rr.appendResult("id | name | introduced | discontinued | company_id%n");
+				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
 				+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
-				+ " | " + results.getLong("company_id");
+				+ " | " + results.getLong("company_id"));
 			}
+			rr.setStatus(0);
 		} catch (SQLException e) {
+			rr.setStatus(1);
 			e.printStackTrace();
-			return "Erreur lors de la requête !%n>";
 		}
-		return resultsStr + "%n>";
+		return rr;
 	}
 	
-	public int createComputer(String name, Date intro, Date disc, Long compId) {
+	public RequestResult createComputer(String name, Date intro, Date disc, Long compId) {
+		rr.reset();
 		String query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
 		query += " VALUES(?, ?, ?, ?);";
 		try {
@@ -111,24 +116,32 @@ public class QueryExecutor {
 			} else {
 				ps.setNull(4, 7);
 			}
-			ps.execute();
+			ps.executeUpdate();
 			conn.commit();
+			rr.setStatus(0);
 		} catch (SQLException e) {
 			if (e instanceof SQLIntegrityConstraintViolationException) {
-				System.err.format("ID Entreprise inconnu.%n");
+				rr.setStatus(2);
 			}
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				System.err.format("Rollback failed.%n");
+				rr.setStatus(3);
 				e1.printStackTrace();
 			}
-			return 1;
 		}
-		return 0;
+		return rr;
 	}
 	
-	public int updateComputer(String arg1, String arg2, String arg3) {
+	public int updateComputer(String newName) {
+		return 1;
+	}
+	
+	public int updateComputer(String dateToUpdate, Date value) {
+		return 1;
+	}
+	
+	public int updateComputer(Long newCompany) {
 		return 1;
 	}
 	
