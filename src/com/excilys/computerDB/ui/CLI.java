@@ -1,14 +1,13 @@
-package ui;
+package com.excilys.computerDB.ui;
 
 import java.io.Console;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import model.RequestResult;
+import com.excilys.computerDB.model.RequestResult;
+import com.excilys.computerDB.persistence.QueryExecutor;
 
 import java.sql.Date;
-
-import persistence.QueryExecutor;
 
 public class CLI {
 	

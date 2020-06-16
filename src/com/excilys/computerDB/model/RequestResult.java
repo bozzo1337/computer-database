@@ -1,4 +1,4 @@
-package model;
+package com.excilys.computerDB.model;
 
 public class RequestResult {
 	private int status;

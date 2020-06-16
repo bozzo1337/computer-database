@@ -1,4 +1,4 @@
-package persistence;
+package com.excilys.computerDB.persistence;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
-import model.RequestResult;
+import com.excilys.computerDB.model.RequestResult;
 
 public class QueryExecutor {
 	

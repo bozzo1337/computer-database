@@ -1,4 +1,4 @@
-package model;
+package com.excilys.computerDB.model;
 
 import java.sql.Date;
 
