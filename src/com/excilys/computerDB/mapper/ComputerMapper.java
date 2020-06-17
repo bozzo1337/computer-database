@@ -1,9 +1,11 @@
 package com.excilys.computerDB.mapper;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.excilys.computerDB.model.Computer;
+import com.excilys.computerDB.model.RequestResult;
 import com.excilys.computerDB.persistence.QueryExecutor;
 
 public class ComputerMapper {
@@ -30,8 +32,12 @@ public class ComputerMapper {
 				if (results.next()) {
 					computer.setId(results.getLong("id"));
 					computer.setName(results.getString("name"));
-					computer.setIntroduced(results.getDate("introduced"));
-					computer.setDiscontinued(results.getDate("discontinued"));
+					Date intro = results.getDate("introduced");
+					if (intro != null)
+						computer.setIntroduced(intro.toLocalDate());
+					Date disc = results.getDate("discontinued");
+					if (disc != null)
+						computer.setDiscontinued(disc.toLocalDate());
 					computer.setCompanyId(results.getLong("company_id"));
 				}
 			} catch (SQLException e) {
@@ -40,5 +46,10 @@ public class ComputerMapper {
 			}
 		}
 		return computer;
+	}
+	
+	public RequestResult updateComputer(Computer comp) {
+		return qe.updateComputer(comp.getId(), comp.getName(), comp.getIntroduced(),
+				comp.getDiscontinued(), comp.getCompanyId());
 	}
 }

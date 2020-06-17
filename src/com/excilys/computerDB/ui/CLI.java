@@ -1,21 +1,22 @@
 package com.excilys.computerDB.ui;
 
 import java.io.Console;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import com.excilys.computerDB.mapper.ComputerMapper;
 import com.excilys.computerDB.model.Computer;
 import com.excilys.computerDB.model.RequestResult;
 import com.excilys.computerDB.persistence.QueryExecutor;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class CLI {
 	
 	private static Console console = System.console();
 	private static QueryExecutor qe = QueryExecutor.getInstance();
 	private static ComputerMapper cm = ComputerMapper.getInstance();
+	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	public static void main(String[] args) {
 		boolean autolog = false; //TODO Dev option ONLY -- TO REMOVE
@@ -143,23 +144,22 @@ public class CLI {
 			System.err.format("Nom requis ! Retour à l'accueil.%n>");
 			return;
 		}
-		console.printf("Date intro (jj/mm/aaaa) :%n>");
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-		Date intro = null;
+		console.printf("LocalDate intro (jj/mm/aaaa) :%n>");
+		LocalDate intro = null;
 		try {
-			intro = new Date(df.parse(console.readLine()).getTime());
-		} catch (ParseException e) {
+			intro = LocalDate.parse(console.readLine(), df);
+		} catch (DateTimeParseException e) {
 			System.err.format("Erreur de format. Valeur par défaut attribuée.%n");
 		}
-		console.printf("Date disc (>intro) :%n>");
-		Date disc = null;
+		console.printf("LocalDate disc (>intro) :%n>");
+		LocalDate disc = null;
 		try {
-			disc = new Date(df.parse(console.readLine()).getTime());
-		} catch (ParseException e) {
+			disc = LocalDate.parse(console.readLine(), df);
+		} catch (DateTimeParseException e) {
 			System.err.format("Erreur de format. Valeur par défaut attribuée.%n");
 		}
 		if (intro != null && disc != null) {
-			if (disc.before(intro)) {
+			if (disc.isBefore(intro)) {
 				disc = null;
 				System.err.format("Erreur de temporalité. Valeur de disc par défaut.%n");
 			}
@@ -182,8 +182,8 @@ public class CLI {
 		}
 		Computer compToUpdate = cm.mapComputer(idRead);
 		String field = "";
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-		Date newDate = null;
+		String newName = compToUpdate.getName();
+		LocalDate newDate = null;
 		do {
 			console.printf("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
 			field = console.readLine();
@@ -193,10 +193,9 @@ public class CLI {
 				break;
 			case "name":
 				console.printf("Nouveau nom :%n>");
-				String newName = console.readLine();
+				newName = console.readLine();
 				if (!newName.trim().isEmpty()) {
-					console.printf(qe.updateComputer(idRead, newName).toString());
-					refreshComputer(idRead);
+					compToUpdate.setName(newName);
 				} else {
 					System.err.format("Nom vide impossible !%n");
 				}
@@ -204,40 +203,35 @@ public class CLI {
 			case "introduced":
 				console.printf("Nouvelle date de mise en service (jj/mm/aaaa) :%n>");
 				try {
-					newDate = new Date(df.parse(console.readLine()).getTime());
-				} catch (ParseException e) {
+					newDate = LocalDate.parse(console.readLine(), df);
+				} catch (DateTimeParseException e) {
 					System.err.format("Erreur de format.%n");
 					break;
 				}
-				if (compToUpdate.getDiscontinued() != null && newDate.after(compToUpdate.getDiscontinued())) {
+				if (compToUpdate.getDiscontinued() != null && newDate.isAfter(compToUpdate.getDiscontinued())) {
 					System.err.format("Problème de temporalité.%n");
 				} else {
-					console.printf(qe.updateComputer(idRead, field, newDate).toString());
-					refreshComputer(idRead);
+					compToUpdate.setIntroduced(newDate);
 				}
 				break;
 			case "discontinued":
 				console.printf("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");			
 				try {
-					newDate = new Date(df.parse(console.readLine()).getTime());
-				} catch (ParseException e) {
+					newDate = LocalDate.parse(console.readLine(), df);
+				} catch (DateTimeParseException e) {
 					System.err.format("Erreur de format.%n");
 					break;
 				}
-				if (compToUpdate.getIntroduced() != null && newDate.before(compToUpdate.getIntroduced())) {
+				if (compToUpdate.getIntroduced() != null && newDate.isBefore(compToUpdate.getIntroduced())) {
 					System.err.format("Problème de temporalité.%n");
 				} else {
-					console.printf(qe.updateComputer(idRead, field, newDate).toString());
-					refreshComputer(idRead);
+					compToUpdate.setDiscontinued(newDate);
 				}
 				break;
 			case "company_id":
 				console.printf("Nouvel identifiant d'entreprise :%n>");
-				Long newCompId;
 				try {
-					newCompId = Long.valueOf(console.readLine());
-					console.printf(qe.updateComputer(idRead, newCompId).toString());
-					refreshComputer(idRead);
+					compToUpdate.setCompanyId(Long.valueOf(console.readLine()));
 				} catch (NumberFormatException e) {
 					console.printf("ID invalide.%n");
 				}
@@ -249,6 +243,7 @@ public class CLI {
 				console.printf("Champ non reconnu.%n");
 			}
 		} while (!field.equals("ok"));
+		console.printf(cm.updateComputer(compToUpdate).toString());
 		
 	}
 	

@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
+import java.time.LocalDate;
+
 import com.excilys.computerDB.model.RequestResult;
 
 public class QueryExecutor {
@@ -62,7 +64,7 @@ public class QueryExecutor {
 		query = "SELECT * FROM computer;";
 		try {
 			ResultSet results = simpleQuery(query);
-			rr.appendResult("ID | Name | Date intro | Date disc | Comp ID");
+			rr.appendResult("ID | Name | LocalDate intro | LocalDate disc | Comp ID");
 			while (results.next()) {
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
 					+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
@@ -128,15 +130,15 @@ public class QueryExecutor {
 		return results;
 	}
 	
-	public RequestResult createComputer(String name, Date intro, Date disc, Long compId) {
+	public RequestResult createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
 		rr.reset();
 		query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
 		query += " VALUES(?, ?, ?, ?);";
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
 			ps.setString(1, name);
-			ps.setDate(2, intro);
-			ps.setDate(3, disc);
+			ps.setDate(2, Date.valueOf(intro));
+			ps.setDate(3, Date.valueOf(disc));
 			if (compId != null) {
 				ps.setLong(4, compId);
 			} else {
@@ -147,6 +149,40 @@ public class QueryExecutor {
 			rr.setStatus(0);
 			rr.setResult("Création réussie.%n");
 		} catch (SQLException e) {
+			rr.setResult("Echec de la création.%n");
+			if (e instanceof SQLIntegrityConstraintViolationException) {
+				rr.setStatus(2);
+			}
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				rr.setStatus(3);
+				e1.printStackTrace();
+			}
+		}
+		return rr;
+	}
+	
+	public RequestResult updateComputer(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
+		rr.reset();
+		query = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?;";
+		try {
+			PreparedStatement ps = conn.prepareStatement(query);
+			ps.setString(1, name);
+			ps.setDate(2, Date.valueOf(intro));
+			ps.setDate(3, Date.valueOf(disc));
+			if (compId != null) {
+				ps.setLong(4, compId);
+			} else {
+				ps.setNull(4, 7);
+			}
+			ps.setLong(5, id);
+			ps.executeUpdate();
+			conn.commit();
+			rr.setStatus(0);
+			rr.setResult("Mise à jour réussie.%n");
+		} catch (SQLException e) {
+			rr.setResult("Echec de la mise à jour.%n");
 			if (e instanceof SQLIntegrityConstraintViolationException) {
 				rr.setStatus(2);
 			}
@@ -184,12 +220,12 @@ public class QueryExecutor {
 		return rr;
 	}
 	
-	public RequestResult updateComputer(Long id, String dateToUpdate, Date value) {
+	public RequestResult updateComputer(Long id, String dateToUpdate, LocalDate value) {
 		rr.reset();
 		query = "UPDATE computer SET " + dateToUpdate + "=? WHERE id=?;";
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);	
-			ps.setDate(1, value);
+			ps.setDate(1, Date.valueOf(value));
 			ps.setLong(2, id);
 			ps.executeUpdate();
 			conn.commit();
