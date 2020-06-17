@@ -17,7 +17,7 @@ public class Page {
 	
 	private Page() {
 		idxPage = 0;
-		compPerPage = 50;
+		compPerPage = 20;
 		computers = new ArrayList<Computer>();
 	}
 	
@@ -45,16 +45,16 @@ public class Page {
 	
 	public void init() {
 		ResultSet rs = QueryExecutor.getInstance().computerCount();
-		int nbComps = 0;
+		double nbComps = 0;
 		try {
 			rs.next();
-			nbComps = rs.getInt("compcount");
+			nbComps = rs.getDouble("compcount");
 			rs.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		idxMaxPage = (int) (Math.ceil(Double.valueOf(nbComps) / Double.valueOf(compPerPage)) - 1);
+		idxMaxPage = (int) (Math.ceil(nbComps / compPerPage) - 1);
 		idxPage = 0;
 	}
 	

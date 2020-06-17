@@ -95,6 +95,7 @@ public class CLI {
 	
 	private static void commandComputers() {
 		String input = "";
+		pageComp.init();
 		do {
 			pageComp.fill();
 			console.printf("Page n°" + (pageComp.getIdxPage() + 1) + "/" + (pageComp.getIdxMaxPage() + 1) + "%n");
