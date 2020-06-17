@@ -137,13 +137,18 @@ public class QueryExecutor {
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
 			ps.setString(1, name);
-			ps.setDate(2, Date.valueOf(intro));
-			ps.setDate(3, Date.valueOf(disc));
-			if (compId != null) {
+			if (intro != null)
+				ps.setDate(2, Date.valueOf(intro));
+			else
+				ps.setNull(2, java.sql.Types.DATE);
+			if (disc != null)
+				ps.setDate(3, Date.valueOf(disc));
+			else
+				ps.setNull(3, java.sql.Types.DATE);
+			if (compId != null)
 				ps.setLong(4, compId);
-			} else {
-				ps.setNull(4, 7);
-			}
+			else
+				ps.setNull(4, java.sql.Types.BIGINT);
 			ps.executeUpdate();
 			conn.commit();
 			rr.setStatus(0);
@@ -152,6 +157,7 @@ public class QueryExecutor {
 			rr.setResult("Echec de la création.%n");
 			if (e instanceof SQLIntegrityConstraintViolationException) {
 				rr.setStatus(2);
+				rr.setResult("ID de l'entreprise invalide.%n");
 			}
 			try {
 				conn.rollback();
@@ -169,13 +175,18 @@ public class QueryExecutor {
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
 			ps.setString(1, name);
-			ps.setDate(2, Date.valueOf(intro));
-			ps.setDate(3, Date.valueOf(disc));
-			if (compId != null) {
+			if (intro != null)
+				ps.setDate(2, Date.valueOf(intro));
+			else
+				ps.setNull(2, java.sql.Types.DATE);
+			if (disc != null)
+				ps.setDate(3, Date.valueOf(disc));
+			else
+				ps.setNull(3, java.sql.Types.DATE);
+			if (compId != null)
 				ps.setLong(4, compId);
-			} else {
-				ps.setNull(4, 7);
-			}
+			else
+				ps.setNull(4, java.sql.Types.BIGINT);
 			ps.setLong(5, id);
 			ps.executeUpdate();
 			conn.commit();
@@ -185,79 +196,7 @@ public class QueryExecutor {
 			rr.setResult("Echec de la mise à jour.%n");
 			if (e instanceof SQLIntegrityConstraintViolationException) {
 				rr.setStatus(2);
-			}
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				rr.setStatus(3);
-				e1.printStackTrace();
-			}
-		}
-		return rr;
-	}
-	
-	public RequestResult updateComputer(Long id, String newName) {
-		rr.reset();
-		query = "UPDATE computer SET name=? WHERE id=?;";
-		try {
-			PreparedStatement ps = conn.prepareStatement(query);	
-			ps.setString(1, newName);
-			ps.setLong(2, id);
-			ps.executeUpdate();
-			conn.commit();
-			rr.setStatus(0);
-			rr.setResult("Mise à jour réussie.%n");
-		} catch (SQLException e) {
-			rr.setStatus(1);
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				rr.setStatus(3);
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		return rr;
-	}
-	
-	public RequestResult updateComputer(Long id, String dateToUpdate, LocalDate value) {
-		rr.reset();
-		query = "UPDATE computer SET " + dateToUpdate + "=? WHERE id=?;";
-		try {
-			PreparedStatement ps = conn.prepareStatement(query);	
-			ps.setDate(1, Date.valueOf(value));
-			ps.setLong(2, id);
-			ps.executeUpdate();
-			conn.commit();
-			rr.setStatus(0);
-			rr.setResult("Mise à jour réussie.%n");
-		} catch (SQLException e) {
-			rr.setStatus(1);
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				rr.setStatus(3);
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		return rr;
-	}
-	
-	public RequestResult updateComputer(Long id, Long newCompany) {
-		rr.reset();
-		query = "UPDATE computer SET company_id=? WHERE id=?;";
-		try {
-			PreparedStatement ps = conn.prepareStatement(query);	
-			ps.setLong(1, newCompany);
-			ps.setLong(2, id);
-			ps.executeUpdate();
-			conn.commit();
-			rr.setStatus(0);
-			rr.setResult("Mise à jour réussie.%n");
-		} catch (SQLException e) {
-			if (e instanceof SQLIntegrityConstraintViolationException) {
-				rr.setStatus(2);
+				rr.setResult("ID d'entreprise invalide.%n");
 			}
 			try {
 				conn.rollback();

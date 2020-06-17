@@ -129,13 +129,7 @@ public class CLI {
 		}
 		return idRead = (rr.getStatus() == 0 ? idRead : new Long(0));
 	}
-	
-	private static void refreshComputer(Long validId) {
-		RequestResult rr = new RequestResult();
-		rr = qe.findComputer(validId);
-		console.printf(rr.toString() + "%n>");
-	}
-	
+
 	private static void commandCreate() {
 		console.printf("Création d'un nouvel ordinateur :%n");
 		console.printf("Nom (requis) :%n>");
@@ -209,7 +203,7 @@ public class CLI {
 					break;
 				}
 				if (compToUpdate.getDiscontinued() != null && newDate.isAfter(compToUpdate.getDiscontinued())) {
-					System.err.format("Problème de temporalité.%n");
+					System.err.format("Erreur : Problème de temporalité.%n");
 				} else {
 					compToUpdate.setIntroduced(newDate);
 				}
@@ -223,7 +217,7 @@ public class CLI {
 					break;
 				}
 				if (compToUpdate.getIntroduced() != null && newDate.isBefore(compToUpdate.getIntroduced())) {
-					System.err.format("Problème de temporalité.%n");
+					System.err.format("Erreur : Problème de temporalité.%n");
 				} else {
 					compToUpdate.setDiscontinued(newDate);
 				}
@@ -237,13 +231,14 @@ public class CLI {
 				}
 				break;
 			case "ok":
-				console.printf("Modification(s) terminée(s).%n>");
+				console.printf("Modification(s) terminée(s).%n");
 				break;
 			default:
 				console.printf("Champ non reconnu.%n");
 			}
+			console.printf(compToUpdate.toString() + "%n");
 		} while (!field.equals("ok"));
-		console.printf(cm.updateComputer(compToUpdate).toString());
+		console.printf(cm.updateComputer(compToUpdate).toString() + ">");
 		
 	}
 	

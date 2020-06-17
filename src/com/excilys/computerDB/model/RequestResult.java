@@ -36,10 +36,6 @@ public class RequestResult {
 	
 	@Override
 	public String toString() {
-		if (status == 0) {
-			return result;
-		} else {
-			return "Erreur lors de la requête.%n";
-		}
+		return result;
 	}
 }

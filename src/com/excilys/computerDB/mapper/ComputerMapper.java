@@ -38,7 +38,11 @@ public class ComputerMapper {
 					Date disc = results.getDate("discontinued");
 					if (disc != null)
 						computer.setDiscontinued(disc.toLocalDate());
-					computer.setCompanyId(results.getLong("company_id"));
+					Long companyId = results.getLong("company_id");
+					if (companyId == 0)
+						computer.setCompanyId(null);
+					else
+						computer.setCompanyId(companyId);
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
