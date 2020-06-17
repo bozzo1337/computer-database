@@ -13,11 +13,11 @@ public class Page {
 	private int idxPage;
 	private ArrayList<Computer> computers;
 	private int compPerPage;
-	private int maxPage;
+	private int idxMaxPage;
 	
 	private Page() {
 		idxPage = 0;
-		compPerPage = 20;
+		compPerPage = 50;
 		computers = new ArrayList<Computer>();
 	}
 	
@@ -38,12 +38,12 @@ public class Page {
 	}
 	
 	public void nextPage() {
-		if (idxPage != maxPage) {
+		if (idxPage != idxMaxPage) {
 			idxPage++;
 		}
 	}
 	
-	public void maxPageInit() {
+	public void init() {
 		ResultSet rs = QueryExecutor.getInstance().computerCount();
 		int nbComps = 0;
 		try {
@@ -54,14 +54,23 @@ public class Page {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		maxPage = (int) Math.ceil(nbComps / compPerPage);
+		idxMaxPage = (int) (Math.ceil(Double.valueOf(nbComps) / Double.valueOf(compPerPage)) - 1);
+		idxPage = 0;
+	}
+	
+	public int getIdxPage() {
+		return idxPage;
+	}
+	
+	public int getIdxMaxPage() {
+		return idxMaxPage;
 	}
 	
 	@Override
 	public String toString() {
-		String output = "";
+		String output = "ID | Name | LocalDate intro | LocalDate disc | Comp ID%n";
 		for (Computer comp : computers) {
-			output += comp.toString();
+			output += comp.toString() + "%n";
 		}
 		return output;
 	}

@@ -4,6 +4,7 @@ import java.io.Console;
 
 import com.excilys.computerDB.mapper.ComputerMapper;
 import com.excilys.computerDB.model.Computer;
+import com.excilys.computerDB.model.Page;
 import com.excilys.computerDB.model.RequestResult;
 import com.excilys.computerDB.persistence.QueryExecutor;
 
@@ -17,6 +18,7 @@ public class CLI {
 	private static QueryExecutor qe = QueryExecutor.getInstance();
 	private static ComputerMapper cm = ComputerMapper.getInstance();
 	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static Page pageComp = Page.getInstance();
 	
 	public static void main(String[] args) {
 		boolean autolog = false; //TODO Dev option ONLY -- TO REMOVE
@@ -109,7 +111,28 @@ public class CLI {
 	}
 	
 	private static void commandComputers() {
-		console.printf(qe.displayComputers() + ">");
+		//console.printf(qe.displayComputers() + ">"); OLD - pas de pagination
+		pageComp.init();
+		String input = "";
+		do {
+			pageComp.fill();
+			console.printf("Page n°" + (pageComp.getIdxPage() + 1) + "/" + (pageComp.getIdxMaxPage() + 1) + "%n");
+			console.printf(pageComp.toString());
+			console.printf("Page suivante : n, Page précédente : p, Quitter : q%n>");
+			switch (input = console.readLine()) {
+			case "n":
+				pageComp.nextPage();
+				break;
+			case "p":
+				pageComp.previousPage();
+				break;
+			case "q":
+				break;
+			default:
+				console.printf("Commande non reconnue.%n");
+			}
+		} while (!input.equals("q"));
+		console.printf(">");
 	}
 	
 	private static void commandCompanies() {

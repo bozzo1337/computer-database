@@ -231,7 +231,7 @@ public class QueryExecutor {
 	}
 	
 	public ResultSet retrieveComputers(int batchSize, int idxNum) {
-		query = "SELECT * FROM computer LIMIT " + batchSize + ", " + idxNum * batchSize +";";
+		query = "SELECT * FROM computer LIMIT " + idxNum * batchSize + ", " + batchSize +";";
 		ResultSet results = null;
 		try {
 			Statement stmt = conn.prepareCall(query);
