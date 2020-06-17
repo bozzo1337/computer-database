@@ -64,7 +64,7 @@ public class QueryExecutor {
 		query = "SELECT * FROM computer;";
 		try {
 			ResultSet results = simpleQuery(query);
-			rr.appendResult("ID | Name | LocalDate intro | LocalDate disc | Comp ID");
+			rr.setResult("ID | Name | LocalDate intro | LocalDate disc | Comp ID%n");
 			while (results.next()) {
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
 					+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
@@ -84,7 +84,7 @@ public class QueryExecutor {
 		query = "SELECT * FROM company;";		
 		try {
 			ResultSet results = simpleQuery(query);
-			rr.appendResult("ID | Name");
+			rr.setResult("ID | Name%n");
 			while (results.next()) {
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name") + "%n");
 			}
@@ -107,10 +107,10 @@ public class QueryExecutor {
 				rr.appendResult("id | name | introduced | discontinued | company_id%n");
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
 				+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
-				+ " | " + results.getLong("company_id"));
+				+ " | " + results.getLong("company_id") + "%n");
 			} else {
 				rr.setStatus(1);
-				rr.setResult("Aucun résultat.");
+				rr.setResult("Aucun résultat.%n");
 			}
 		} catch (SQLException e) {
 			rr.setStatus(1);
@@ -125,7 +125,7 @@ public class QueryExecutor {
 		try {
 			results = simpleQuery(query);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.format("Erreur requête mapping.%n");
 		}
 		return results;
 	}
@@ -163,7 +163,7 @@ public class QueryExecutor {
 				conn.rollback();
 			} catch (SQLException e1) {
 				rr.setStatus(3);
-				e1.printStackTrace();
+				rr.appendResult("Echec du rollback.%n");
 			}
 		}
 		return rr;
@@ -202,14 +202,32 @@ public class QueryExecutor {
 				conn.rollback();
 			} catch (SQLException e1) {
 				rr.setStatus(3);
-				e1.printStackTrace();
+				rr.appendResult("Echec du rollback.%n");
 			}
 		}
 		return rr;
 	}
 	
-	public int deleteComputer(String arg1) {
-		return 1;
+	public RequestResult deleteComputer(Long id) {
+		rr.reset();
+		query = "DELETE FROM computer WHERE id=" + id + ";";
+		try {
+			Statement stmt = conn.createStatement();
+			stmt.executeUpdate(query);
+			conn.commit();
+			rr.setStatus(0);
+			rr.setResult("Suppression validée.%n");
+		} catch (SQLException e) {
+			rr.setResult("Echec de la suppression.%n");
+			rr.setStatus(1);
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				rr.setStatus(3);
+				rr.appendResult("Echec du rollback.%n");
+			}
+		}
+		return rr;
 	}
 	
 }

@@ -116,18 +116,18 @@ public class CLI {
 		console.printf(qe.displayCompanies() + ">");
 	}
 	
-	private static Long commandComputer() {
+	private static void commandComputer() {
 		console.printf("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = null;
 		RequestResult rr = new RequestResult();
 		try {
 			idRead = Long.valueOf(console.readLine());
-			rr = qe.findComputer(idRead);
-			console.printf(rr.toString() + "%n>");
 		} catch (NumberFormatException e) {
 			System.err.format("Format d'ID invalide.%n>");
+			return;
 		}
-		return idRead = (rr.getStatus() == 0 ? idRead : new Long(0));
+		rr = qe.findComputer(idRead);
+		console.printf(rr.toString() + ">");
 	}
 
 	private static void commandCreate() {
@@ -145,7 +145,7 @@ public class CLI {
 		} catch (DateTimeParseException e) {
 			System.err.format("Erreur de format. Valeur par défaut attribuée.%n");
 		}
-		console.printf("LocalDate disc (>intro) :%n>");
+		console.printf("LocalDate disc (>= intro) :%n>");
 		LocalDate disc = null;
 		try {
 			disc = LocalDate.parse(console.readLine(), df);
@@ -170,10 +170,18 @@ public class CLI {
 	
 	private static void commandUpdate() {
 		console.printf("Mise à jour d'un ordinateur :%n");
-		Long idRead = commandComputer();
-		while (idRead == 0) {
-			idRead = commandComputer();
-		}
+		Long idRead = null;
+		RequestResult rr = new RequestResult();
+		do {
+			console.printf("Sélection d'un ordinateur par ID :%n>");
+			try {
+				idRead = Long.valueOf(console.readLine());
+				rr = qe.findComputer(idRead);
+				console.printf(rr.toString() + "%n>");
+			} catch (NumberFormatException e) {
+				System.err.format("Format d'ID invalide.%n>");
+			}
+		} while (rr.getStatus() != 0);
 		Computer compToUpdate = cm.mapComputer(idRead);
 		String field = "";
 		String newName = compToUpdate.getName();
@@ -244,12 +252,27 @@ public class CLI {
 	
 	private static void commandDelete() {
 		console.printf("Suppression d'un ordinateur :%n");
-		console.printf("id :%n>");
-		String id = console.readLine();
-		if(qe.deleteComputer(id) == 0) {
-			console.printf("Suppression réussie.%n>");
+		console.printf("Sélection d'un ordinateur par ID :%n>");
+		Long idRead = null;
+		RequestResult rr = new RequestResult();
+		try {
+			idRead = Long.valueOf(console.readLine());
+		} catch (NumberFormatException e) {
+			System.err.format("Format d'ID invalide.%n>");
+			return;
+		}
+		rr = qe.findComputer(idRead);
+		if (rr.getStatus() != 0) {
+			console.printf(rr.toString());
+			return;
+		}
+		console.printf("Ordinateur sélectionné :%n");
+		console.printf(rr.toString());
+		console.printf("Confirmation de la suppression ? (y/n)%n>");
+		if (console.readLine().contentEquals("y")) {
+			console.printf(qe.deleteComputer(idRead).toString() + ">");
 		} else {
-			console.printf("Echec de la suppression.%n>");
+			console.printf("Suppression annulée.%n>");
 		}
 	}
 	
