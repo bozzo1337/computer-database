@@ -12,11 +12,19 @@ import com.excilys.computerDB.model.RequestResult;
 
 public class QueryExecutor {
 	
+	private static QueryExecutor singleInstance = null;
 	private Connection conn;
 	private RequestResult rr;
 	private String query;
 
-	public QueryExecutor() {
+	public static QueryExecutor getInstance() {
+		if (singleInstance == null) {
+			singleInstance = new QueryExecutor();
+		}
+		return singleInstance;
+	}
+	
+	private QueryExecutor() {
 		conn = null;
 		rr = new RequestResult();
 		query = "";
@@ -32,7 +40,7 @@ public class QueryExecutor {
 		}
 	}
 	
-	private ResultSet executeQueryCLI(String query) throws SQLException {
+	private ResultSet simpleQuery(String query) throws SQLException {
 		ResultSet results;
 		Statement stmt;
 		stmt = conn.createStatement();
@@ -53,7 +61,7 @@ public class QueryExecutor {
 		rr.reset();
 		query = "SELECT * FROM computer;";
 		try {
-			ResultSet results = executeQueryCLI(query);
+			ResultSet results = simpleQuery(query);
 			rr.appendResult("ID | Name | Date intro | Date disc | Comp ID");
 			while (results.next()) {
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
@@ -73,7 +81,7 @@ public class QueryExecutor {
 		rr.reset();
 		query = "SELECT * FROM company;";		
 		try {
-			ResultSet results = executeQueryCLI(query);
+			ResultSet results = simpleQuery(query);
 			rr.appendResult("ID | Name");
 			while (results.next()) {
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name") + "%n");
@@ -91,19 +99,33 @@ public class QueryExecutor {
 		rr.reset();
 		query = "SELECT * FROM computer WHERE id=" + id + ";";		
 		try {
-			ResultSet results = executeQueryCLI(query);
+			ResultSet results = simpleQuery(query);
 			if (results.next()) {
+				rr.setStatus(0);
 				rr.appendResult("id | name | introduced | discontinued | company_id%n");
 				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
 				+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
 				+ " | " + results.getLong("company_id"));
+			} else {
+				rr.setStatus(1);
+				rr.setResult("Aucun résultat.");
 			}
-			rr.setStatus(0);
 		} catch (SQLException e) {
 			rr.setStatus(1);
 			e.printStackTrace();
 		}
 		return rr;
+	}
+	
+	public ResultSet findComputerToMap(Long id) {
+		query = "SELECT * FROM computer WHERE id=" + id + ";";
+		ResultSet results = null;
+		try {
+			results = simpleQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return results;
 	}
 	
 	public RequestResult createComputer(String name, Date intro, Date disc, Long compId) {
@@ -162,8 +184,28 @@ public class QueryExecutor {
 		return rr;
 	}
 	
-	public int updateComputer(Long id, String dateToUpdate, Date value) {
-		return 1;
+	public RequestResult updateComputer(Long id, String dateToUpdate, Date value) {
+		rr.reset();
+		query = "UPDATE computer SET " + dateToUpdate + "=? WHERE id=?;";
+		try {
+			PreparedStatement ps = conn.prepareStatement(query);	
+			ps.setDate(1, value);
+			ps.setLong(2, id);
+			ps.executeUpdate();
+			conn.commit();
+			rr.setStatus(0);
+			rr.setResult("Mise à jour réussie.%n");
+		} catch (SQLException e) {
+			rr.setStatus(1);
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				rr.setStatus(3);
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		return rr;
 	}
 	
 	public RequestResult updateComputer(Long id, Long newCompany) {

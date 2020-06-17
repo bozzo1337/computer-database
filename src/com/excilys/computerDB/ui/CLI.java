@@ -4,6 +4,8 @@ import java.io.Console;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import com.excilys.computerDB.mapper.ComputerMapper;
+import com.excilys.computerDB.model.Computer;
 import com.excilys.computerDB.model.RequestResult;
 import com.excilys.computerDB.persistence.QueryExecutor;
 
@@ -12,22 +14,30 @@ import java.sql.Date;
 public class CLI {
 	
 	private static Console console = System.console();
-	private static QueryExecutor cli = new QueryExecutor();
+	private static QueryExecutor qe = QueryExecutor.getInstance();
+	private static ComputerMapper cm = ComputerMapper.getInstance();
 	
 	public static void main(String[] args) {
-		boolean autolog = false; //Dev option ONLY -- TO REMOVE
+		boolean autolog = false; //TODO Dev option ONLY -- TO REMOVE
 		if (args.length != 0) {
 			switch (args[0]) {
-			case "nolaunch": //To Compile with Eclipse without NullPointerE from System.console
+			case "nolaunch": //TODO To Compile with Eclipse without NullPointerE from System.console
 				System.out.println("No-Launch activated // Remove arg to disable.");
 				System.exit(0);
-			case "autolog": //Lazy login
+			case "autolog": //TODO Lazy login
 				autolog = !autolog;
 				break;
 			default:		
-			}
-			
+			}	
 		}
+		login(autolog);
+		console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
+		for (;;) {
+			nextCommand(console.readLine());
+		}
+	}
+	
+	private static void login(boolean autolog) {//TODO Remove arg
 		String login = "";
 		String password = "";
 		int resultConn = -1;
@@ -44,18 +54,14 @@ public class CLI {
 			console.printf("Password :%n>");
 			password = new String(console.readPassword());
 			console.printf("Connexion à la base...%n");
-			//DEV ONLY -- TO REMOVE
+			//TODO DEV ONLY -- TO REMOVE
 			if (autolog) {
 				login = "admincdb";
 				password = "qwerty1234";
 			}
-		} while ((resultConn = cli.initConn(login, password)) != 0);
+		} while ((resultConn = qe.initConn(login, password)) != 0);
 		password = "";
 		console.printf("Connexion OK%n");
-		console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
-		for (;;) {
-			nextCommand(console.readLine());
-		}
 	}
 
 	private static void nextCommand(String command) {
@@ -102,11 +108,11 @@ public class CLI {
 	}
 	
 	private static void commandComputers() {
-		console.printf(cli.displayComputers() + ">");
+		console.printf(qe.displayComputers() + ">");
 	}
 	
 	private static void commandCompanies() {
-		console.printf(cli.displayCompanies() + ">");
+		console.printf(qe.displayCompanies() + ">");
 	}
 	
 	private static Long commandComputer() {
@@ -115,7 +121,7 @@ public class CLI {
 		RequestResult rr = new RequestResult();
 		try {
 			idRead = Long.valueOf(console.readLine());
-			rr = cli.findComputer(idRead);
+			rr = qe.findComputer(idRead);
 			console.printf(rr.toString() + "%n>");
 		} catch (NumberFormatException e) {
 			System.err.format("Format d'ID invalide.%n>");
@@ -125,7 +131,7 @@ public class CLI {
 	
 	private static void refreshComputer(Long validId) {
 		RequestResult rr = new RequestResult();
-		rr = cli.findComputer(validId);
+		rr = qe.findComputer(validId);
 		console.printf(rr.toString() + "%n>");
 	}
 	
@@ -152,6 +158,12 @@ public class CLI {
 		} catch (ParseException e) {
 			System.err.format("Erreur de format. Valeur par défaut attribuée.%n");
 		}
+		if (intro != null && disc != null) {
+			if (disc.before(intro)) {
+				disc = null;
+				System.err.format("Erreur de temporalité. Valeur de disc par défaut.%n");
+			}
+		}
 		Long compId = null;
 		console.printf("ID de l'entreprise :%n>");
 		try {
@@ -159,7 +171,7 @@ public class CLI {
 		} catch (NumberFormatException e) {
 			System.err.format("ID invalide, valeur par défaut attribuée.%n");
 		}
-		console.printf(cli.createComputer(name, intro, disc, compId).toString() + ">");	
+		console.printf(qe.createComputer(name, intro, disc, compId).toString() + ">");	
 	}
 	
 	private static void commandUpdate() {
@@ -168,7 +180,10 @@ public class CLI {
 		while (idRead == 0) {
 			idRead = commandComputer();
 		}
+		Computer compToUpdate = cm.mapComputer(idRead);
 		String field = "";
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		Date newDate = null;
 		do {
 			console.printf("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
 			field = console.readLine();
@@ -180,23 +195,48 @@ public class CLI {
 				console.printf("Nouveau nom :%n>");
 				String newName = console.readLine();
 				if (!newName.trim().isEmpty()) {
-					console.printf(cli.updateComputer(idRead, newName).toString());
+					console.printf(qe.updateComputer(idRead, newName).toString());
 					refreshComputer(idRead);
 				} else {
 					System.err.format("Nom vide impossible !%n");
 				}
 				break;
 			case "introduced":
-				console.printf("Nouvelle date de mise en service :%n>");
+				console.printf("Nouvelle date de mise en service (jj/mm/aaaa) :%n>");
+				try {
+					newDate = new Date(df.parse(console.readLine()).getTime());
+				} catch (ParseException e) {
+					System.err.format("Erreur de format.%n");
+					break;
+				}
+				if (compToUpdate.getDiscontinued() != null && newDate.after(compToUpdate.getDiscontinued())) {
+					System.err.format("Problème de temporalité.%n");
+				} else {
+					console.printf(qe.updateComputer(idRead, field, newDate).toString());
+					refreshComputer(idRead);
+				}
 				break;
 			case "discontinued":
+				console.printf("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");			
+				try {
+					newDate = new Date(df.parse(console.readLine()).getTime());
+				} catch (ParseException e) {
+					System.err.format("Erreur de format.%n");
+					break;
+				}
+				if (compToUpdate.getIntroduced() != null && newDate.before(compToUpdate.getIntroduced())) {
+					System.err.format("Problème de temporalité.%n");
+				} else {
+					console.printf(qe.updateComputer(idRead, field, newDate).toString());
+					refreshComputer(idRead);
+				}
 				break;
 			case "company_id":
 				console.printf("Nouvel identifiant d'entreprise :%n>");
 				Long newCompId;
 				try {
 					newCompId = Long.valueOf(console.readLine());
-					console.printf(cli.updateComputer(idRead, newCompId).toString());
+					console.printf(qe.updateComputer(idRead, newCompId).toString());
 					refreshComputer(idRead);
 				} catch (NumberFormatException e) {
 					console.printf("ID invalide.%n");
@@ -216,7 +256,7 @@ public class CLI {
 		console.printf("Suppression d'un ordinateur :%n");
 		console.printf("id :%n>");
 		String id = console.readLine();
-		if(cli.deleteComputer(id) == 0) {
+		if(qe.deleteComputer(id) == 0) {
 			console.printf("Suppression réussie.%n>");
 		} else {
 			console.printf("Echec de la suppression.%n>");
@@ -225,7 +265,7 @@ public class CLI {
 	
 	private static void commandQuit() {
 		console.printf("Fermeture de la connexion...%n");
-		if (cli.closeConn() == 0) {
+		if (qe.closeConn() == 0) {
 			console.printf("Fin de connexion OK, au revoir !%n");
 			System.exit(0);
 		} else {
