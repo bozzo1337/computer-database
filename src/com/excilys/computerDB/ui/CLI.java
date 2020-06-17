@@ -19,14 +19,26 @@ public class CLI {
 	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	public static void main(String[] args) {
-		login();
+		boolean autolog = false; //TODO Dev option ONLY -- TO REMOVE
+		if (args.length != 0) {
+			switch (args[0]) {
+			case "nolaunch": //TODO To Compile with Eclipse without NullPointerE from System.console
+				System.out.println("No-Launch activated // Remove arg to disable.");
+				System.exit(0);
+			case "autolog": //TODO Lazy login
+				autolog = !autolog;
+				break;
+			default:		
+			}	
+		}
+		login(autolog);
 		console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
 		for (;;) {
 			nextCommand(console.readLine());
 		}
 	}
 	
-	private static void login() {
+	private static void login(boolean autolog) {//TODO Remove arg
 		String login = "";
 		String password = "";
 		int resultConn = -1;
@@ -43,6 +55,11 @@ public class CLI {
 			console.printf("Password :%n>");
 			password = new String(console.readPassword());
 			console.printf("Connexion à la base...%n");
+			//TODO DEV ONLY -- TO REMOVE
+			if (autolog) {
+				login = "admincdb";
+				password = "qwerty1234";
+			}
 		} while ((resultConn = qe.initConn(login, password)) != 0);
 		password = "";
 		console.printf("Connexion OK%n");

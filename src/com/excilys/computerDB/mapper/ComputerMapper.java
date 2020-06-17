@@ -3,6 +3,7 @@ package com.excilys.computerDB.mapper;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import com.excilys.computerDB.model.Computer;
 import com.excilys.computerDB.model.RequestResult;
@@ -50,6 +51,34 @@ public class ComputerMapper {
 			}
 		}
 		return computer;
+	}
+	
+	public ArrayList<Computer> retrieveComputers(int compPerPage, int idxPage) {
+		ArrayList<Computer> listComp = new ArrayList<Computer>();
+		ResultSet results = qe.retrieveComputers(compPerPage, idxPage);
+		try {
+			while (results.next()) {
+				Computer comp = new Computer();
+				comp.setId(results.getLong("id"));
+				comp.setName(results.getString("name"));
+				Date intro = results.getDate("introduced");
+				if (intro != null)
+					comp.setIntroduced(intro.toLocalDate());
+				Date disc = results.getDate("discontinued");
+				if (disc != null)
+					comp.setDiscontinued(disc.toLocalDate());
+				Long companyId = results.getLong("company_id");
+				if (companyId == 0)
+					comp.setCompanyId(null);
+				else
+					comp.setCompanyId(companyId);
+				listComp.add(comp);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return listComp;
 	}
 	
 	public RequestResult updateComputer(Computer comp) {

@@ -230,4 +230,28 @@ public class QueryExecutor {
 		return rr;
 	}
 	
+	public ResultSet retrieveComputers(int batchSize, int idxNum) {
+		query = "SELECT * FROM computer LIMIT " + batchSize + ", " + idxNum * batchSize +";";
+		ResultSet results = null;
+		try {
+			Statement stmt = conn.prepareCall(query);
+			results = stmt.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+	
+	public ResultSet computerCount() {
+		query = "SELECT COUNT(*) AS compcount FROM computer;";
+		ResultSet results = null;
+		try {
+			Statement stmt = conn.prepareCall(query);
+			results = stmt.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+	
 }
