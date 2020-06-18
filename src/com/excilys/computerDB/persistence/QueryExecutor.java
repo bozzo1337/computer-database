@@ -253,5 +253,4 @@ public class QueryExecutor {
 		}
 		return results;
 	}
-	
 }
