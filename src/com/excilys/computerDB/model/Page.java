@@ -1,65 +1,47 @@
 package com.excilys.computerDB.model;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.excilys.computerDB.mapper.ComputerMapper;
-import com.excilys.computerDB.persistence.QueryExecutor;
+import com.excilys.computerDB.persistence.DAO;
 
-public class Page {
+public class Page<T> {
 
-	private static Page singleInstance = null;
-	private int idxPage;
-	private ArrayList<Computer> computers;
-	private int compPerPage;
+	private DAO<T> dao;
+	private List<T> entities;
+	private int entitiesPerPage;
+	private int idxCurrentPage;
 	private int idxMaxPage;
 	
-	private Page() {
-		idxPage = 0;
-		compPerPage = 20;
-		computers = new ArrayList<Computer>();
-	}
-	
-	public static Page getInstance() {
-		if (singleInstance == null)
-			singleInstance = new Page();
-		return singleInstance;
+	public Page() {
+		idxCurrentPage = 0;
+		entitiesPerPage = 20;
+		entities = new ArrayList<T>();
 	}
 	
 	public void fill() {
-		computers = ComputerMapper.getInstance().retrieveComputers(compPerPage, idxPage);
+		entities = dao.findBatch(entitiesPerPage, idxCurrentPage);
 	}
 	
 	public void previousPage() {
-		if (idxPage != 0) {
-			idxPage--;
+		if (idxCurrentPage != 0) {
+			idxCurrentPage--;
 		}
 	}
 	
 	public void nextPage() {
-		if (idxPage != idxMaxPage) {
-			idxPage++;
+		if (idxCurrentPage != idxMaxPage) {
+			idxCurrentPage++;
 		}
 	}
 	
 	public void init() {
-		ResultSet rs = QueryExecutor.getInstance().computerCount();
-		double nbComps = 0;
-		try {
-			rs.next();
-			nbComps = rs.getDouble("compcount");
-			rs.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		idxMaxPage = (int) (Math.ceil(nbComps / compPerPage) - 1);
-		idxPage = 0;
+		idxMaxPage = (int) (Math.ceil(dao.getCount() / entitiesPerPage) - 1);
+		idxCurrentPage = 0;
 	}
 	
 	public int getIdxPage() {
-		return idxPage;
+		return idxCurrentPage;
 	}
 	
 	public int getIdxMaxPage() {
@@ -68,10 +50,10 @@ public class Page {
 	
 	@Override
 	public String toString() {
-		String output = "ID | Name | LocalDate intro | LocalDate disc | Comp ID%n";
-		for (Computer comp : computers) {
-			output += comp.toString() + "%n";
+		StringBuilder output = new StringBuilder(dao.getHeader());
+		for (T entity : entities) {
+			output.append(entity.toString() + "%n");
 		}
-		return output;
+		return output.toString();
 	}
 }

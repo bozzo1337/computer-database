@@ -5,18 +5,15 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 import java.time.LocalDate;
 
-import com.excilys.computerDB.model.RequestResult;
 
 public class QueryExecutor {
 	
 	private static QueryExecutor singleInstance = null;
 	private Connection conn;
-	private RequestResult rr;
 	private String query;
 
 	public static QueryExecutor getInstance() {
@@ -27,9 +24,6 @@ public class QueryExecutor {
 	}
 	
 	private QueryExecutor() {
-		conn = null;
-		rr = new RequestResult();
-		query = "";
 	}
 	
 	public int initConn(String login, String password) {
@@ -59,79 +53,29 @@ public class QueryExecutor {
 		}
 	}
 	
-	public RequestResult displayComputers() {
-		rr.reset();
-		query = "SELECT * FROM computer;";
-		try {
-			ResultSet results = simpleQuery(query);
-			rr.setResult("ID | Name | LocalDate intro | LocalDate disc | Comp ID%n");
-			while (results.next()) {
-				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
-					+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
-					+ " | " + results.getLong("company_id") + "%n");
-			}
-			rr.setStatus(0);
-		} catch (SQLException e) {
-			rr.setStatus(1);
-			e.printStackTrace();
-		}
-		
-		return rr;
-	}
-	
-	public RequestResult displayCompanies() {
-		rr.reset();
-		query = "SELECT * FROM company;";		
-		try {
-			ResultSet results = simpleQuery(query);
-			rr.setResult("ID | Name%n");
-			while (results.next()) {
-				rr.appendResult(results.getLong("id") + " | " + results.getString("name") + "%n");
-			}
-			rr.setStatus(0);
-		} catch (SQLException e) {
-			rr.setStatus(1);
-			e.printStackTrace();
-		}
-		
-		return rr;
-	}
-	
-	public RequestResult findComputer(Long id) {
-		rr.reset();
-		query = "SELECT * FROM computer WHERE id=" + id + ";";		
-		try {
-			ResultSet results = simpleQuery(query);
-			if (results.next()) {
-				rr.setStatus(0);
-				rr.appendResult("id | name | introduced | discontinued | company_id%n");
-				rr.appendResult(results.getLong("id") + " | " + results.getString("name")
-				+ " | " + results.getDate("introduced") + " | " + results.getDate("discontinued")
-				+ " | " + results.getLong("company_id") + "%n");
-			} else {
-				rr.setStatus(1);
-				rr.setResult("Aucun résultat.%n");
-			}
-		} catch (SQLException e) {
-			rr.setStatus(1);
-			e.printStackTrace();
-		}
-		return rr;
-	}
-	
-	public ResultSet findComputerToMap(Long id) {
+	public ResultSet findComputerById(Long id) {
 		query = "SELECT * FROM computer WHERE id=" + id + ";";
 		ResultSet results = null;
 		try {
 			results = simpleQuery(query);
 		} catch (SQLException e) {
-			System.err.format("Erreur requête mapping.%n");
+			//TODO
 		}
 		return results;
 	}
 	
-	public RequestResult createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
-		rr.reset();
+	public ResultSet findCompanyById(Long id) {
+		query = "SELECT * FROM company WHERE id=" + id + ";";
+		ResultSet results = null;
+		try {
+			results = simpleQuery(query);
+		} catch (SQLException e) {
+			//TODO
+		}
+		return results;
+	}
+	
+	public void createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
 		query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
 		query += " VALUES(?, ?, ?, ?);";
 		try {
@@ -151,26 +95,33 @@ public class QueryExecutor {
 				ps.setNull(4, java.sql.Types.BIGINT);
 			ps.executeUpdate();
 			conn.commit();
-			rr.setStatus(0);
-			rr.setResult("Création réussie.%n");
 		} catch (SQLException e) {
-			rr.setResult("Echec de la création.%n");
-			if (e instanceof SQLIntegrityConstraintViolationException) {
-				rr.setStatus(2);
-				rr.setResult("ID de l'entreprise invalide.%n");
-			}
+			//TODO
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				rr.setStatus(3);
-				rr.appendResult("Echec du rollback.%n");
+				//TODO
 			}
 		}
-		return rr;
 	}
 	
-	public RequestResult updateComputer(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
-		rr.reset();
+	public void createCompany(String name) {
+		query = "INSERT INTO company(name) VALUES(" + name + ");";
+		try {
+			Statement stmt = conn.createStatement();
+			stmt.executeUpdate(query);
+			conn.commit();
+		} catch (SQLException e) {
+			//TODO
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				//TODO
+			}
+		}
+	}
+	
+	public void updateComputer(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
 		query = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?;";
 		try {
 			PreparedStatement ps = conn.prepareStatement(query);
@@ -190,48 +141,34 @@ public class QueryExecutor {
 			ps.setLong(5, id);
 			ps.executeUpdate();
 			conn.commit();
-			rr.setStatus(0);
-			rr.setResult("Mise à jour réussie.%n");
 		} catch (SQLException e) {
-			rr.setResult("Echec de la mise à jour.%n");
-			if (e instanceof SQLIntegrityConstraintViolationException) {
-				rr.setStatus(2);
-				rr.setResult("ID d'entreprise invalide.%n");
-			}
+			//TODO
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				rr.setStatus(3);
-				rr.appendResult("Echec du rollback.%n");
+				//TODO
 			}
 		}
-		return rr;
 	}
 	
-	public RequestResult deleteComputer(Long id) {
-		rr.reset();
+	public void deleteComputer(Long id) {
 		query = "DELETE FROM computer WHERE id=" + id + ";";
 		try {
 			Statement stmt = conn.createStatement();
 			stmt.executeUpdate(query);
 			conn.commit();
-			rr.setStatus(0);
-			rr.setResult("Suppression validée.%n");
 		} catch (SQLException e) {
-			rr.setResult("Echec de la suppression.%n");
-			rr.setStatus(1);
+			//TODO
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				rr.setStatus(3);
-				rr.appendResult("Echec du rollback.%n");
+				//TODO
 			}
 		}
-		return rr;
 	}
 	
-	public ResultSet retrieveComputers(int batchSize, int idxNum) {
-		query = "SELECT * FROM computer LIMIT " + idxNum * batchSize + ", " + batchSize +";";
+	public ResultSet retrieveComputers(int batchSize, int index) {
+		query = "SELECT * FROM computer LIMIT " + index * batchSize + ", " + batchSize +";";
 		ResultSet results = null;
 		try {
 			Statement stmt = conn.prepareCall(query);
@@ -242,15 +179,19 @@ public class QueryExecutor {
 		return results;
 	}
 	
-	public ResultSet computerCount() {
-		query = "SELECT COUNT(*) AS compcount FROM computer;";
+	public double computerCount() {
+		query = "SELECT COUNT(id) AS compcount FROM computer;";
 		ResultSet results = null;
+		double compCount = 0;
 		try {
 			Statement stmt = conn.prepareCall(query);
 			results = stmt.executeQuery(query);
+			if (results.next()) {
+				compCount = results.getDouble("compcount");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return results;
+		return compCount;
 	}
 }

@@ -14,13 +14,14 @@ import com.excilys.computerDB.persistence.QueryExecutor;
 public class ComputerService {
 	
 	private Console console;
-	private Page pageComp = Page.getInstance();
+	private Page<Computer> pageComp;
 	private QueryExecutor qe = QueryExecutor.getInstance();
 	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private ComputerMapper cm = ComputerMapper.getInstance();
 	
 	public ComputerService(Console console) {
 		this.console = console;
+		pageComp = new Page<Computer>();
 	}
 	
 	public void selectAll() {

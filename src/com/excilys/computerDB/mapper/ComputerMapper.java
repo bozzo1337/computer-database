@@ -4,15 +4,17 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.excilys.computerDB.model.Computer;
-import com.excilys.computerDB.model.RequestResult;
-import com.excilys.computerDB.persistence.QueryExecutor;
 
-public class ComputerMapper {
+public class ComputerMapper extends Mapper<Computer> {
 	
-	public static ComputerMapper singleInstance = null;
-	private QueryExecutor qe;
+	private static ComputerMapper singleInstance = null;
+	
+	private ComputerMapper() {
+		
+	}
 	
 	public static ComputerMapper getInstance() {
 		if (singleInstance == null) {
@@ -21,68 +23,49 @@ public class ComputerMapper {
 		return singleInstance;
 	}
 	
-	private ComputerMapper() {
-		qe = QueryExecutor.getInstance();
-	}
-	
-	public Computer mapComputer(Long id) {
-		Computer computer = new Computer();
-		ResultSet results = qe.findComputerToMap(id);
-		if (results != null) {
-			try {
-				if (results.next()) {
-					computer.setId(results.getLong("id"));
-					computer.setName(results.getString("name"));
-					Date intro = results.getDate("introduced");
-					if (intro != null)
-						computer.setIntroduced(intro.toLocalDate());
-					Date disc = results.getDate("discontinued");
-					if (disc != null)
-						computer.setDiscontinued(disc.toLocalDate());
-					Long companyId = results.getLong("company_id");
-					if (companyId == 0)
-						computer.setCompanyId(null);
-					else
-						computer.setCompanyId(companyId);
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return computer;
-	}
-	
-	public ArrayList<Computer> retrieveComputers(int compPerPage, int idxPage) {
-		ArrayList<Computer> listComp = new ArrayList<Computer>();
-		ResultSet results = qe.retrieveComputers(compPerPage, idxPage);
+	@Override
+	public Computer map(ResultSet results) {
 		try {
-			while (results.next()) {
-				Computer comp = new Computer();
-				comp.setId(results.getLong("id"));
-				comp.setName(results.getString("name"));
-				Date intro = results.getDate("introduced");
-				if (intro != null)
-					comp.setIntroduced(intro.toLocalDate());
-				Date disc = results.getDate("discontinued");
-				if (disc != null)
-					comp.setDiscontinued(disc.toLocalDate());
-				Long companyId = results.getLong("company_id");
-				if (companyId == 0)
-					comp.setCompanyId(null);
-				else
-					comp.setCompanyId(companyId);
-				listComp.add(comp);
+			if (results != null && results.next()) {
+				return mapOne(results);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// TODO
 		}
-		return listComp;
+		return null;
+	}
+
+	@Override
+	public List<Computer> mapBatch(ResultSet results) {
+		ArrayList<Computer> computers = new ArrayList<Computer>();
+		try {
+			while (results != null && results.next()) {
+				computers.add(mapOne(results));
+			}
+		} catch (SQLException e) {
+			// TODO
+		}
+		return computers;
 	}
 	
-	public RequestResult updateComputer(Computer comp) {
-		return qe.updateComputer(comp.getId(), comp.getName(), comp.getIntroduced(),
-				comp.getDiscontinued(), comp.getCompanyId());
+	private Computer mapOne(ResultSet results) throws SQLException {
+		Computer computer = new Computer();
+		computer.setId(results.getLong("id"));
+		computer.setName(results.getString("name"));
+		Date intro = results.getDate("introduced");
+		if (intro != null) {
+			computer.setIntroduced(intro.toLocalDate());
+		}
+		Date disc = results.getDate("discontinued");
+		if (disc != null) {
+			computer.setDiscontinued(disc.toLocalDate());
+		}
+		Long companyId = results.getLong("company_id");
+		if (companyId == 0) {
+			computer.setCompanyId(null);
+		} else {
+			computer.setCompanyId(companyId);
+		}
+		return computer;
 	}
 }
