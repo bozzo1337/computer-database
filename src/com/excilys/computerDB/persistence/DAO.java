@@ -6,12 +6,10 @@ import com.excilys.computerDB.mapper.Mapper;
 
 public abstract class DAO<T> {
 	
-	public static final QueryExecutor QE = QueryExecutor.getInstance();
-	public Mapper<T> mapper = null;
-	public DAO<T> singleInstance = null;
-	public String header = null;
+	protected static final QueryExecutor QE = QueryExecutor.getInstance();
+	protected Mapper<T> mapper = null;
+	protected String header = null;
 	
-	public abstract DAO<T> getInstance();
 	public abstract T findById(Long id);
 	public abstract List<T> findBatch(int batchSize, int index);
 	public abstract void create(T pojo);

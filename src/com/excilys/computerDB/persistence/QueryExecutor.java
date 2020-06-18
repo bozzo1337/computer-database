@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import java.time.LocalDate;
 
@@ -13,7 +12,7 @@ import java.time.LocalDate;
 public class QueryExecutor {
 	
 	private static QueryExecutor singleInstance = null;
-	private Connection conn;
+	private static Connection conn;
 	private String query;
 
 	public static QueryExecutor getInstance() {
@@ -26,53 +25,51 @@ public class QueryExecutor {
 	private QueryExecutor() {
 	}
 	
-	public int initConn(String login, String password) {
-		try {
-			conn = DBConnector.getInstance().getConn(login, password);
-			conn.setAutoCommit(false);
-			return 0;
-		} catch (SQLException e) {
-			return 1;
-		}
+	public static void setConn(Connection conn) {
+		QueryExecutor.conn = conn;
 	}
 	
-	private ResultSet simpleQuery(String query) throws SQLException {
-		ResultSet results;
-		Statement stmt;
-		stmt = conn.createStatement();
-		results = stmt.executeQuery(query);
+	private ResultSet simpleQuery(String query){
+		ResultSet results = null;
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(query);
+			results = ps.executeQuery();
+			conn.commit();
+		} catch (SQLException e) {
+			// TODO
+			doRollBack();
+		}
 		return results;
 	}
 	
-	public int closeConn() {
+	private ResultSet queryWithParams(PreparedStatement ps) {
+		ResultSet results = null;
 		try {
-			conn.close();
-			return 0;
+			results = ps.executeQuery();
 		} catch (SQLException e) {
-			return 1;
+			// TODO
+			doRollBack();
+		}
+		return results;
+	}
+	
+	private void doRollBack() {
+		try {
+			conn.rollback();
+		} catch (SQLException e) {
+			// TODO
 		}
 	}
 	
 	public ResultSet findComputerById(Long id) {
 		query = "SELECT * FROM computer WHERE id=" + id + ";";
-		ResultSet results = null;
-		try {
-			results = simpleQuery(query);
-		} catch (SQLException e) {
-			//TODO
-		}
-		return results;
+		return simpleQuery(query);
 	}
 	
 	public ResultSet findCompanyById(Long id) {
 		query = "SELECT * FROM company WHERE id=" + id + ";";
-		ResultSet results = null;
-		try {
-			results = simpleQuery(query);
-		} catch (SQLException e) {
-			//TODO
-		}
-		return results;
+		return simpleQuery(query);
 	}
 	
 	public void createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
@@ -93,32 +90,15 @@ public class QueryExecutor {
 				ps.setLong(4, compId);
 			else
 				ps.setNull(4, java.sql.Types.BIGINT);
-			ps.executeUpdate();
-			conn.commit();
+			queryWithParams(ps);
 		} catch (SQLException e) {
 			//TODO
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				//TODO
-			}
 		}
 	}
 	
 	public void createCompany(String name) {
 		query = "INSERT INTO company(name) VALUES(" + name + ");";
-		try {
-			Statement stmt = conn.createStatement();
-			stmt.executeUpdate(query);
-			conn.commit();
-		} catch (SQLException e) {
-			//TODO
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				//TODO
-			}
-		}
+		simpleQuery(query);
 	}
 	
 	public void updateComputer(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
@@ -139,44 +119,20 @@ public class QueryExecutor {
 			else
 				ps.setNull(4, java.sql.Types.BIGINT);
 			ps.setLong(5, id);
-			ps.executeUpdate();
-			conn.commit();
+			queryWithParams(ps);
 		} catch (SQLException e) {
 			//TODO
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				//TODO
-			}
 		}
 	}
 	
 	public void deleteComputer(Long id) {
 		query = "DELETE FROM computer WHERE id=" + id + ";";
-		try {
-			Statement stmt = conn.createStatement();
-			stmt.executeUpdate(query);
-			conn.commit();
-		} catch (SQLException e) {
-			//TODO
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				//TODO
-			}
-		}
+		simpleQuery(query);
 	}
 	
 	public ResultSet retrieveComputers(int batchSize, int index) {
 		query = "SELECT * FROM computer LIMIT " + index * batchSize + ", " + batchSize +";";
-		ResultSet results = null;
-		try {
-			Statement stmt = conn.prepareCall(query);
-			results = stmt.executeQuery(query);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return results;
+		return simpleQuery(query);
 	}
 	
 	public double computerCount() {
@@ -184,13 +140,12 @@ public class QueryExecutor {
 		ResultSet results = null;
 		double compCount = 0;
 		try {
-			Statement stmt = conn.prepareCall(query);
-			results = stmt.executeQuery(query);
+			results = simpleQuery(query);
 			if (results.next()) {
 				compCount = results.getDouble("compcount");
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//TODO
 		}
 		return compCount;
 	}

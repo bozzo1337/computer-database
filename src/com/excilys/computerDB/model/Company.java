@@ -6,8 +6,11 @@ public class Company {
 	private String name;
 	
 	public Company() {
-		id = null;
-		name = null;
+	}
+	
+	public Company(Long id, String name) {
+		this.id = id;
+		this.name = name;
 	}
 
 	public Long getId() {

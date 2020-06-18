@@ -48,9 +48,18 @@ public class Page<T> {
 		return idxMaxPage;
 	}
 	
+	public int getEntitiesPerPage() {
+		return entitiesPerPage;
+	}
+
+	public void setEntitiesPerPage(int entitiesPerPage) {
+		this.entitiesPerPage = entitiesPerPage;
+	}
+	
 	@Override
 	public String toString() {
-		StringBuilder output = new StringBuilder(dao.getHeader());
+		StringBuilder output = new StringBuilder("Page " + this.idxCurrentPage +
+				"/" + this.idxMaxPage + "%n" + dao.getHeader());
 		for (T entity : entities) {
 			output.append(entity.toString() + "%n");
 		}

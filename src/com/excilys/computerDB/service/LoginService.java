@@ -1,47 +1,26 @@
 package com.excilys.computerDB.service;
 
-import java.io.Console;
-
-import com.excilys.computerDB.persistence.QueryExecutor;
+import com.excilys.computerDB.persistence.DBConnector;
 
 public class LoginService {
 	
-	private Console console;
-	private QueryExecutor qe = QueryExecutor.getInstance();
+	private static LoginService singleInstance = null;
 	
-	public LoginService(Console console) {
-		this.console = console;
+	private LoginService() {
 	}
 	
-	public void login() {
-		String login = "";
-		String password = "";
-		int resultConn = -1;
-		do {
-			switch (resultConn) {
-			case 1:
-				System.err.format("Erreur de connexion, veuillez réessayer...%n>");
-				break;
-			default:
-			}
-			console.printf("Login :%n>");
-			login = console.readLine();
-			console.printf("Password :%n>");
-			password = new String(console.readPassword());
-			console.printf("Connexion à la base...%n");
-		} while ((resultConn = qe.initConn(login, password)) != 0);
-		password = "";
-		console.printf("Connexion OK%n");
-	}
-	
-	public void quit() {
-		console.printf("Fermeture de la connexion...%n");
-		if (qe.closeConn() == 0) {
-			console.printf("Fin de connexion OK, au revoir !%n");
-			System.exit(0);
-		} else {
-			console.printf("Echec de la fermeture, au revoir quand même !%n");
-			System.exit(1);
+	public static LoginService getInstance() {
+		if (singleInstance == null) {
+			singleInstance = new LoginService();
 		}
+		return singleInstance;
+	}
+	
+	public boolean login(String login, String password) {
+		return DBConnector.getInstance().initConn(login, password);
+	}
+	
+	public boolean quit() {
+		return DBConnector.getInstance().closeConn();
 	}
 }

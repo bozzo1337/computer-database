@@ -6,17 +6,19 @@ import com.excilys.computerDB.mapper.CompanyMapper;
 import com.excilys.computerDB.model.Company;
 
 public class DAOCompany extends DAO<Company> {
+	
+	private static DAOCompany singleInstance = null;
 
 	private DAOCompany() {
 		this.mapper = CompanyMapper.getInstance();
+		this.header = "ID | Name%n";
 	}
 	
-	@Override
-	public DAO<Company> getInstance() {
-		if (this.singleInstance == null) {
-			this.singleInstance = new DAOCompany();
+	public static DAOCompany getInstance() {
+		if (singleInstance == null) {
+			singleInstance = new DAOCompany();
 		}
-		return this.singleInstance;
+		return singleInstance;
 	}
 
 	@Override
