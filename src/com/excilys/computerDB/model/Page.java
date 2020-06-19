@@ -58,8 +58,8 @@ public class Page<T> {
 	
 	@Override
 	public String toString() {
-		StringBuilder output = new StringBuilder("Page n°" + this.idxCurrentPage +
-				"/" + this.idxMaxPage + "%n" + header);
+		StringBuilder output = new StringBuilder("Page n°" + (this.idxCurrentPage + 1) +
+				"/" + (this.idxMaxPage + 1) + "%n" + header);
 		for (T entity : entities) {
 			output.append(entity.toString() + "%n");
 		}

@@ -2,6 +2,7 @@ package com.excilys.computerDB.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.excilys.computerDB.model.Company;
@@ -23,23 +24,33 @@ private static CompanyMapper singleInstance = null;
 	
 	@Override
 	public Company map(ResultSet results) {
-		Company company = new Company();
 		if (results != null) {
 			try {
-				if (results.next()) {
-					company.setId(results.getLong("id"));
-					company.setName(results.getString("name"));
-				}
+				return mapOne(results);
 			} catch (SQLException e) {
-				// TODO
+				e.printStackTrace();
 			}
 		}
-		return company;
+		return null;
 	}
 
 	@Override
 	public List<Company> mapBatch(ResultSet results) {
-		// TODO
-		return null;
+		ArrayList<Company> companies = new ArrayList<Company>();
+		try {
+			while (results != null && results.next()) {
+				companies.add(mapOne(results));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return companies;
+	}
+	
+	private Company mapOne(ResultSet results) throws SQLException {
+		Company company = new Company();
+		company.setId(results.getLong("id"));
+		company.setName(results.getString("name"));
+		return company;
 	}
 }

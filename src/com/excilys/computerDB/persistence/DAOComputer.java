@@ -51,7 +51,7 @@ public class DAOComputer extends DAO<Computer> {
 
 	@Override
 	public double getCount() {
-		return QE.computerCount();
+		return QE.count("computer");
 	}
 
 }

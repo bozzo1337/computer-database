@@ -23,6 +23,10 @@ public class CompanyService {
 		return singleInstance;
 	}
 	
+	public void resetPages() {
+		pageComp.init(dao.getCount());
+	}
+	
 	public Page<Company> selectAll() {
 		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}

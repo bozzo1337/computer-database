@@ -37,28 +37,26 @@ public class QueryExecutor {
 			results = ps.executeQuery();
 			conn.commit();
 		} catch (SQLException e) {
-			// TODO
+			e.printStackTrace();
 			doRollBack();
 		}
 		return results;
 	}
 	
-	private ResultSet queryWithParams(PreparedStatement ps) {
-		ResultSet results = null;
+	private void queryWithParams(PreparedStatement ps) {
 		try {
-			results = ps.executeQuery();
+			ps.executeUpdate();
 		} catch (SQLException e) {
-			// TODO
+			e.printStackTrace();
 			doRollBack();
 		}
-		return results;
 	}
 	
 	private void doRollBack() {
 		try {
 			conn.rollback();
 		} catch (SQLException e) {
-			// TODO
+			e.printStackTrace();
 		}
 	}
 	
@@ -127,7 +125,13 @@ public class QueryExecutor {
 	
 	public void deleteComputer(Long id) {
 		query = "DELETE FROM computer WHERE id=" + id + ";";
-		simpleQuery(query);
+		try {
+			PreparedStatement ps = conn.prepareStatement(query);
+			queryWithParams(ps);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 	
 	public ResultSet retrieveComputers(int batchSize, int index) {
@@ -135,14 +139,19 @@ public class QueryExecutor {
 		return simpleQuery(query);
 	}
 	
-	public double computerCount() {
-		query = "SELECT COUNT(id) AS compcount FROM computer;";
+	public ResultSet retrieveCompanies(int batchSize, int index) {
+		query = "SELECT * FROM company LIMIT " + index * batchSize + ", " + batchSize +";";
+		return simpleQuery(query);
+	}
+	
+	public double count(String table) {
+		query = "SELECT COUNT(id) AS count FROM " + table + ";";
 		ResultSet results = null;
 		double compCount = 0;
 		try {
 			results = simpleQuery(query);
 			if (results.next()) {
-				compCount = results.getDouble("compcount");
+				compCount = results.getDouble("count");
 			}
 		} catch (SQLException e) {
 			//TODO

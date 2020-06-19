@@ -45,14 +45,12 @@ public class DAOCompany extends DAO<Company> {
 
 	@Override
 	public double getCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return QE.count("company");
 	}
 
 	@Override
 	public List<Company> findBatch(int batchSize, int index) {
-		// TODO Auto-generated method stub
-		return null;
+		return mapper.mapBatch(QE.retrieveCompanies(batchSize, index));
 	}
 
 }

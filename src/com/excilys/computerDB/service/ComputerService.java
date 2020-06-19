@@ -23,8 +23,22 @@ public class ComputerService {
 		return singleInstance;
 	}
 	
+	public void resetPages() {
+		pageComp.init(dao.getCount());
+	}
+	
 	public Page<Computer> selectAll() {
 		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	}
+	
+	public Page<Computer> getNextPage() {
+		pageComp.nextPage();
+		return selectAll();
+	}
+	
+	public Page<Computer> getPreviousPage() {
+		pageComp.previousPage();
+		return selectAll();
 	}
 	
 	public Computer selectById(Long id) {
@@ -41,6 +55,5 @@ public class ComputerService {
 	
 	public void delete(Computer comp) {
 		dao.delete(comp);
-	
 	}
 }

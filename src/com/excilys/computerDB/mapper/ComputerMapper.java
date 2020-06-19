@@ -30,7 +30,7 @@ public class ComputerMapper extends Mapper<Computer> {
 				return mapOne(results);
 			}
 		} catch (SQLException e) {
-			// TODO
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -43,7 +43,7 @@ public class ComputerMapper extends Mapper<Computer> {
 				computers.add(mapOne(results));
 			}
 		} catch (SQLException e) {
-			// TODO
+			e.printStackTrace();
 		}
 		return computers;
 	}
