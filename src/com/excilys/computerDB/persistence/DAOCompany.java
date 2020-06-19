@@ -11,7 +11,6 @@ public class DAOCompany extends DAO<Company> {
 
 	private DAOCompany() {
 		this.mapper = CompanyMapper.getInstance();
-		this.header = "ID | Name%n";
 	}
 	
 	public static DAOCompany getInstance() {

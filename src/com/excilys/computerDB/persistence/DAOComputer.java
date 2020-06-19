@@ -11,7 +11,6 @@ public class DAOComputer extends DAO<Computer> {
 
 	private DAOComputer() {
 		this.mapper = ComputerMapper.getInstance();
-		this.header = "ID | Name | Introduced | Discontinued | Company%n";
 	}
 	
 	public static DAOComputer getInstance() {

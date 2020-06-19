@@ -3,24 +3,24 @@ package com.excilys.computerDB.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.excilys.computerDB.persistence.DAO;
-
 public class Page<T> {
 
-	private DAO<T> dao;
 	private List<T> entities;
 	private int entitiesPerPage;
 	private int idxCurrentPage;
 	private int idxMaxPage;
+	private String header;
 	
-	public Page() {
+	public Page(String header) {
 		idxCurrentPage = 0;
 		entitiesPerPage = 20;
 		entities = new ArrayList<T>();
+		this.header = header;
 	}
 	
-	public void fill() {
-		entities = dao.findBatch(entitiesPerPage, idxCurrentPage);
+	public Page<T> filled(List<T> entities) {
+		this.entities = entities;
+		return this;
 	}
 	
 	public void previousPage() {
@@ -35,8 +35,8 @@ public class Page<T> {
 		}
 	}
 	
-	public void init() {
-		idxMaxPage = (int) (Math.ceil(dao.getCount() / entitiesPerPage) - 1);
+	public void init(double count) {
+		idxMaxPage = (int) (Math.ceil(count / entitiesPerPage) - 1);
 		idxCurrentPage = 0;
 	}
 	
@@ -58,8 +58,8 @@ public class Page<T> {
 	
 	@Override
 	public String toString() {
-		StringBuilder output = new StringBuilder("Page " + this.idxCurrentPage +
-				"/" + this.idxMaxPage + "%n" + dao.getHeader());
+		StringBuilder output = new StringBuilder("Page n°" + this.idxCurrentPage +
+				"/" + this.idxMaxPage + "%n" + header);
 		for (T entity : entities) {
 			output.append(entity.toString() + "%n");
 		}

@@ -12,62 +12,36 @@ import com.excilys.computerDB.service.LoginService;
 public class CLI {
 	
 	private Console console = System.console();
-	private LoginService ls = new LoginService();
-	private ComputerService cs = new ComputerService();
-	private CompanyService cas = new CompanyService();
+	private LoginService ls = LoginService.getInstance();
+	private ComputerService cs = ComputerService.getInstance();
+	private CompanyService cas = CompanyService.getInstance();
 	
 	public static void main(String[] args) {
 		CLI cli = new CLI();
-		
 		cli.console.printf("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
-		ls.login();
-		String login = "";
-		String password = "";
-		boolean connSuccess = false;
-		while (!connSuccess) {
-			console.printf("Login :%n>");
-			login = console.readLine();
-			console.printf("Password :%n>");
-			password = new String(console.readPassword());
-			console.printf("Connexion à la base...%n");
-			connSuccess = qe.initConn(login, password);
-			if (!connSuccess) {
-				System.err.format("Erreur de connexion, veuillez réessayer...%n>");
-			}
+		while (!cli.login()) {
+			System.err.format("Erreur de connexion, veuillez réessayer...%n>");
 		}
-		password = "";
-		console.printf("Connexion OK%n");
+		cli.console.printf("Connexion OK%n");
 		cli.console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
 		while (true) {
-			cli.nextCommand(cs, cas, ls, cli.console.readLine());
+			cli.nextCommand(cli.console.readLine());
 		}
 	}
 
-	private void nextCommand(ComputerService cs, CompanyService cas, LoginService ls, String command) {
+	private void nextCommand(String command) {
 		switch(command) {
 		case "help":
 			commandHelp();
 			break;
 		case "computers":
-			String input = "";
-			pageComp.init();
-			do {
+			
 				pageComp.fill();
 				console.printf("Page n°" + (pageComp.getIdxPage() + 1) + "/" + (pageComp.getIdxMaxPage() + 1) + "%n");
 				console.printf(pageComp.toString());
 				console.printf("Page suivante : n, Page précédente : p, Quitter : q%n>");
-				switch (input = console.readLine()) {
-				case "n":
-					pageComp.nextPage();
-					break;
-				case "p":
-					pageComp.previousPage();
-					break;
-				case "q":
-					break;
-				default:
-					console.printf("Commande non reconnue.%n");
-				}
+				
+				
 			} while (!input.equals("q"));
 			console.printf(">");
 			cs.selectAll();
@@ -232,6 +206,17 @@ public class CLI {
 		}
 	}
 	
+	private boolean login() {
+		String login = null;
+		String password = null;
+		console.printf("Login :%n>");
+		login = console.readLine();
+		console.printf("Password:%n>");
+		password = new String(console.readPassword());
+		console.printf("Connexion...%n");
+		return ls.login(login, password);
+	}
+	
 	private void commandHelp() {
 		console.printf("Commandes disponibles : %n");
 		console.printf("help : Affiche la liste des commandes détaillées.%n");
@@ -244,5 +229,20 @@ public class CLI {
 		console.printf("quit : Quitte le programme.%n>");
 	}
 
+	private void commandComputers() {
+		cs.selectAll().toString();
+		switch (input = console.readLine()) {
+		case "n":
+			pageComp.nextPage();
+			break;
+		case "p":
+			pageComp.previousPage();
+			break;
+		case "q":
+			break;
+		default:
+			console.printf("Commande non reconnue.%n");
+		}
+	}
 	
 }
