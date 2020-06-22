@@ -9,6 +9,8 @@ public class DBConnector {
 	private static DBConnector singleInstance = null;
 	private Connection conn = null;
 	private String url = "jdbc:mysql://127.0.0.1:3306/computer-database-db?serverTimezone=UTC";
+	private String login;
+	private String password;
 	
 	public static DBConnector getInstance() {
 		if (singleInstance == null) {
@@ -18,14 +20,24 @@ public class DBConnector {
 	}
 	
 	public Connection getConn(){
+		try {
+			if (conn == null || conn.isClosed()) {
+				conn = DriverManager.getConnection(url, login, password);
+				conn.setAutoCommit(false);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return conn;
 	}
 	
 	public boolean initConn(String login, String password) {
 		try {
+			this.login = login;
+			this.password = password;
 			conn = DriverManager.getConnection(url, login, password);
 			conn.setAutoCommit(false);
-			QueryExecutor.setConn(conn);
 			return true;
 		} catch (SQLException e) {
 			return false;

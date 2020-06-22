@@ -228,6 +228,7 @@ public class CLI {
 	
 	private void commandQuit() {
 		System.out.format("Fermeture de la connexion...%n");
+		in.close();
 		if (ls.quit()) {
 			System.out.format("Fin de connexion OK, au revoir !%n");
 			System.exit(0);
