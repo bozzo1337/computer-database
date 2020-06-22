@@ -1,4 +1,8 @@
-/build/
+#Eclipse
 .classpath
 .settings/
 .project
+
+#Maven
+log/
+target/
