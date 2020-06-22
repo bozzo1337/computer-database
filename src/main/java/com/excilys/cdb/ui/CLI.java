@@ -1,7 +1,7 @@
 package com.excilys.cdb.ui;
 
-import java.io.Console;
 import java.time.LocalDate;
+import java.util.Scanner;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
@@ -10,22 +10,22 @@ import com.excilys.cdb.service.LoginService;
 
 public class CLI {
 	
-	private Console console = System.console();
 	private LoginService ls = LoginService.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
 	private CompanyService cas = CompanyService.getInstance();
 	private Validator validator = new Validator();
+	private Scanner in = new Scanner(System.in);
 	
 	public static void main(String[] args) {
 		CLI cli = new CLI();
-		cli.console.printf("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
+		System.out.format("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
 		while (!cli.login()) {
 			System.err.format("Erreur de connexion, veuillez réessayer...%n>");
 		}
-		cli.console.printf("Connexion OK%n");
-		cli.console.printf("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
+		System.out.format("Connexion OK%n");
+		System.out.format("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
 		while (true) {
-			cli.nextCommand(cli.console.readLine());
+			cli.nextCommand(cli.in.next());
 		}
 	}
 
@@ -33,145 +33,145 @@ public class CLI {
 		switch(command) {
 		case "help":
 			commandHelp();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "computers":
 			commandComputers();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "companies":
 			commandCompanies();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "computer":
 			commandComputer();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "create":
 			commandCreate();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "update":
 			commandUpdate();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "delete":
 			commandDelete();
-			console.printf("%n>");
+			System.out.format("%n>");
 			break;
 		case "quit":
 			commandQuit();
 			break;
 		default:
-			console.printf("Commande non reconnue, tapez 'help' pour plus d'informations.%n>");
+			System.out.format("Commande non reconnue, tapez 'help' pour plus d'informations.%n>");
 		}
 	}
 	
 	private boolean login() {
 		String login = null;
 		String password = null;
-		console.printf("Login :%n>");
-		login = console.readLine();
-		console.printf("Password:%n>");
-		password = new String(console.readPassword());
-		console.printf("Connexion...%n");
+		System.out.format("Login :%n>");
+		login = in.next();
+		System.out.format("Password:%n>");
+		password = new String(in.next());
+		System.out.format("Connexion...%n");
 		return ls.login(login, password);
 	}
 	
 	private void commandHelp() {
-		console.printf("Commandes disponibles : %n");
-		console.printf("help : Affiche la liste des commandes détaillées.%n");
-		console.printf("computers : Affiche la liste des ordinateurs.%n");
-		console.printf("companies : Affiche la liste des entreprises.%n");
-		console.printf("computer : Affiche les détails de l'ordinateur demandé.%n");
-		console.printf("create : Crée l'ordinateur indiqué.%n");
-		console.printf("update : Met à jour l'ordinateur ciblé.%n");
-		console.printf("delete : Supprime l'ordinateur ciblé.%n");
-		console.printf("quit : Quitte le programme.");
+		System.out.format("Commandes disponibles : %n");
+		System.out.format("help : Affiche la liste des commandes détaillées.%n");
+		System.out.format("computers : Affiche la liste des ordinateurs.%n");
+		System.out.format("companies : Affiche la liste des entreprises.%n");
+		System.out.format("computer : Affiche les détails de l'ordinateur demandé.%n");
+		System.out.format("create : Crée l'ordinateur indiqué.%n");
+		System.out.format("update : Met à jour l'ordinateur ciblé.%n");
+		System.out.format("delete : Supprime l'ordinateur ciblé.%n");
+		System.out.format("quit : Quitte le programme.");
 	}
 
 	private void commandComputers() {
 		String input;
 		cs.resetPages();
-		console.printf(cs.selectAll().toString());
-		console.printf("Page suivante : n, Page précédente : p, Quitter : q%n>");
-		while (!(input = console.readLine()).equals("q")) {
+		System.out.format(cs.selectAll().toString());
+		System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
+		while (!(input = in.next()).equals("q")) {
 			switch (input) {
 			case "n":
-				console.printf(cs.getNextPage().toString());
+				System.out.format(cs.getNextPage().toString());
 				break;
 			case "p":
-				console.printf(cs.getPreviousPage().toString());
+				System.out.format(cs.getPreviousPage().toString());
 				break;
 			default:
-				console.printf("Commande non reconnue.%n");
+				System.out.format("Commande non reconnue.%n");
 			}
-			console.printf("Page suivante : n, Page précédente : p, Quitter : q%n>");
+			System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
 		}
 	}
 	
 	private void commandCompanies() {
 		cas.resetPages();
-		console.printf(cas.selectAll().toString());
+		System.out.format(cas.selectAll().toString());
 	}
 	
 	private void commandComputer() {
-		console.printf("Sélection d'un ordinateur par ID :%n>");
-		Long idRead = validator.validateID(console.readLine());
+		System.out.format("Sélection d'un ordinateur par ID :%n>");
+		Long idRead = validator.validateID(in.next());
 		Computer comp;
 		if (idRead != null && (comp = cs.selectById(idRead)) != null) {
-			console.printf(comp.toString());
+			System.out.format(comp.toString());
 		} else {
-			console.printf("Aucun résultat.");
+			System.out.format("Aucun résultat.");
 		}
 	}
 	
 	private void commandCreate() {
-		console.printf("Création d'un nouvel ordinateur :%n");
-		console.printf("Nom (requis) :%n>");
-		String name = console.readLine();
+		System.out.format("Création d'un nouvel ordinateur :%n");
+		System.out.format("Nom (requis) :%n>");
+		String name = in.next();
 		if (!validator.validateName(name)) {
 			System.err.format("Nom requis ! Retour à l'accueil.");
 			return;
 		}
-		console.printf("LocalDate intro (jj/mm/aaaa) :%n>");
-		LocalDate intro = validator.validateDate(console.readLine());
-		console.printf("LocalDate disc (>= intro) :%n>");
-		LocalDate disc = validator.validateDate(console.readLine());
+		System.out.format("LocalDate intro (jj/mm/aaaa) :%n>");
+		LocalDate intro = validator.validateDate(in.next());
+		System.out.format("LocalDate disc (>= intro) :%n>");
+		LocalDate disc = validator.validateDate(in.next());
 		if (!validator.validateTemporality(intro, disc)) {
 			System.err.format("Erreur de temporalité ! Retour à l'accueil.");
 			return;
 		}
-		console.printf("ID de l'entreprise :%n>");
-		Long compId = validator.validateID(console.readLine());
+		System.out.format("ID de l'entreprise :%n>");
+		Long compId = validator.validateID(in.next());
 		Computer newComp = new Computer(name, intro, disc, compId);
 		cs.create(newComp);
 	}
 	
 	private void commandUpdate() {
 		Computer compToUpdate = new Computer();
-		console.printf("Mise à jour d'un ordinateur :%n");
-		console.printf("Sélection d'un ordinateur par ID :%n>");
-		Long idRead = validator.validateID(console.readLine());
+		System.out.format("Mise à jour d'un ordinateur :%n");
+		System.out.format("Sélection d'un ordinateur par ID :%n>");
+		Long idRead = validator.validateID(in.next());
 		if (idRead != null) {
 			compToUpdate = cs.selectById(idRead);
 		} else {
-			console.printf("Aucun résultat.");
+			System.out.format("Aucun résultat.");
 			return;
 		}
 		String field = "";
 		String newName = compToUpdate.getName();
 		do {
 			LocalDate newDate = null;
-			console.printf("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
-			field = console.readLine();
+			System.out.format("Quel champ modifier ? Entrez 'ok' pour terminer.%n>");
+			field = in.next();
 			switch (field) {
 			case "id":
 				System.err.format("Impossible de modifier ce champ !%n");
 				break;
 			case "name":
-				console.printf("Nouveau nom :%n>");
-				newName = console.readLine();
+				System.out.format("Nouveau nom :%n>");
+				newName = in.next();
 				if (validator.validateName(newName)) {
 					compToUpdate.setName(newName);
 				} else {
@@ -179,60 +179,60 @@ public class CLI {
 				}
 				break;
 			case "introduced":
-				console.printf("Nouvelle date de mise en service (jj/mm/aaaa) :%n>");
-				newDate = validator.validateDate(console.readLine());
+				System.out.format("Nouvelle date de mise en service (jj/mm/aaaa) :%n>");
+				newDate = validator.validateDate(in.next());
 				if (newDate != null && validator.validateTemporality(newDate, compToUpdate.getDiscontinued())) {
 					compToUpdate.setIntroduced(newDate);
 				}
 				break;
 			case "discontinued":
-				console.printf("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");			
-				newDate = validator.validateDate(console.readLine());
+				System.out.format("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");			
+				newDate = validator.validateDate(in.next());
 				if (newDate != null && validator.validateTemporality(compToUpdate.getIntroduced(), newDate)) {
 					compToUpdate.setDiscontinued(newDate);
 				}
 				break;
 			case "company_id":
-				console.printf("Nouvel identifiant d'entreprise :%n>");
-				Long newCompId = validator.validateID(console.readLine());
+				System.out.format("Nouvel identifiant d'entreprise :%n>");
+				Long newCompId = validator.validateID(in.next());
 				compToUpdate.setCompanyId(newCompId);
 				break;
 			case "ok":
-				console.printf("Modification(s) terminée(s).%n");
+				System.out.format("Modification(s) terminée(s).%n");
 				break;
 			default:
-				console.printf("Champ non reconnu.%n");
+				System.out.format("Champ non reconnu.%n");
 			}
-			console.printf(compToUpdate.toString() + "%n");
+			System.out.format(compToUpdate.toString() + "%n");
 		} while (!field.equals("ok"));
 		cs.update(compToUpdate);
 	}
 	
 	private void commandDelete() {
-		console.printf("Suppression d'un ordinateur :%n");
-		console.printf("Sélection d'un ordinateur par ID :%n>");
-		Long idRead = validator.validateID(console.readLine());
+		System.out.format("Suppression d'un ordinateur :%n");
+		System.out.format("Sélection d'un ordinateur par ID :%n>");
+		Long idRead = validator.validateID(in.next());
 		if (idRead != null) {
 			Computer compToDelete = cs.selectById(idRead);
-			console.printf("Ordinateur sélectionné :%n");
-			console.printf(compToDelete.toString());
-			console.printf("%nConfirmation de la suppression ? (y/N)%n>");
-			if (console.readLine().equals("y")) {
+			System.out.format("Ordinateur sélectionné :%n");
+			System.out.format(compToDelete.toString());
+			System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
+			if (in.next().equals("y")) {
 				cs.delete(compToDelete);
 			}
 		} else {
-			console.printf("Aucun résultat.");
+			System.out.format("Aucun résultat.");
 			return;
 		}
 	}
 	
 	private void commandQuit() {
-		console.printf("Fermeture de la connexion...%n");
+		System.out.format("Fermeture de la connexion...%n");
 		if (ls.quit()) {
-			console.printf("Fin de connexion OK, au revoir !%n");
+			System.out.format("Fin de connexion OK, au revoir !%n");
 			System.exit(0);
 		} else {
-			console.printf("Echec de la fermeture, au revoir quand même !%n");
+			System.out.format("Echec de la fermeture, au revoir quand même !%n");
 			System.exit(1);
 		}
 		ls.quit();

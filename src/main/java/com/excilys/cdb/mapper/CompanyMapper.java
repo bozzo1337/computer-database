@@ -7,21 +7,20 @@ import java.util.List;
 
 import com.excilys.cdb.model.Company;
 
-public class CompanyMapper extends Mapper<Company>{
+public class CompanyMapper extends Mapper<Company> {
 
-private static CompanyMapper singleInstance = null;
-	
+	private static CompanyMapper singleInstance = null;
+
 	private CompanyMapper() {
-		
 	}
-	
+
 	public static CompanyMapper getInstance() {
 		if (singleInstance == null) {
 			singleInstance = new CompanyMapper();
 		}
 		return singleInstance;
 	}
-	
+
 	@Override
 	public Company map(ResultSet results) {
 		if (results != null) {
@@ -46,7 +45,7 @@ private static CompanyMapper singleInstance = null;
 		}
 		return companies;
 	}
-	
+
 	private Company mapOne(ResultSet results) throws SQLException {
 		Company company = new Company();
 		company.setId(results.getLong("id"));
