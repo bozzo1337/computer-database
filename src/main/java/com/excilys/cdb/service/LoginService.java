@@ -1,6 +1,6 @@
-package com.excilys.computerDB.service;
+package com.excilys.cdb.service;
 
-import com.excilys.computerDB.persistence.DBConnector;
+import com.excilys.cdb.persistence.DBConnector;
 
 public class LoginService {
 	

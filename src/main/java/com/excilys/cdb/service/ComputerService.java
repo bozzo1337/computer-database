@@ -1,8 +1,8 @@
-package com.excilys.computerDB.service;
+package com.excilys.cdb.service;
 
-import com.excilys.computerDB.model.Computer;
-import com.excilys.computerDB.model.Page;
-import com.excilys.computerDB.persistence.DAOComputer;
+import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.model.Page;
+import com.excilys.cdb.persistence.DAOComputer;
 
 public class ComputerService {
 	

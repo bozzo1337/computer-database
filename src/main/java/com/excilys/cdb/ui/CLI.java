@@ -1,12 +1,12 @@
-package com.excilys.computerDB.ui;
+package com.excilys.cdb.ui;
 
 import java.io.Console;
 import java.time.LocalDate;
 
-import com.excilys.computerDB.model.Computer;
-import com.excilys.computerDB.service.CompanyService;
-import com.excilys.computerDB.service.ComputerService;
-import com.excilys.computerDB.service.LoginService;
+import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.service.CompanyService;
+import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.service.LoginService;
 
 public class CLI {
 	

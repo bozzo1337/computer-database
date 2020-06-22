@@ -1,9 +1,9 @@
-package com.excilys.computerDB.persistence;
+package com.excilys.cdb.persistence;
 
 import java.util.List;
 
-import com.excilys.computerDB.mapper.ComputerMapper;
-import com.excilys.computerDB.model.Computer;
+import com.excilys.cdb.mapper.ComputerMapper;
+import com.excilys.cdb.model.Computer;
 
 public class DAOComputer extends DAO<Computer> {
 	

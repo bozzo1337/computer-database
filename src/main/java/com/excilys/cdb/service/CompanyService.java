@@ -1,8 +1,8 @@
-package com.excilys.computerDB.service;
+package com.excilys.cdb.service;
 
-import com.excilys.computerDB.model.Company;
-import com.excilys.computerDB.model.Page;
-import com.excilys.computerDB.persistence.DAOCompany;
+import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Page;
+import com.excilys.cdb.persistence.DAOCompany;
 
 public class CompanyService {
 	

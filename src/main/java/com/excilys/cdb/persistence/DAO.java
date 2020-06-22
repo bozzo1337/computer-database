@@ -1,8 +1,8 @@
-package com.excilys.computerDB.persistence;
+package com.excilys.cdb.persistence;
 
 import java.util.List;
 
-import com.excilys.computerDB.mapper.Mapper;
+import com.excilys.cdb.mapper.Mapper;
 
 public abstract class DAO<T> {
 	

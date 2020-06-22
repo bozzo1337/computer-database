@@ -1,4 +1,4 @@
-package com.excilys.computerDB.model;
+package com.excilys.cdb.model;
 
 import java.util.ArrayList;
 import java.util.List;

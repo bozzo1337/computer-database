@@ -1,4 +1,4 @@
-package com.excilys.computerDB.mapper;
+package com.excilys.cdb.mapper;
 
 import java.sql.ResultSet;
 import java.util.List;
