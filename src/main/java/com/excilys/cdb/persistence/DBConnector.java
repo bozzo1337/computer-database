@@ -1,16 +1,45 @@
 package com.excilys.cdb.persistence;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBConnector {
 	
 	private static DBConnector singleInstance = null;
 	private Connection conn = null;
-	private String url = "jdbc:mysql://127.0.0.1:3306/computer-database-db?serverTimezone=UTC";
+	private String url;
 	private String login;
 	private String password;
+	
+	private DBConnector() {
+		InputStream inputStream = null;
+		try {
+			inputStream = DBConnector.class.getResourceAsStream("/config.properties");
+			Properties properties = new Properties();
+			properties.load(inputStream);
+			url = properties.getProperty("url");
+			login = properties.getProperty("login");
+			password = properties.getProperty("password");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	public static DBConnector getInstance() {
 		if (singleInstance == null) {
@@ -31,10 +60,8 @@ public class DBConnector {
 		return conn;
 	}
 	
-	public boolean initConn(String login, String password) {
+	public boolean initConn() {
 		try {
-			this.login = login;
-			this.password = password;
 			conn = DriverManager.getConnection(url, login, password);
 			conn.setAutoCommit(false);
 			return true;

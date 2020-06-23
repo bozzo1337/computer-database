@@ -68,14 +68,8 @@ public class CLI {
 	}
 	
 	private boolean login() {
-		String login = null;
-		String password = null;
-		System.out.format("Login :%n>");
-		login = in.next();
-		System.out.format("Password:%n>");
-		password = new String(in.next());
 		System.out.format("Connexion...%n");
-		return ls.login(login, password);
+		return ls.login();
 	}
 	
 	private void commandHelp() {

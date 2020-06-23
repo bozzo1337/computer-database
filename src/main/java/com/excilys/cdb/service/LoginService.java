@@ -16,8 +16,8 @@ public class LoginService {
 		return singleInstance;
 	}
 	
-	public boolean login(String login, String password) {
-		return DBConnector.getInstance().initConn(login, password);
+	public boolean login() {
+		return DBConnector.getInstance().initConn();
 	}
 	
 	public boolean quit() {

@@ -1,4 +1,4 @@
-<!DOCTYPE dataset SYSTEM "dataset.dtd">
+<!DOCTYPE dataset SYSTEM "src/test/resources/dataset.dtd">
 <dataset>
 	<company id="1" name="Company1"/>
 	<company id="2" name="Company2"/>
