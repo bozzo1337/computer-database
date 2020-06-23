@@ -23,12 +23,12 @@ public class CompanyMapper extends Mapper<Company> {
 
 	@Override
 	public Company map(ResultSet results) {
-		if (results != null) {
-			try {
+		try {
+			if (results != null && results.next()) {
 				return mapOne(results);
-			} catch (SQLException e) {
-				e.printStackTrace();
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

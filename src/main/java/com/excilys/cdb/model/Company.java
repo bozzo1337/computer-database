@@ -33,4 +33,16 @@ public class Company {
 	public String toString() {
 		return this.id + " | " + this.name;
 	}
+	
+	@Override
+	public boolean equals(Object otherComp) {
+		if (otherComp == this) {
+			return true;
+		}
+		if (otherComp == null || otherComp.getClass() != this.getClass()) {
+			return false;
+		}
+		Company otherCompany = (Company) otherComp;
+		return otherCompany.getId().equals(this.id) && otherCompany.getName().equals(this.name);
+	}
 }

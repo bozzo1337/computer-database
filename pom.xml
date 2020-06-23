@@ -38,12 +38,20 @@
         <version>1.10.19</version>
         <scope>test</scope>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
-    </dependency>
+    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+	<dependency>
+	    <groupId>ch.qos.logback</groupId>
+	    <artifactId>logback-classic</artifactId>
+	    <version>1.2.3</version>
+	    <scope>test</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.dbunit/dbunit -->
+	<dependency>
+	    <groupId>org.dbunit</groupId>
+	    <artifactId>dbunit</artifactId>
+	    <version>2.7.0</version>
+	    <scope>test</scope>
+	</dependency>
   </dependencies>
 
   <build>

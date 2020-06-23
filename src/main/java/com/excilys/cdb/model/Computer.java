@@ -20,6 +20,14 @@ public class Computer {
 		this.companyId = companyId;
 	}
 
+	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
+		this.id = id;
+		this.name = name;
+		this.introduced = introduced;
+		this.discontinued = discontinued;
+		this.companyId = companyId;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -64,5 +72,21 @@ public class Computer {
 	public String toString() {
 		return id + " | " + name + " | " + introduced + " | " +
 				discontinued + " | " + companyId;
+	}
+	
+	@Override
+	public boolean equals(Object otherComp) {
+		if (otherComp == this) {
+			return true;
+		}
+		if (otherComp == null || otherComp.getClass() != this.getClass()) {
+			return false;
+		}
+		Computer otherComputer = (Computer) otherComp;
+		return otherComputer.getId().equals(this.id) &&
+				otherComputer.getName().equals(this.name) &&
+				otherComputer.getIntroduced().equals(this.introduced) &&
+				otherComputer.getDiscontinued().equals(this.discontinued) &&
+				otherComputer.getCompanyId().equals(this.companyId);
 	}
 }

@@ -20,7 +20,7 @@ public class CLI {
 		CLI cli = new CLI();
 		System.out.format("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
 		while (!cli.login()) {
-			System.err.format("Erreur de connexion, veuillez réessayer...%n>");
+			System.err.format("Erreur de connexion, veuillez réessayer...%n");
 		}
 		System.out.format("Connexion OK%n");
 		System.out.format("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
