@@ -27,6 +27,10 @@ public class CompanyService {
 		pageComp.init(dao.getCount());
 	}
 	
+	public Company selectById(Long id) {
+		return dao.findById(id);
+	}
+	
 	public Page<Company> selectAll() {
 		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}

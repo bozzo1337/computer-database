@@ -48,8 +48,8 @@ public class CompanyMapper extends Mapper<Company> {
 
 	private Company mapOne(ResultSet results) throws SQLException {
 		Company company = new Company();
-		company.setId(results.getLong("id"));
-		company.setName(results.getString("name"));
+		company.setId(results.getLong("company.id"));
+		company.setName(results.getString("company.name"));
 		return company;
 	}
 }

@@ -30,7 +30,8 @@ public class DAOComputer extends DAO<Computer> {
 	@Override
 	public Computer findById(Long id) {
 		ResultSet results = null;
-		String query = "SELECT * FROM computer WHERE id=" + id + ";";
+		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+				+ "WHERE computer.id = " + id + ";";
 		try (Connection conn = DBC.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			results = ps.executeQuery();
@@ -46,7 +47,8 @@ public class DAOComputer extends DAO<Computer> {
 	@Override
 	public List<Computer> findBatch(int batchSize, int index) {
 		ResultSet results = null;
-		String query = "SELECT * FROM computer LIMIT " + index * batchSize + ", " + batchSize +";";
+		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+				+ "LIMIT " + index * batchSize + ", " + batchSize +";";
 		try (Connection conn = DBC.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			results = ps.executeQuery();

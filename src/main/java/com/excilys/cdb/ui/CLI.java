@@ -140,7 +140,7 @@ public class CLI {
 		}
 		System.out.format("ID de l'entreprise :%n>");
 		Long compId = validator.validateID(in.next());
-		Computer newComp = new Computer(name, intro, disc, compId);
+		Computer newComp = new Computer(name, intro, disc, compId, null);
 		cs.create(newComp);
 	}
 	

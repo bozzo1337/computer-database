@@ -88,7 +88,7 @@
 	                        </td>
 	                        <td>${ comp.introduced }</td>
 	                        <td>${ comp.discontinued }</td>
-	                        <td>${ comp.companyId }</td>
+	                        <td>${ comp.company.name }</td>
                     	</tr>
                     </c:forEach>
                 </tbody>
@@ -99,12 +99,14 @@
     <footer class="navbar-fixed-bottom">
         <div class="container text-center">
             <ul class="pagination">
-                <li>
-                    <a href="dashboard?page=${ Math.max(0, currentPage - 1) }" aria-label="Previous">
-                      <span aria-hidden="true">&laquo;</span>
-                  </a>
-              </li>
-              <c:forEach var="i" begin="${ Math.max(currentPage - 3, 0) }" end="${ Math.min(maxPage, currentPage + 3) }">
+            	<c:if test="${ currentPage > 0 }">
+	                <li>
+	                    <a href="dashboard?page=${ Math.max(0, currentPage - 1) }" aria-label="Previous">
+	                      <span aria-hidden="true">&laquo;</span>
+	                  </a>
+	              	</li>
+	          	</c:if>
+            	<c:forEach var="i" begin="${ Math.max(currentPage - 3, 0) }" end="${ Math.min(maxPage, currentPage + 3) }">
 	              <c:choose>
 	              	<c:when test="${ i ne currentPage }">
 	              		<li>
@@ -117,13 +119,15 @@
 	              		</li>
 	              	</c:otherwise>
 	              </c:choose>
-              </c:forEach>
-              <li>
-                <a href="dashboard?page=${ Math.min(currentPage + 1, maxPage) }" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
+            	</c:forEach>
+            	<c:if test="${ currentPage < maxPage }">
+	              <li>
+	                <a href="dashboard?page=${ Math.min(currentPage + 1, maxPage) }" aria-label="Next">
+	                    <span aria-hidden="true">&raquo;</span>
+	                </a>
+	              </li>
+           		</c:if>
+        	</ul>
 		</div>
         <div class="btn-group btn-group-sm pull-right" role="group" >
             <button type="button" class="btn btn-default">10</button>

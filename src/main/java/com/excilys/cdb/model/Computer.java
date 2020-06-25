@@ -9,23 +9,26 @@ public class Computer {
 	private LocalDate introduced;
 	private LocalDate discontinued;
 	private Long companyId;
+	private Company company;
 	
 	public Computer() {
 	}
 	
-	public Computer(String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
+	public Computer(String name, LocalDate introduced, LocalDate discontinued, Long companyId, Company company) {
 		this.name = name;
 		this.introduced = introduced;
 		this.discontinued = discontinued;
 		this.companyId = companyId;
+		this.company = company;
 	}
 
-	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
+	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId, Company company) {
 		this.id = id;
 		this.name = name;
 		this.introduced = introduced;
 		this.discontinued = discontinued;
 		this.companyId = companyId;
+		this.company = company;
 	}
 	
 	public Long getId() {
@@ -88,5 +91,13 @@ public class Computer {
 				otherComputer.getIntroduced().equals(this.introduced) &&
 				otherComputer.getDiscontinued().equals(this.discontinued) &&
 				otherComputer.getCompanyId().equals(this.companyId);
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
 	}
 }

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
 public class ComputerMapper extends Mapper<Computer> {
@@ -50,22 +51,24 @@ public class ComputerMapper extends Mapper<Computer> {
 	
 	private Computer mapOne(ResultSet results) throws SQLException {
 		Computer computer = new Computer();
-		computer.setId(results.getLong("id"));
-		computer.setName(results.getString("name"));
-		Date intro = results.getDate("introduced");
+		computer.setId(results.getLong("computer.id"));
+		computer.setName(results.getString("computer.name"));
+		Date intro = results.getDate("computer.introduced");
 		if (intro != null) {
 			computer.setIntroduced(intro.toLocalDate());
 		}
-		Date disc = results.getDate("discontinued");
+		Date disc = results.getDate("computer.discontinued");
 		if (disc != null) {
 			computer.setDiscontinued(disc.toLocalDate());
 		}
-		Long companyId = results.getLong("company_id");
+		Long companyId = results.getLong("computer.company_id");
 		if (companyId == 0) {
 			computer.setCompanyId(null);
 		} else {
 			computer.setCompanyId(companyId);
 		}
+		Company company = CompanyMapper.getInstance().map(results);
+		computer.setCompany(company);
 		return computer;
 	}
 }

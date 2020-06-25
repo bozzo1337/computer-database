@@ -49,7 +49,7 @@ public class ComputerMapperTest {
 		Mockito.when(resultSet.getDate("discontinued")).thenReturn(new Date(1592900862L));
 		Mockito.when(resultSet.getLong("company_id")).thenReturn(new Long(1L));
 		Computer computer = new Computer(new Long(1L), "Computer1", new Date(1592900853L).toLocalDate(),
-				new Date(1592900862L).toLocalDate(), new Long(1L));
+				new Date(1592900862L).toLocalDate(), new Long(1L), null);
 		assertEquals(computer, mapper.map(resultSet));
 	}
 	
@@ -63,11 +63,11 @@ public class ComputerMapperTest {
 		Mockito.when(resultSet.getLong("company_id")).thenReturn(new Long(45L), new Long(45L), new Long(3L));
 		ArrayList<Computer> compList = new ArrayList<Computer>();
 		compList.add(new Computer(new Long(15L), "Computer15", new Date(1592666666L).toLocalDate(),
-				new Date(1592666677L).toLocalDate(), new Long(45L)));
+				new Date(1592666677L).toLocalDate(), new Long(45L), null));
 		compList.add(new Computer(new Long(12L), "Computer12", new Date(99993L).toLocalDate(),
-				new Date(1111111111L).toLocalDate(), new Long(45L)));
+				new Date(1111111111L).toLocalDate(), new Long(45L), null));
 		compList.add(new Computer(new Long(955L), "Computer955", new Date(1L).toLocalDate(),
-				new Date(2L).toLocalDate(), new Long(3L)));
+				new Date(2L).toLocalDate(), new Long(3L), null));
 		assertEquals(compList, mapper.mapBatch(resultSet));
 	}
 }
