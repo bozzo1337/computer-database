@@ -92,10 +92,12 @@ public class CLI {
 		while (!(input = in.next()).equals("q")) {
 			switch (input) {
 			case "n":
-				System.out.format(cs.getNextPage().toString());
+				cs.nextPage();
+				System.out.format(cs.selectAll().toString());
 				break;
 			case "p":
-				System.out.format(cs.getPreviousPage().toString());
+				cs.previousPage();
+				System.out.format(cs.selectAll().toString());
 				break;
 			default:
 				System.out.format("Commande non reconnue.%n");

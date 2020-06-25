@@ -51,11 +51,16 @@ public class DBConnector {
 	public Connection getConn(){
 		try {
 			if (conn == null || conn.isClosed()) {
+				Class.forName("com.mysql.cj.jdbc.Driver");
 				conn = DriverManager.getConnection(url, login, password);
 				conn.setAutoCommit(false);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			System.err.println(e.getMessage().toString());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return conn;
 	}

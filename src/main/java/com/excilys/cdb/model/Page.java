@@ -35,13 +35,27 @@ public class Page<T> {
 		}
 	}
 	
+	public void selectPage(int index) {
+		if (index >= 0 && index <= idxMaxPage) {
+			idxCurrentPage = index;
+		}
+	}
+	
 	public void init(double count) {
 		idxMaxPage = (int) (Math.ceil(count / entitiesPerPage) - 1);
 		idxCurrentPage = 0;
 	}
 	
+	public List<T> getEntities() {
+		return entities;
+	}
+	
 	public int getIdxPage() {
 		return idxCurrentPage;
+	}
+	
+	public void setIdxPage(int index) {
+		this.idxCurrentPage = index;
 	}
 	
 	public int getIdxMaxPage() {

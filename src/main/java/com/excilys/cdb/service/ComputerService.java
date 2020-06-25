@@ -24,21 +24,31 @@ public class ComputerService {
 	}
 	
 	public void resetPages() {
-		pageComp.init(dao.getCount());
+		pageComp.init(getCount());
 	}
 	
 	public Page<Computer> selectAll() {
 		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}
 	
-	public Page<Computer> getNextPage() {
-		pageComp.nextPage();
-		return selectAll();
+	public Page<Computer> getPageComp() {
+		return pageComp;
 	}
 	
-	public Page<Computer> getPreviousPage() {
+	public double getCount() {
+		return dao.getCount();
+	}
+	
+	public void nextPage() {
+		pageComp.nextPage();
+	}
+	
+	public void previousPage() {
 		pageComp.previousPage();
-		return selectAll();
+	}
+	
+	public void selectPage(int index) {
+		pageComp.selectPage(index);
 	}
 	
 	public Computer selectById(Long id) {
