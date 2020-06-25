@@ -42,7 +42,11 @@ public class DashboardServlet extends HttpServlet {
 		request.setAttribute("maxPage", new Long(maxPage));
 		Integer paramPage = null;
 		if (request.getParameter("page") != null) {
-			paramPage = Integer.parseInt(request.getParameter("page"));
+			try {
+				paramPage = Integer.parseInt(request.getParameter("page"));
+			} catch (NumberFormatException e) {
+				paramPage = null;
+			}
 		}
 		if (paramPage != null) {
 			currentPage = paramPage.intValue();
