@@ -24,7 +24,7 @@ public class CompanyMapper extends Mapper<Company> {
 	@Override
 	public Company map(ResultSet results) {
 		try {
-			if (results != null && results.next()) {
+			if (results != null && !results.isClosed()) {
 				return mapOne(results);
 			}
 		} catch (SQLException e) {
@@ -37,7 +37,7 @@ public class CompanyMapper extends Mapper<Company> {
 	public List<Company> mapBatch(ResultSet results) {
 		ArrayList<Company> companies = new ArrayList<Company>();
 		try {
-			while (results != null && results.next()) {
+			while (results != null && !results.isClosed()) {
 				companies.add(mapOne(results));
 			}
 		} catch (SQLException e) {

@@ -6,6 +6,7 @@ import java.util.List;
 public class Page<T> {
 
 	private List<T> entities;
+	private double nbEntities;
 	private int entitiesPerPage;
 	private int idxCurrentPage;
 	private int idxMaxPage;
@@ -13,7 +14,7 @@ public class Page<T> {
 	
 	public Page(String header) {
 		idxCurrentPage = 0;
-		entitiesPerPage = 20;
+		entitiesPerPage = 10;
 		entities = new ArrayList<T>();
 		this.header = header;
 	}
@@ -42,7 +43,8 @@ public class Page<T> {
 	}
 	
 	public void init(double count) {
-		idxMaxPage = (int) (Math.ceil(count / entitiesPerPage) - 1);
+		nbEntities = count;
+		idxMaxPage = (int) (Math.ceil(nbEntities / entitiesPerPage) - 1);
 		idxCurrentPage = 0;
 	}
 	
@@ -78,5 +80,13 @@ public class Page<T> {
 			output.append(entity.toString() + "%n");
 		}
 		return output.toString();
+	}
+
+	public double getNbEntities() {
+		return nbEntities;
+	}
+
+	public void setNbEntities(double nbEntities) {
+		this.nbEntities = nbEntities;
 	}
 }

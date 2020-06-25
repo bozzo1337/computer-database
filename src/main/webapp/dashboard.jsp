@@ -128,17 +128,39 @@
 	              </li>
            		</c:if>
         	</ul>
-		</div>
-        <div class="btn-group btn-group-sm pull-right" role="group" >
-            <button type="button" class="btn btn-default">10</button>
-            <button type="button" class="btn btn-default">50</button>
-            <button type="button" class="btn btn-default">100</button>
+        	<div class="btn-group btn-group-sm pull-right" role="group" >
+        		<form action="${ pageContext.request.contextPath }/dashboard" method="post">
+        			<c:choose>
+        				<c:when test="${ entitiesPerPage eq 10 }">
+        					<button type="submit" class="btn active" name="button10">10</button>
+        				</c:when>
+        				<c:otherwise>
+        					<button type="submit" class="btn btn-default" name="button10">10</button>
+        				</c:otherwise>
+        			</c:choose>
+        			<c:choose>
+        				<c:when test="${ entitiesPerPage eq 50 }">
+        					<button type="submit" class="btn active" name="button50">50</button>
+        				</c:when>
+        				<c:otherwise>
+        					<button type="submit" class="btn btn-default" name="button50">50</button>
+        				</c:otherwise>
+        			</c:choose>
+        			<c:choose>
+        				<c:when test="${ entitiesPerPage eq 100 }">
+        					<button type="submit" class="btn active" name="button100">100</button>
+        				</c:when>
+        				<c:otherwise>
+        					<button type="submit" class="btn btn-default" name="button100">100</button>
+        				</c:otherwise>
+        			</c:choose>
+	            </form>
         </div>
-
+		</div> 
     </footer>
-<script src="../js/jquery.min.js"></script>
-<script src="../js/bootstrap.min.js"></script>
-<script src="../js/dashboard.js"></script>
+<script src="static/js/jquery.min.js"></script>
+<script src="static/js/bootstrap.min.js"></script>
+<script src="static/js/dashboard.js"></script>
 
 </body>
 </html>

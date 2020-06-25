@@ -28,8 +28,6 @@ public class DashboardServlet extends HttpServlet {
      */
     public DashboardServlet() {
         super();
-        cs.resetPages();
-        maxPage = cs.getPageComp().getIdxMaxPage();
         // TODO Auto-generated constructor stub
     }
 
@@ -37,6 +35,10 @@ public class DashboardServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		cs.resetPages();
+		maxPage = cs.getPageComp().getIdxMaxPage();
+		request.setAttribute("entitiesPerPage", cs.getPageComp().getEntitiesPerPage());
+		currentPage = currentPage > maxPage ? maxPage : currentPage;
 		request.setAttribute("maxPage", new Long(maxPage));
 		Integer paramPage = null;
 		if (request.getParameter("page") != null) {
@@ -60,6 +62,13 @@ public class DashboardServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {	
+		if (request.getParameter("button10") != null) {
+			cs.getPageComp().setEntitiesPerPage(10);
+		} else if (request.getParameter("button50") != null) {
+			cs.getPageComp().setEntitiesPerPage(50);
+		} else if (request.getParameter("button100") != null) {
+			cs.getPageComp().setEntitiesPerPage(100);
+		}
 		doGet(request, response);
 	}
 
