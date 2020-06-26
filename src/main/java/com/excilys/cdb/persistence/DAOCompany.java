@@ -62,6 +62,21 @@ public class DAOCompany extends DAO<Company> {
 	public double getCount() {
 		return count();
 	}
+	
+	public List<Company> findAll() {
+		ResultSet results = null;
+		String query = "SELECT * FROM company ORDER BY name;";
+		try (Connection conn = DBC.getConn();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+			results = ps.executeQuery();
+			conn.commit();
+			return mapper.mapBatch(results);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			doRollBack();
+		}
+		return null;
+	}
 
 	@Override
 	public List<Company> findBatch(int batchSize, int index) {

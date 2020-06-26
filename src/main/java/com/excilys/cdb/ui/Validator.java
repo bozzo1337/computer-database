@@ -8,7 +8,7 @@ public class Validator {
 
 	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
-	protected LocalDate validateDate(String input) {
+	public LocalDate validateDate(String input) {
 		LocalDate dateValid = null;
 		try {
 			dateValid = LocalDate.parse(input, df);
@@ -18,7 +18,7 @@ public class Validator {
 		return dateValid;
 	}
 	
-	protected Long validateID(String input) {
+	public Long validateID(String input) {
 		Long validId = null;
 		try {
 			validId = Long.valueOf(input);
@@ -28,7 +28,7 @@ public class Validator {
 		return validId;
 	}
 	
-	protected boolean validateTemporality(LocalDate intro, LocalDate disc) {
+	public boolean validateTemporality(LocalDate intro, LocalDate disc) {
 		boolean valid = true;
 		if (intro != null && disc != null) {
 			valid = intro.isBefore(disc);
@@ -36,7 +36,7 @@ public class Validator {
 		return valid;
 	}
 	
-	protected boolean validateName(String input) {
+	public boolean validateName(String input) {
 		return !input.trim().isEmpty();
 	}
 }

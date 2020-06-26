@@ -108,7 +108,7 @@ public class CLI {
 	
 	private void commandCompanies() {
 		cas.resetPages();
-		System.out.format(cas.selectAll().toString());
+		System.out.format(cas.selectPage().toString());
 	}
 	
 	private void commandComputer() {

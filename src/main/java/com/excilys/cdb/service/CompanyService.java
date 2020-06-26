@@ -1,5 +1,7 @@
 package com.excilys.cdb.service;
 
+import java.util.List;
+
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 import com.excilys.cdb.persistence.DAOCompany;
@@ -31,7 +33,11 @@ public class CompanyService {
 		return dao.findById(id);
 	}
 	
-	public Page<Company> selectAll() {
+	public Page<Company> selectPage() {
 		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	}
+	
+	public List<Company> selectAll() {
+		return dao.findAll();
 	}
 }

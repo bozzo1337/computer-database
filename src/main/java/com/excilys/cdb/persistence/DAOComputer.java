@@ -103,8 +103,10 @@ public class DAOComputer extends DAO<Computer> {
 			else
 				ps.setNull(4, java.sql.Types.BIGINT);
 			ps.executeUpdate();
+			conn.commit();
 		} catch (SQLException e) {
 			//TODO
+			e.printStackTrace();
 			doRollBack();
 		}
 	}
@@ -128,6 +130,7 @@ public class DAOComputer extends DAO<Computer> {
 				ps.setNull(4, java.sql.Types.BIGINT);
 			ps.setLong(5, id);
 			ps.executeUpdate();
+			conn.commit();
 		} catch (SQLException e) {
 			//TODO
 			doRollBack();
@@ -139,6 +142,7 @@ public class DAOComputer extends DAO<Computer> {
 		try (Connection conn = DBC.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.executeUpdate();
+			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -156,6 +160,7 @@ public class DAOComputer extends DAO<Computer> {
 			if (results.next()) {
 				compCount = results.getDouble("count");
 			}
+			conn.commit();
 		} catch (SQLException e) {
 			//TODO
 			doRollBack();

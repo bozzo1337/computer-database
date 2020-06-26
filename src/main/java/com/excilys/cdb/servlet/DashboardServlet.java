@@ -58,6 +58,7 @@ public class DashboardServlet extends HttpServlet {
 		request.setAttribute("currentPage", currentPage);
 		request.setAttribute("listComp", listComp);
 		request.setAttribute("compCount", (int) cs.getCount());
+		request.setAttribute("firstCallCreate", true);
 		RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
 		rd.forward(request, response);
 	}

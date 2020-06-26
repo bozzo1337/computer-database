@@ -67,7 +67,7 @@ public class ComputerMapper extends Mapper<Computer> {
 		} else {
 			computer.setCompanyId(companyId);
 		}
-		Company company = CompanyMapper.getInstance().map(results);
+		Company company = CompanyMapper.getInstance().mapOne(results);
 		computer.setCompany(company);
 		return computer;
 	}
