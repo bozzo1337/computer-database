@@ -10,7 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.service.ComputerService;
 
 /**
@@ -54,7 +55,7 @@ public class DashboardServlet extends HttpServlet {
 			currentPage = Math.min(currentPage, maxPage);
 		}
 		cs.selectPage(currentPage);
-		List<Computer> listComp = cs.selectAll().getEntities();
+		List<DTOComputer> listComp = ComputerMapper.getInstance().mapListToDTO(cs.selectAll().getEntities());
 		request.setAttribute("currentPage", currentPage);
 		request.setAttribute("listComp", listComp);
 		request.setAttribute("compCount", (int) cs.getCount());

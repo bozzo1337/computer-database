@@ -4,15 +4,18 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
 public class ComputerMapper extends Mapper<Computer> {
 	
 	private static ComputerMapper singleInstance = null;
+	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	private ComputerMapper() {
 		
@@ -37,8 +40,28 @@ public class ComputerMapper extends Mapper<Computer> {
 		return null;
 	}
 	
-	public Computer mapFromString(String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
-		Computer computer = new Computer(name, introduced, discontinued, companyId);
+	public List<DTOComputer> mapListToDTO(List<Computer> listComp) {
+		ArrayList<DTOComputer> dtos = new ArrayList<DTOComputer>();
+		for (Computer comp : listComp) {
+			dtos.add(mapToDTO(comp));
+		}
+		return dtos;
+	}
+	
+	public DTOComputer mapToDTO(Computer computer) {
+		String name = computer.getName();
+		String introduced = computer.getIntroduced() != null ? computer.getIntroduced().format(df) : null;
+		String discontinued = computer.getDiscontinued() != null ? computer.getDiscontinued().format(df) : null;
+		String companyId = computer.getCompanyId() != null ? computer.getCompanyId().toString() : null;
+		String companyName = computer.getCompany() != null ? computer.getCompany().getName() : null;
+		return new DTOComputer(name, introduced, discontinued, companyId, companyName);
+	}
+	
+	public Computer mapFromValidDTO(DTOComputer computerDTO) {
+		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df) : null;
+		LocalDate disc = !computerDTO.getDiscontinued().isEmpty() ? LocalDate.parse(computerDTO.getDiscontinued(), df) : null;
+		Long compId = !computerDTO.getCompanyId().toString().equals("0") ? Long.valueOf(computerDTO.getCompanyId()) : null;
+		Computer computer = new Computer(computerDTO.getName(), intro, disc, compId);
 		return computer;
 	}
 

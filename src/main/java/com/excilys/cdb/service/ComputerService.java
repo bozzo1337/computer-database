@@ -1,5 +1,7 @@
 package com.excilys.cdb.service;
 
+import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 import com.excilys.cdb.persistence.DAOComputer;
@@ -53,6 +55,10 @@ public class ComputerService {
 	
 	public Computer selectById(Long id) {
 		return dao.findById(id);
+	}
+	
+	public void create(DTOComputer computerDTO) {
+		dao.create(ComputerMapper.getInstance().mapFromValidDTO(computerDTO));
 	}
 	
 	public void create(Computer comp) {

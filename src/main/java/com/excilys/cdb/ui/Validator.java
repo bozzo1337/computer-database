@@ -4,6 +4,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import com.excilys.cdb.dto.DTOComputer;
+
+import exception.IncorrectDiscDateException;
+import exception.IncorrectIDException;
+import exception.IncorrectIntroDateException;
+import exception.IncorrectNameException;
+import exception.IncorrectTemporalityException;
+
 public class Validator {
 
 	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -30,5 +38,38 @@ public class Validator {
 	
 	public boolean validateName(String input) {
 		return !input.isEmpty();
+	}
+	
+	public void validateDTO(DTOComputer computerDTO) throws IncorrectNameException, IncorrectIntroDateException, 
+	IncorrectDiscDateException, IncorrectIDException, IncorrectTemporalityException {
+		LocalDate intro = null;
+		LocalDate disc = null;
+		if (!validateName(computerDTO.getName())) {
+			throw new IncorrectNameException("Empty name");
+		}
+		if (computerDTO.getIntroduced() != "") {
+			try {
+				intro = validateDate(computerDTO.getIntroduced());
+			} catch (DateTimeParseException e) {
+				throw new IncorrectIntroDateException("Incorrect intro date format", e);
+			}
+		}
+		if (computerDTO.getDiscontinued() != "") {
+			try {
+				disc = validateDate(computerDTO.getDiscontinued());
+			} catch (DateTimeParseException e) {
+				throw new IncorrectDiscDateException("Incorrect disc date format", e);
+			}
+		}
+		if (computerDTO.getCompanyId() != "0") {
+			try {
+				validateID(computerDTO.getCompanyId());
+			} catch (NumberFormatException e) {
+				throw new IncorrectIDException("Incorrect ID format", e);
+			}
+		}
+		if (intro != null && disc != null && !validateTemporality(intro, disc)) {
+			throw new IncorrectTemporalityException("Temporality error");
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package com.excilys.cdb.servlet;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
 import com.excilys.cdb.ui.Validator;
@@ -32,6 +30,7 @@ public class CreateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private CompanyService cas = CompanyService.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
+	private Validator validator = new Validator();
 	private boolean firstCallCreate = true;
 	
     /**
@@ -59,24 +58,29 @@ public class CreateServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		firstCallCreate = false;
-		boolean creationOK = true;
+		boolean creationOK = false;
+		boolean validDTO = true;
 		String name = request.getParameter("computerNameInput");
 		String intro = request.getParameter("introduced");
 		String disc = request.getParameter("discontinued");
 		String compId = request.getParameter("companyId");
 		DTOComputer computerDTO = new DTOComputer(name, intro, disc, compId);
 		try {
-			computerDTO.validate();
+			validator.validateDTO(computerDTO);
 		} catch (IncorrectNameException e) {
-			creationOK = false;
+			validDTO = false;
 		} catch (IncorrectIntroDateException e) {
-			creationOK = false;
+			validDTO = false;
 		} catch (IncorrectDiscDateException e) {
-			creationOK = false;
+			validDTO = false;
 		} catch (IncorrectIDException e) {
-			creationOK = false;
+			validDTO = false;
 		} catch (IncorrectTemporalityException e) {
-			creationOK = false;
+			validDTO = false;
+		}
+		if (validDTO) {
+			cs.create(computerDTO);
+			creationOK = true;
 		}
 		request.setAttribute("creationOK", creationOK);
 		doGet(request, response);
