@@ -11,11 +11,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
 import com.excilys.cdb.ui.Validator;
+
+import exception.IncorrectDiscDateException;
+import exception.IncorrectIDException;
+import exception.IncorrectIntroDateException;
+import exception.IncorrectNameException;
+import exception.IncorrectTemporalityException;
 
 /**
  * Servlet implementation class CreateServlet
@@ -25,9 +32,6 @@ public class CreateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private CompanyService cas = CompanyService.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
-	private Computer compToCreate;
-	private Validator validator = new Validator();
-	private boolean creationOK = false;
 	private boolean firstCallCreate = true;
 	
     /**
@@ -55,33 +59,23 @@ public class CreateServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		firstCallCreate = false;
-		String name = request.getParameter("computerName");
+		boolean creationOK = true;
+		String name = request.getParameter("computerNameInput");
 		String intro = request.getParameter("introduced");
 		String disc = request.getParameter("discontinued");
 		String compId = request.getParameter("companyId");
-		boolean nameOK = false;
-		boolean temporalityOK;
-		LocalDate introduced = null;
-		LocalDate discontinued = null;
-		Long companyId = null;
-		if (name != null) {
-			nameOK = validator.validateName(name);
-		}
-		if (intro != null) {
-			introduced = validator.validateDate(intro);
-		}
-		if (disc != null) {
-			discontinued = validator.validateDate(disc);
-		}
-		if (!compId.equals("0") ) {
-			companyId = validator.validateID(compId);
-		}
-		temporalityOK = validator.validateTemporality(introduced, discontinued);
-		if (nameOK && temporalityOK) {
-			compToCreate = new Computer(name.trim(), introduced, discontinued, companyId, cas.selectById(companyId));
-			cs.create(compToCreate);
-			creationOK = true;
-		} else {
+		DTOComputer computerDTO = new DTOComputer(name, intro, disc, compId);
+		try {
+			computerDTO.validate();
+		} catch (IncorrectNameException e) {
+			creationOK = false;
+		} catch (IncorrectIntroDateException e) {
+			creationOK = false;
+		} catch (IncorrectDiscDateException e) {
+			creationOK = false;
+		} catch (IncorrectIDException e) {
+			creationOK = false;
+		} catch (IncorrectTemporalityException e) {
 			creationOK = false;
 		}
 		request.setAttribute("creationOK", creationOK);

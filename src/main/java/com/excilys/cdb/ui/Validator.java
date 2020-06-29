@@ -8,23 +8,15 @@ public class Validator {
 
 	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
-	public LocalDate validateDate(String input) {
+	public LocalDate validateDate(String input) throws DateTimeParseException {
 		LocalDate dateValid = null;
-		try {
-			dateValid = LocalDate.parse(input, df);
-		} catch (DateTimeParseException e) {
-			//TODO
-		}
+		dateValid = LocalDate.parse(input, df);
 		return dateValid;
 	}
 	
-	public Long validateID(String input) {
+	public Long validateID(String input) throws NumberFormatException {
 		Long validId = null;
-		try {
-			validId = Long.valueOf(input);
-		} catch (NumberFormatException e) {
-			//TODO
-		}
+		validId = Long.valueOf(input);
 		return validId;
 	}
 	
@@ -37,6 +29,6 @@ public class Validator {
 	}
 	
 	public boolean validateName(String input) {
-		return !input.trim().isEmpty();
+		return !input.isEmpty();
 	}
 }

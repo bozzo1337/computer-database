@@ -3,6 +3,7 @@ package com.excilys.cdb.mapper;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,11 @@ public class ComputerMapper extends Mapper<Computer> {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public Computer mapFromString(String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
+		Computer computer = new Computer(name, introduced, discontinued, companyId);
+		return computer;
 	}
 
 	@Override

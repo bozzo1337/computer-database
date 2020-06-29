@@ -11,6 +11,11 @@
 	media="screen">
 <link href="static/css/font-awesome.css" rel="stylesheet" media="screen">
 <link href="static/css/main.css" rel="stylesheet" media="screen">
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+<script type="text/javascript" src="static/js/create.valid.js"></script>
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -24,12 +29,13 @@
 			<div class="row">
 				<div class="col-xs-8 col-xs-offset-2 box">
 					<h1>Add Computer</h1>
-					<form action="create" method="POST">
+					<form id="createForm" name="createForm" action="create"
+						method="POST">
 						<fieldset>
 							<div class="form-group">
-								<label for="computerName">Computer name</label> <input
-									type="text" class="form-control" name="computerName"
-									placeholder="Computer name">
+								<label for="computerName">Computer name *</label> <input
+									type="text" class="form-control" id="computerNameInput"
+									name="computerNameInput" placeholder="Computer name">
 							</div>
 							<div class="form-group">
 								<label for="introduced">Introduced date (JJ/MM/AAAA)</label> <input
@@ -46,7 +52,8 @@
 									class="form-control" name="companyId">
 									<option value="0" />
 									<c:forEach var="company" items="${ listCompanies }">
-										<option value="${ company.id }">${ company.name }</option>
+										<option value="${ company.id }"><c:out
+												value="${ company.name }" /></option>
 									</c:forEach>
 
 								</select>

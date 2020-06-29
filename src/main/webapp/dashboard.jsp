@@ -12,18 +12,21 @@
 	media="screen">
 <link href="static/css/font-awesome.css" rel="stylesheet" media="screen">
 <link href="static/css/main.css" rel="stylesheet" media="screen">
+<script src="static/js/jquery.min.js"></script>
+<script src="static/js/bootstrap.min.js"></script>
+<script src="static/js/dashboard.js"></script>
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard.html"> Application -
+			<a class="navbar-brand" href="dashboard"> Application -
 				Computer Database </a>
 		</div>
 	</header>
 
 	<section id="main">
 		<div class="container">
-			<h1 id="homeTitle">${ compCount } computers found</h1>
+			<h1 id="homeTitle"><c:out value="${ compCount }"/> computers found</h1>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
 					<form id="searchForm" action="#" method="GET" class="form-inline">
@@ -35,7 +38,7 @@
 					</form>
 				</div>
 				<div class="pull-right">
-					<a class="btn btn-success" id="addComputer" href="create">Add
+					<a class="btn btn-success" id="addComputer" href="create?firstCallCreate=true">Add
 						Computer</a> <a class="btn btn-default" id="editComputer" href="edit"
 						onclick="$.fn.toggleEditMode();">Edit</a>
 				</div>
@@ -75,11 +78,11 @@
 						<tr>
 							<td class="editMode"><input type="checkbox" name="cb"
 								class="cb" value="0"></td>
-							<td><a href="edit?compId=${ comp.id }" onclick="">${ comp.name }</a>
+							<td><a href="edit?compId=${ comp.id }" onclick=""><c:out value="${ comp.name }"/></a>
 							</td>
-							<td>${ comp.introduced }</td>
-							<td>${ comp.discontinued }</td>
-							<td>${ comp.company.name }</td>
+							<td><c:out value="${ comp.introduced }"/></td>
+							<td><c:out value="${ comp.discontinued }"/></td>
+							<td><c:out value="${ comp.company.name }"/></td>
 						</tr>
 					</c:forEach>
 				</tbody>
@@ -99,10 +102,10 @@
 					end="${ Math.min(maxPage, currentPage + 3) }">
 					<c:choose>
 						<c:when test="${ i ne currentPage }">
-							<li><a href="dashboard?page=${i}">${ i+1 }</a></li>
+							<li><a href="dashboard?page=${i}"><c:out value="${ i+1 }"/></a></li>
 						</c:when>
 						<c:otherwise>
-							<li class="active"><a href="dashboard?page=${i}">${ i+1 }</a>
+							<li class="active"><a href="dashboard?page=${i}"><c:out value="${ i+1 }"/></a>
 							</li>
 						</c:otherwise>
 					</c:choose>
@@ -115,8 +118,7 @@
 				</c:if>
 			</ul>
 			<div class="btn-group btn-group-sm pull-right" role="group">
-				<form action="dashboard"
-					method="post">
+				<form action="dashboard" method="post">
 					<c:choose>
 						<c:when test="${ entitiesPerPage eq 10 }">
 							<button type="submit" class="btn active" name="button10">10</button>
@@ -145,9 +147,5 @@
 			</div>
 		</div>
 	</footer>
-	<script src="static/js/jquery.min.js"></script>
-	<script src="static/js/bootstrap.min.js"></script>
-	<script src="static/js/dashboard.js"></script>
-
 </body>
 </html>
