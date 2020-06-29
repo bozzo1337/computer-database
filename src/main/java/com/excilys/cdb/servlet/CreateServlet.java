@@ -14,13 +14,13 @@ import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.ui.Validator;
 
 import exception.IncorrectDiscDateException;
 import exception.IncorrectIDException;
 import exception.IncorrectIntroDateException;
 import exception.IncorrectNameException;
 import exception.IncorrectTemporalityException;
+import validation.Validator;
 
 /**
  * Servlet implementation class CreateServlet
@@ -64,25 +64,21 @@ public class CreateServlet extends HttpServlet {
 		String intro = request.getParameter("introduced");
 		String disc = request.getParameter("discontinued");
 		String compId = request.getParameter("companyId");
+		String errMessage = null;
 		DTOComputer computerDTO = new DTOComputer(name, intro, disc, compId);
 		try {
 			validator.validateDTO(computerDTO);
-		} catch (IncorrectNameException e) {
+		} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException |
+				IncorrectIDException | IncorrectTemporalityException e) {
 			validDTO = false;
-		} catch (IncorrectIntroDateException e) {
-			validDTO = false;
-		} catch (IncorrectDiscDateException e) {
-			validDTO = false;
-		} catch (IncorrectIDException e) {
-			validDTO = false;
-		} catch (IncorrectTemporalityException e) {
-			validDTO = false;
+			errMessage = e.getMessage();
 		}
 		if (validDTO) {
 			cs.create(computerDTO);
 			creationOK = true;
 		}
 		request.setAttribute("creationOK", creationOK);
+		request.setAttribute("errMessage", errMessage);
 		doGet(request, response);
 	}
 

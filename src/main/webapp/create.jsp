@@ -11,10 +11,14 @@
 	media="screen">
 <link href="static/css/font-awesome.css" rel="stylesheet" media="screen">
 <link href="static/css/main.css" rel="stylesheet" media="screen">
+<link rel="stylesheet"
+	href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 <script type="text/javascript"
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript"
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="static/js/create.valid.js"></script>
 </head>
 <body>
@@ -39,8 +43,8 @@
 							</div>
 							<div class="form-group">
 								<label for="introduced">Introduced date (JJ/MM/AAAA)</label> <input
-									type="date" class="form-control" name="introduced"
-									placeholder="Introduced date">
+									type="date" class="form-control" id="introduced"
+									name="introduced" placeholder="Introduced date">
 							</div>
 							<div class="form-group">
 								<label for="discontinued">Discontinued date (JJ/MM/AAAA)</label>
@@ -67,18 +71,23 @@
 				</div>
 			</div>
 		</div>
-		<div>
-			<c:if test="${ not firstCallCreate }">
+
+		<c:if test="${ not firstCallCreate }">
+			<div class="container">
 				<c:choose>
 					<c:when test="${ creationOK }">
 						<p class="alert-success">Creation successful</p>
 					</c:when>
 					<c:otherwise>
-						<p class="alert-warning">Error creating</p>
+						<p class="alert-warning">
+							Error creating :
+							<c:out value="${ errMessage }" />
+						</p>
 					</c:otherwise>
 				</c:choose>
-			</c:if>
-		</div>
+			</div>
+		</c:if>
+
 	</section>
 </body>
 </html>

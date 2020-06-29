@@ -8,6 +8,8 @@ import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
 import com.excilys.cdb.service.LoginService;
 
+import validation.Validator;
+
 public class CLI {
 	
 	private LoginService ls = LoginService.getInstance();
