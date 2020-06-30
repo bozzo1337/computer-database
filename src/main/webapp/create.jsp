@@ -19,7 +19,7 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-<script type="text/javascript" src="static/js/create.valid.js"></script>
+<script type="text/javascript" src="static/js/form.valid.js"></script>
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -53,7 +53,7 @@
 							</div>
 							<div class="form-group">
 								<label for="companyId">Company</label> <select
-									class="form-control" name="companyId">
+									class="form-control" id="companyId" name="companyId">
 									<option value="0" />
 									<c:forEach var="company" items="${ listCompanies }">
 										<option value="${ company.id }"><c:out

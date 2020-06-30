@@ -8,6 +8,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 public class DBConnector {
 	
 	private static DBConnector singleInstance = null;
@@ -15,6 +18,8 @@ public class DBConnector {
 	private String url;
 	private String login;
 	private String password;
+	private HikariConfig config = new HikariConfig();
+	private HikariDataSource ds;
 	
 	private DBConnector() {
 		InputStream inputStream = null;
@@ -25,6 +30,11 @@ public class DBConnector {
 			url = properties.getProperty("url");
 			login = properties.getProperty("login");
 			password = properties.getProperty("password");
+			config.setUsername(login);
+			config.setJdbcUrl(url);
+			config.setPassword(password);
+			config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+			ds = new HikariDataSource(config);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,7 +62,7 @@ public class DBConnector {
 		try {
 			if (conn == null || conn.isClosed()) {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				conn = DriverManager.getConnection(url, login, password);
+				conn = ds.getConnection();
 				conn.setAutoCommit(false);
 			}
 		} catch (SQLException e) {

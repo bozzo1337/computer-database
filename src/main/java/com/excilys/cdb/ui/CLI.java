@@ -14,7 +14,6 @@ public class CLI {
 	private LoginService ls = LoginService.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
 	private CompanyService cas = CompanyService.getInstance();
-	private Validator validator = new Validator();
 	private Scanner in = new Scanner(System.in);
 	
 	public static void main(String[] args) {
@@ -114,7 +113,7 @@ public class CLI {
 	
 	private void commandComputer() {
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
-		Long idRead = validator.validateID(in.next());
+		Long idRead = Validator.validateID(in.next());
 		Computer comp;
 		if (idRead != null && (comp = cs.selectById(idRead)) != null) {
 			System.out.format(comp.toString());
@@ -127,20 +126,20 @@ public class CLI {
 		System.out.format("Création d'un nouvel ordinateur :%n");
 		System.out.format("Nom (requis) :%n>");
 		String name = in.next();
-		if (!validator.validateName(name)) {
+		if (!Validator.validateName(name)) {
 			System.err.format("Nom requis ! Retour à l'accueil.");
 			return;
 		}
 		System.out.format("LocalDate intro (jj/mm/aaaa) :%n>");
-		LocalDate intro = validator.validateDate(in.next());
+		LocalDate intro = Validator.validateDate(in.next());
 		System.out.format("LocalDate disc (>= intro) :%n>");
-		LocalDate disc = validator.validateDate(in.next());
-		if (!validator.validateTemporality(intro, disc)) {
+		LocalDate disc = Validator.validateDate(in.next());
+		if (!Validator.validateTemporality(intro, disc)) {
 			System.err.format("Erreur de temporalité ! Retour à l'accueil.");
 			return;
 		}
 		System.out.format("ID de l'entreprise :%n>");
-		Long compId = validator.validateID(in.next());
+		Long compId = Validator.validateID(in.next());
 		Computer newComp = new Computer(name, intro, disc, compId, null);
 		cs.create(newComp);
 	}
@@ -149,7 +148,7 @@ public class CLI {
 		Computer compToUpdate = new Computer();
 		System.out.format("Mise à jour d'un ordinateur :%n");
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
-		Long idRead = validator.validateID(in.next());
+		Long idRead = Validator.validateID(in.next());
 		if (idRead != null) {
 			compToUpdate = cs.selectById(idRead);
 		} else {
@@ -169,7 +168,7 @@ public class CLI {
 			case "name":
 				System.out.format("Nouveau nom :%n>");
 				newName = in.next();
-				if (validator.validateName(newName)) {
+				if (Validator.validateName(newName)) {
 					compToUpdate.setName(newName);
 				} else {
 					System.err.format("Nom vide impossible !%n");
@@ -177,21 +176,21 @@ public class CLI {
 				break;
 			case "introduced":
 				System.out.format("Nouvelle date de mise en service (jj/mm/aaaa) :%n>");
-				newDate = validator.validateDate(in.next());
-				if (newDate != null && validator.validateTemporality(newDate, compToUpdate.getDiscontinued())) {
+				newDate = Validator.validateDate(in.next());
+				if (newDate != null && Validator.validateTemporality(newDate, compToUpdate.getDiscontinued())) {
 					compToUpdate.setIntroduced(newDate);
 				}
 				break;
 			case "discontinued":
 				System.out.format("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");			
-				newDate = validator.validateDate(in.next());
-				if (newDate != null && validator.validateTemporality(compToUpdate.getIntroduced(), newDate)) {
+				newDate = Validator.validateDate(in.next());
+				if (newDate != null && Validator.validateTemporality(compToUpdate.getIntroduced(), newDate)) {
 					compToUpdate.setDiscontinued(newDate);
 				}
 				break;
 			case "company_id":
 				System.out.format("Nouvel identifiant d'entreprise :%n>");
-				Long newCompId = validator.validateID(in.next());
+				Long newCompId = Validator.validateID(in.next());
 				compToUpdate.setCompanyId(newCompId);
 				break;
 			case "ok":
@@ -208,7 +207,7 @@ public class CLI {
 	private void commandDelete() {
 		System.out.format("Suppression d'un ordinateur :%n");
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
-		Long idRead = validator.validateID(in.next());
+		Long idRead = Validator.validateID(in.next());
 		if (idRead != null) {
 			Computer compToDelete = cs.selectById(idRead);
 			System.out.format("Ordinateur sélectionné :%n");

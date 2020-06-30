@@ -69,6 +69,10 @@ public class ComputerService {
 		dao.update(comp);
 	}
 	
+	public void update(DTOComputer computerDTO) {
+		dao.update(ComputerMapper.getInstance().mapFromValidDTO(computerDTO));
+	}
+	
 	public void delete(Computer comp) {
 		dao.delete(comp);
 	}

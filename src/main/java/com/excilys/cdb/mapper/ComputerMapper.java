@@ -49,12 +49,13 @@ public class ComputerMapper extends Mapper<Computer> {
 	}
 	
 	public DTOComputer mapToDTO(Computer computer) {
+		String id = computer.getId().toString();
 		String name = computer.getName();
 		String introduced = computer.getIntroduced() != null ? computer.getIntroduced().format(df) : null;
 		String discontinued = computer.getDiscontinued() != null ? computer.getDiscontinued().format(df) : null;
 		String companyId = computer.getCompanyId() != null ? computer.getCompanyId().toString() : null;
 		String companyName = computer.getCompany() != null ? computer.getCompany().getName() : null;
-		return new DTOComputer(name, introduced, discontinued, companyId, companyName);
+		return new DTOComputer(id, name, introduced, discontinued, companyId, companyName);
 	}
 	
 	public Computer mapFromValidDTO(DTOComputer computerDTO) {

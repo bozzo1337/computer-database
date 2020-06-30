@@ -3,6 +3,7 @@ $(function() {
 	var dateFormat = "dd/mm/yy", from = $("#introduced").datepicker({
 		defaultDate : "+1w",
 		changeMonth : true,
+		changeYear : true,
 		numberOfMonths : 1,
 		dateFormat : dateFormat
 	}).on("change", function() {
@@ -10,6 +11,7 @@ $(function() {
 	}), to = $("#discontinued").datepicker({
 		defaultDate : "+1w",
 		changeMonth : true,
+		changeYear : true,
 		numberOfMonths : 1,
 		dateFormat : dateFormat
 	}).on("change", function() {

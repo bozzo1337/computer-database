@@ -11,6 +11,15 @@
 	media="screen">
 <link href="static/css/font-awesome.css" rel="stylesheet" media="screen">
 <link href="static/css/main.css" rel="stylesheet" media="screen">
+<link rel="stylesheet"
+	href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="static/js/form.valid.js"></script>
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -23,7 +32,11 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-xs-8 col-xs-offset-2 box">
-					<div class="label label-default pull-right">id: ${ computer.id }</div>
+					<div class="label label-default pull-right">
+						<label for="computerId" id="computerID">
+						id : <c:out value="${ computer.id }" />
+						</label>
+					</div>
 					<h1>Edit Computer</h1>
 
 					<form action="edit" method="POST">
@@ -31,27 +44,29 @@
 						<!-- TODO: Change this value with the computer id -->
 						<fieldset>
 							<div class="form-group">
-								<label for="computerName">Computer name</label> <input
-									type="text" class="form-control" id="computerName"
-									placeholder="${ computer.name }">
+								<label for="computerName">Computer name *</label> <input
+									type="text" class="form-control" id="computerNameInput" name="computerNameInput"
+									value="${ computer.name }">
 							</div>
 							<div class="form-group">
 								<label for="introduced">Introduced date</label> <input
-									type="date" class="form-control" id="introduced"
-									placeholder="${ computer.introduced }">
+									type="date" class="form-control" id="introduced" name="introduced"
+									value="${ computer.introduced }">
 							</div>
 							<div class="form-group">
 								<label for="discontinued">Discontinued date</label> <input
-									type="date" class="form-control" id="discontinued"
-									placeholder="${ computer.discontinued }">
+									type="date" class="form-control" id="discontinued" name="discontinued"
+									value="${ computer.discontinued }">
 							</div>
 							<div class="form-group">
 								<label for="companyId">Company</label> <select
-									class="form-control" id="companyId">
-									<option value="${ computer.company.id }">${ computer.company.name }</option>
-									<option value="0"/>
+									class="form-control" id="companyId" name="companyId">
+									<option value="${ computer.companyId }"><c:out
+											value="${ computer.companyName }" /></option>
+									<option value="0" />
 									<c:forEach var="company" items="${ listCompanies }">
-										<option value="${ company.id }">${ company.name }</option>
+										<option value="${ company.id }"><c:out
+												value="${ company.name }" /></option>
 									</c:forEach>
 								</select>
 							</div>
@@ -64,6 +79,19 @@
 				</div>
 			</div>
 		</div>
+		<div class="container">
+				<c:choose>
+					<c:when test="${ updateOK }">
+						<p class="alert-success">Update successful</p>
+					</c:when>
+					<c:otherwise>
+						<p class="alert-warning">
+							Error updating :
+							<c:out value="${ errMessage }" />
+						</p>
+					</c:otherwise>
+				</c:choose>
+			</div>
 	</section>
 </body>
 </html>

@@ -13,21 +13,21 @@ import com.excilys.cdb.exception.IncorrectTemporalityException;
 
 public class Validator {
 
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
-	public LocalDate validateDate(String input) throws DateTimeParseException {
+	public static LocalDate validateDate(String input) throws DateTimeParseException {
 		LocalDate dateValid = null;
 		dateValid = LocalDate.parse(input, df);
 		return dateValid;
 	}
 	
-	public Long validateID(String input) throws NumberFormatException {
+	public static Long validateID(String input) throws NumberFormatException {
 		Long validId = null;
 		validId = Long.valueOf(input);
 		return validId;
 	}
 	
-	public boolean validateTemporality(LocalDate intro, LocalDate disc) {
+	public static boolean validateTemporality(LocalDate intro, LocalDate disc) {
 		boolean valid = true;
 		if (intro != null && disc != null) {
 			valid = intro.isBefore(disc);
@@ -35,11 +35,11 @@ public class Validator {
 		return valid;
 	}
 	
-	public boolean validateName(String input) {
+	public static boolean validateName(String input) {
 		return !input.isEmpty();
 	}
 	
-	public void validateDTO(DTOComputer computerDTO) throws IncorrectNameException, IncorrectIntroDateException, 
+	public static void validateDTO(DTOComputer computerDTO) throws IncorrectNameException, IncorrectIntroDateException, 
 	IncorrectDiscDateException, IncorrectIDException, IncorrectTemporalityException {
 		LocalDate intro = null;
 		LocalDate disc = null;

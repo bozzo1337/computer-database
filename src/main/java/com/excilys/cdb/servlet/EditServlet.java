@@ -10,10 +10,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.IncorrectDiscDateException;
+import com.excilys.cdb.exception.IncorrectIDException;
+import com.excilys.cdb.exception.IncorrectIntroDateException;
+import com.excilys.cdb.exception.IncorrectNameException;
+import com.excilys.cdb.exception.IncorrectTemporalityException;
+import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.validation.Validator;
 
 /**
  * Servlet implementation class EditServlet
@@ -39,7 +46,7 @@ public class EditServlet extends HttpServlet {
 		List<Company> listCompanies = cas.selectAll();
 		String compId = request.getParameter("compId");
 		Long computerId = null;
-		Computer computer = new Computer();
+		DTOComputer computer = null;
 		if (compId != null) {
 			try {
 				computerId = Long.parseLong(compId);
@@ -48,7 +55,7 @@ public class EditServlet extends HttpServlet {
 			}
 		}
 		if (computerId != null) {
-			computer = cs.selectById(computerId);
+			computer = ComputerMapper.getInstance().mapToDTO(cs.selectById(computerId));
 		}
 		request.setAttribute("computer", computer);
 		request.setAttribute("listCompanies", listCompanies);
@@ -60,7 +67,28 @@ public class EditServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		boolean updateOK = false;
+		boolean validDTO = true;
+		String id = request.getParameter("computerId");
+		String name = request.getParameter("computerNameInput");
+		String intro = request.getParameter("introduced");
+		String disc = request.getParameter("discontinued");
+		String compId = request.getParameter("companyId");
+		String errMessage = null;
+		DTOComputer computerDTO = new DTOComputer(id, name, intro, disc, compId);
+		try {
+			Validator.validateDTO(computerDTO);
+		} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException |
+				IncorrectIDException | IncorrectTemporalityException e) {
+			validDTO = false;
+			errMessage = e.getMessage();
+		}
+		if (validDTO) {
+			cs.update(computerDTO);
+			updateOK = true;
+		}
+		request.setAttribute("updateOK", updateOK);
+		request.setAttribute("errMessage", errMessage);
 		doGet(request, response);
 	}
 

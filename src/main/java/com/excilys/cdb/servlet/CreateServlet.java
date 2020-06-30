@@ -29,7 +29,6 @@ public class CreateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private CompanyService cas = CompanyService.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
-	private Validator validator = new Validator();
 	private boolean firstCallCreate = true;
 	
     /**
@@ -66,7 +65,7 @@ public class CreateServlet extends HttpServlet {
 		String errMessage = null;
 		DTOComputer computerDTO = new DTOComputer(name, intro, disc, compId);
 		try {
-			validator.validateDTO(computerDTO);
+			Validator.validateDTO(computerDTO);
 		} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException |
 				IncorrectIDException | IncorrectTemporalityException e) {
 			validDTO = false;
