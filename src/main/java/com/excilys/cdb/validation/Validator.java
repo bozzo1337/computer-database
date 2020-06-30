@@ -13,7 +13,7 @@ import com.excilys.cdb.exception.IncorrectTemporalityException;
 
 public class Validator {
 
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	public LocalDate validateDate(String input) throws DateTimeParseException {
 		LocalDate dateValid = null;

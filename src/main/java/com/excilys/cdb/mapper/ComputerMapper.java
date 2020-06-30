@@ -15,7 +15,7 @@ import com.excilys.cdb.model.Computer;
 public class ComputerMapper extends Mapper<Computer> {
 	
 	private static ComputerMapper singleInstance = null;
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	private ComputerMapper() {
 		

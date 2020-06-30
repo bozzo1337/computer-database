@@ -67,7 +67,8 @@ public class DashboardServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		currentPage = 0;
 		if (request.getParameter("button10") != null) {
 			cs.getPageComp().setEntitiesPerPage(10);
 		} else if (request.getParameter("button50") != null) {

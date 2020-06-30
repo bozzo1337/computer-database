@@ -19,14 +19,17 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard"> Application -
-				Computer Database </a>
+			<a class="navbar-brand" href="dashboard?page=0"> Application - Computer
+				Database </a>
 		</div>
 	</header>
 
 	<section id="main">
 		<div class="container">
-			<h1 id="homeTitle"><c:out value="${ compCount }"/> computers found</h1>
+			<h1 id="homeTitle">
+				<c:out value="${ compCount }" />
+				computers found
+			</h1>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
 					<form id="searchForm" action="#" method="GET" class="form-inline">
@@ -38,8 +41,9 @@
 					</form>
 				</div>
 				<div class="pull-right">
-					<a class="btn btn-success" id="addComputer" href="create?firstCallCreate=true">Add
-						Computer</a> <a class="btn btn-default" id="editComputer" href="edit"
+					<a class="btn btn-success" id="addComputer"
+						href="create?firstCallCreate=true">Add Computer</a> <a
+						class="btn btn-default" id="editComputer" href="edit"
 						onclick="$.fn.toggleEditMode();">Edit</a>
 				</div>
 			</div>
@@ -64,9 +68,9 @@
 							</a>
 						</span></th>
 						<th>Computer name</th>
-						<th>Introduced date (MM/dd/yyyy)</th>
+						<th>Introduced date (DD/MM/YYYY)</th>
 						<!-- Table header for Discontinued Date -->
-						<th>Discontinued date (MM/dd/yyyy)</th>
+						<th>Discontinued date (DD/MM/YYYY)</th>
 						<!-- Table header for Company -->
 						<th>Company</th>
 
@@ -78,11 +82,11 @@
 						<tr>
 							<td class="editMode"><input type="checkbox" name="cb"
 								class="cb" value="0"></td>
-							<td><a href="edit?compId=${ comp.id }" onclick=""><c:out value="${ comp.name }"/></a>
-							</td>
-							<td><c:out value="${ comp.introduced }"/></td>
-							<td><c:out value="${ comp.discontinued }"/></td>
-							<td><c:out value="${ comp.companyName }"/></td>
+							<td><a href="edit?compId=${ comp.id }" onclick=""><c:out
+										value="${ comp.name }" /></a></td>
+							<td><c:out value="${ comp.introduced }" /></td>
+							<td><c:out value="${ comp.discontinued }" /></td>
+							<td><c:out value="${ comp.companyName }" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>
@@ -95,18 +99,20 @@
 			<ul class="pagination">
 				<c:if test="${ currentPage > 0 }">
 					<li><a href="dashboard?page=${ Math.max(0, currentPage - 1) }"
-						aria-label="Previous" id="previousPage"> <span aria-hidden="true">&laquo;</span>
+						aria-label="Previous" id="previousPage"> <span
+							aria-hidden="true">&laquo;</span>
 					</a></li>
 				</c:if>
 				<c:forEach var="i" begin="${ Math.max(currentPage - 3, 0) }"
 					end="${ Math.min(maxPage, currentPage + 3) }">
 					<c:choose>
 						<c:when test="${ i ne currentPage }">
-							<li><a href="dashboard?page=${i}"><c:out value="${ i+1 }"/></a></li>
+							<li><a href="dashboard?page=${i}"><c:out
+										value="${ i+1 }" /></a></li>
 						</c:when>
 						<c:otherwise>
-							<li class="active"><a href="dashboard?page=${i}"><c:out value="${ i+1 }"/></a>
-							</li>
+							<li class="active"><a href="dashboard?page=${i}"><c:out
+										value="${ i+1 }" /></a></li>
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
@@ -148,4 +154,5 @@
 		</div>
 	</footer>
 </body>
+<script>enableCursor();</script>
 </html>

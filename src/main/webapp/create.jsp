@@ -24,7 +24,7 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard"> Application - Computer
+			<a class="navbar-brand" href="dashboard?page=0"> Application - Computer
 				Database </a>
 		</div>
 	</header>
@@ -42,13 +42,13 @@
 									name="computerNameInput" placeholder="Computer name">
 							</div>
 							<div class="form-group">
-								<label for="introduced">Introduced date (MM/dd/yyyy)</label> <input
-									type="date" class="form-control" id="introduced"
+								<label for="introduced">Introduced date (DD/MM/YYYY)</label> <input
+									class="form-control" id="introduced"
 									name="introduced" placeholder="Introduced date">
 							</div>
 							<div class="form-group">
-								<label for="discontinued">Discontinued date (MM/dd/yyyy)</label>
-								<input type="date" class="form-control" id="discontinued"
+								<label for="discontinued">Discontinued date (DD/MM/YYYY)</label>
+								<input class="form-control" id="discontinued"
 									name="discontinued" placeholder="Discontinued date">
 							</div>
 							<div class="form-group">
@@ -65,7 +65,7 @@
 						</fieldset>
 						<div class="actions pull-right">
 							<input type="submit" value="Add" class="btn btn-primary">
-							or <a href="dashboard" class="btn btn-default">Cancel</a>
+							or <a href="dashboard?page=0" class="btn btn-default">Cancel</a>
 						</div>
 					</form>
 				</div>

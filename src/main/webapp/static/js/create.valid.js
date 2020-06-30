@@ -1,20 +1,32 @@
-$(document).ready(function() {
-	initIntroDatePicker();
-	initDiscDatePicker();
+$(function() {
 	checkName();
+	var dateFormat = "dd/mm/yy", from = $("#introduced").datepicker({
+		defaultDate : "+1w",
+		changeMonth : true,
+		numberOfMonths : 1,
+		dateFormat : dateFormat
+	}).on("change", function() {
+		to.datepicker("option", "minDate", getDate(this));
+	}), to = $("#discontinued").datepicker({
+		defaultDate : "+1w",
+		changeMonth : true,
+		numberOfMonths : 1,
+		dateFormat : dateFormat
+	}).on("change", function() {
+		from.datepicker("option", "maxDate", getDate(this));
+	});
+
+	function getDate(element) {
+		var date;
+		try {
+			date = $.datepicker.parseDate(dateFormat, element.value);
+		} catch (error) {
+			date = null;
+		}
+
+		return date;
+	}
 });
-
-function initIntroDatePicker() {
-	$("#introduced").datepicker({
-		dateFormat : 'mm/dd/yy'
-	})
-}
-
-function initDiscDatePicker() {
-	$("#discontinued").datepicker({
-		dateFormat : 'mm/dd/yy'
-	})
-}
 
 function checkName() {
 	$("#createForm").validate({
