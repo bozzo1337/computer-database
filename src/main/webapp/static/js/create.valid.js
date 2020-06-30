@@ -1,11 +1,18 @@
 $(document).ready(function() {
-	initDatePicker();
+	initIntroDatePicker();
+	initDiscDatePicker();
 	checkName();
 });
 
-function initDatePicker() {
+function initIntroDatePicker() {
 	$("#introduced").datepicker({
-		dateFormat : 'dd/mm/yy'
+		dateFormat : 'mm/dd/yy'
+	})
+}
+
+function initDiscDatePicker() {
+	$("#discontinued").datepicker({
+		dateFormat : 'mm/dd/yy'
 	})
 }
 

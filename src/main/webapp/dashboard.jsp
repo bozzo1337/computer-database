@@ -64,9 +64,9 @@
 							</a>
 						</span></th>
 						<th>Computer name</th>
-						<th>Introduced date</th>
+						<th>Introduced date (MM/dd/yyyy)</th>
 						<!-- Table header for Discontinued Date -->
-						<th>Discontinued date</th>
+						<th>Discontinued date (MM/dd/yyyy)</th>
 						<!-- Table header for Company -->
 						<th>Company</th>
 
@@ -95,7 +95,7 @@
 			<ul class="pagination">
 				<c:if test="${ currentPage > 0 }">
 					<li><a href="dashboard?page=${ Math.max(0, currentPage - 1) }"
-						aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+						aria-label="Previous" id="previousPage"> <span aria-hidden="true">&laquo;</span>
 					</a></li>
 				</c:if>
 				<c:forEach var="i" begin="${ Math.max(currentPage - 3, 0) }"
@@ -113,7 +113,7 @@
 				<c:if test="${ currentPage < maxPage }">
 					<li><a
 						href="dashboard?page=${ Math.min(currentPage + 1, maxPage) }"
-						aria-label="Next"> <span aria-hidden="true">&raquo;</span>
+						aria-label="Next" id="nextPage"> <span aria-hidden="true">&raquo;</span>
 					</a></li>
 				</c:if>
 			</ul>

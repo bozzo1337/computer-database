@@ -40,8 +40,8 @@ public class CompanyMapperTest {
 	@Test
 	public void mapResultSetOneRow() throws SQLException {
 		Mockito.when(resultSet.next()).thenReturn(true, false);
-		Mockito.when(resultSet.getLong("id")).thenReturn(new Long(1L));
-		Mockito.when(resultSet.getString("name")).thenReturn("Company1");
+		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(1L));
+		Mockito.when(resultSet.getString("company.name")).thenReturn("Company1");
 		Company company = new Company(new Long(1L), "Company1");
 		assertEquals(company, mapper.map(resultSet));
 	}
@@ -49,8 +49,8 @@ public class CompanyMapperTest {
 	@Test
 	public void mapResultSetMultipleRows() throws SQLException {
 		Mockito.when(resultSet.next()).thenReturn(true, true, true, false);
-		Mockito.when(resultSet.getLong("id")).thenReturn(new Long(3L), new Long(5L), new Long(6L));
-		Mockito.when(resultSet.getString("name")).thenReturn("Company3", "Company5", "Company6");
+		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(3L), new Long(5L), new Long(6L));
+		Mockito.when(resultSet.getString("company.name")).thenReturn("Company3", "Company5", "Company6");
 		ArrayList<Company> compList = new ArrayList<Company>();
 		compList.add(new Company(new Long(3L), "Company3"));
 		compList.add(new Company(new Long(5L), "Company5"));

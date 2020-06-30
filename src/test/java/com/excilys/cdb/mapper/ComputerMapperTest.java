@@ -43,11 +43,11 @@ public class ComputerMapperTest {
 	@Test
 	public void mapResultSetOneRow() throws SQLException {
 		Mockito.when(resultSet.next()).thenReturn(true, false);
-		Mockito.when(resultSet.getLong("id")).thenReturn(new Long(1L));
-		Mockito.when(resultSet.getString("name")).thenReturn("Computer1");
-		Mockito.when(resultSet.getDate("introduced")).thenReturn(new Date(1592900853L));
-		Mockito.when(resultSet.getDate("discontinued")).thenReturn(new Date(1592900862L));
-		Mockito.when(resultSet.getLong("company_id")).thenReturn(new Long(1L));
+		Mockito.when(resultSet.getLong("computer.id")).thenReturn(new Long(1L));
+		Mockito.when(resultSet.getString("computer.name")).thenReturn("Computer1");
+		Mockito.when(resultSet.getDate("computer.introduced")).thenReturn(new Date(1592900853L));
+		Mockito.when(resultSet.getDate("computer.discontinued")).thenReturn(new Date(1592900862L));
+		Mockito.when(resultSet.getLong("computer.company_id")).thenReturn(new Long(1L));
 		Computer computer = new Computer(new Long(1L), "Computer1", new Date(1592900853L).toLocalDate(),
 				new Date(1592900862L).toLocalDate(), new Long(1L), null);
 		assertEquals(computer, mapper.map(resultSet));
@@ -56,11 +56,11 @@ public class ComputerMapperTest {
 	@Test
 	public void mapResultSetMultipleRows() throws SQLException {
 		Mockito.when(resultSet.next()).thenReturn(true, true, true, false);
-		Mockito.when(resultSet.getLong("id")).thenReturn(new Long(15L), new Long(12L), new Long(955L));
-		Mockito.when(resultSet.getString("name")).thenReturn("Computer15", "Computer12", "Computer955");
-		Mockito.when(resultSet.getDate("introduced")).thenReturn(new Date(1592666666L), new Date(99993L), new Date(1L));
-		Mockito.when(resultSet.getDate("discontinued")).thenReturn(new Date(1592666677L), new Date(1111111111L), new Date(2L));
-		Mockito.when(resultSet.getLong("company_id")).thenReturn(new Long(45L), new Long(45L), new Long(3L));
+		Mockito.when(resultSet.getLong("computer.id")).thenReturn(new Long(15L), new Long(12L), new Long(955L));
+		Mockito.when(resultSet.getString("computer.name")).thenReturn("Computer15", "Computer12", "Computer955");
+		Mockito.when(resultSet.getDate("computer.introduced")).thenReturn(new Date(1592666666L), new Date(99993L), new Date(1L));
+		Mockito.when(resultSet.getDate("computer.discontinued")).thenReturn(new Date(1592666677L), new Date(1111111111L), new Date(2L));
+		Mockito.when(resultSet.getLong("computer.company_id")).thenReturn(new Long(45L), new Long(45L), new Long(3L));
 		ArrayList<Computer> compList = new ArrayList<Computer>();
 		compList.add(new Computer(new Long(15L), "Computer15", new Date(1592666666L).toLocalDate(),
 				new Date(1592666677L).toLocalDate(), new Long(45L), null));

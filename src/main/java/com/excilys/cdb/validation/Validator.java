@@ -1,20 +1,19 @@
-package validation;
+package com.excilys.cdb.validation;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import com.excilys.cdb.dto.DTOComputer;
-
-import exception.IncorrectDiscDateException;
-import exception.IncorrectIDException;
-import exception.IncorrectIntroDateException;
-import exception.IncorrectNameException;
-import exception.IncorrectTemporalityException;
+import com.excilys.cdb.exception.IncorrectDiscDateException;
+import com.excilys.cdb.exception.IncorrectIDException;
+import com.excilys.cdb.exception.IncorrectIntroDateException;
+import com.excilys.cdb.exception.IncorrectNameException;
+import com.excilys.cdb.exception.IncorrectTemporalityException;
 
 public class Validator {
 
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 	
 	public LocalDate validateDate(String input) throws DateTimeParseException {
 		LocalDate dateValid = null;

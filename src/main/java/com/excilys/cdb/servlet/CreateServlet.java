@@ -11,16 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.IncorrectDiscDateException;
+import com.excilys.cdb.exception.IncorrectIDException;
+import com.excilys.cdb.exception.IncorrectIntroDateException;
+import com.excilys.cdb.exception.IncorrectNameException;
+import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
-
-import exception.IncorrectDiscDateException;
-import exception.IncorrectIDException;
-import exception.IncorrectIntroDateException;
-import exception.IncorrectNameException;
-import exception.IncorrectTemporalityException;
-import validation.Validator;
+import com.excilys.cdb.validation.Validator;
 
 /**
  * Servlet implementation class CreateServlet

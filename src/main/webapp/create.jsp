@@ -42,14 +42,14 @@
 									name="computerNameInput" placeholder="Computer name">
 							</div>
 							<div class="form-group">
-								<label for="introduced">Introduced date (JJ/MM/AAAA)</label> <input
+								<label for="introduced">Introduced date (MM/dd/yyyy)</label> <input
 									type="date" class="form-control" id="introduced"
 									name="introduced" placeholder="Introduced date">
 							</div>
 							<div class="form-group">
-								<label for="discontinued">Discontinued date (JJ/MM/AAAA)</label>
-								<input type="date" class="form-control" name="discontinued"
-									placeholder="Discontinued date">
+								<label for="discontinued">Discontinued date (MM/dd/yyyy)</label>
+								<input type="date" class="form-control" id="discontinued"
+									name="discontinued" placeholder="Discontinued date">
 							</div>
 							<div class="form-group">
 								<label for="companyId">Company</label> <select

@@ -7,8 +7,7 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
 import com.excilys.cdb.service.LoginService;
-
-import validation.Validator;
+import com.excilys.cdb.validation.Validator;
 
 public class CLI {
 	

@@ -1,4 +1,4 @@
-package exception;
+package com.excilys.cdb.exception;
 
 public class IncorrectDiscDateException extends Exception {
 
