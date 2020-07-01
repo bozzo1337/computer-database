@@ -43,13 +43,13 @@
 				<div class="pull-right">
 					<a class="btn btn-success" id="addComputer"
 						href="create?firstCallCreate=true">Add Computer</a> <a
-						class="btn btn-default" id="editComputer" href="edit"
+						class="btn btn-default" id="editComputer" href="#"
 						onclick="$.fn.toggleEditMode();">Edit</a>
 				</div>
 			</div>
 		</div>
 
-		<form id="deleteForm" action="#" method="POST">
+		<form id="deleteForm" action="delete" method="POST">
 			<input type="hidden" name="selection" value="">
 		</form>
 
@@ -81,8 +81,8 @@
 					<c:forEach var="comp" items="${ listComp }">
 						<tr>
 							<td class="editMode"><input type="checkbox" name="cb"
-								class="cb" value="0"></td>
-							<td><a href="edit?compId=${ comp.id }" onclick=""><c:out
+								class="cb" value="${ comp.id }"></td>
+							<td><a href="edit?computerId=${ comp.id }&firstCall=true" onclick=""><c:out
 										value="${ comp.name }" /></a></td>
 							<td><c:out value="${ comp.introduced }" /></td>
 							<td><c:out value="${ comp.discontinued }" /></td>

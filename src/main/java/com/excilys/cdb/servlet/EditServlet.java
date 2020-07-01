@@ -44,7 +44,8 @@ public class EditServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		List<Company> listCompanies = cas.selectAll();
-		String compId = request.getParameter("compId");
+		String compId = request.getParameter("computerId");
+		Boolean firstCall = Boolean.valueOf(request.getParameter("firstCall"));
 		Long computerId = null;
 		DTOComputer computer = null;
 		if (compId != null) {
@@ -57,6 +58,7 @@ public class EditServlet extends HttpServlet {
 		if (computerId != null) {
 			computer = ComputerMapper.getInstance().mapToDTO(cs.selectById(computerId));
 		}
+		request.setAttribute("firstCall", firstCall);
 		request.setAttribute("computer", computer);
 		request.setAttribute("listCompanies", listCompanies);
 		RequestDispatcher rd = request.getRequestDispatcher("/edit.jsp");

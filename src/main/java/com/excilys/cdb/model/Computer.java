@@ -29,6 +29,14 @@ public class Computer {
 		this.companyId = companyId;
 		this.company = company;
 	}
+	
+	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
+		this.id = id;
+		this.name = name;
+		this.introduced = introduced;
+		this.discontinued = discontinued;
+		this.companyId = companyId;
+	}
 
 	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId, Company company) {
 		this.id = id;
