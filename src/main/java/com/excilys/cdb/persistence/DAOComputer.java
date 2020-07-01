@@ -66,22 +66,27 @@ public class DAOComputer extends DAO<Computer> {
 	public List<Computer> searchBatch(String search, int batchSize, int index) {
 		ResultSet results = null;
 		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-				+ "WHERE computer.name LIKE ? ORDER BY CASE "
-				+ "WHEN computer.name LIKE ? THEN 0 "
-				+ "WHEN computer.name LIKE ? THEN 1 "
-				+ "WHEN computer.name LIKE ? THEN 3 "
-				+ "WHEN computer.name LIKE ? THEN 2 "
+				+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY CASE "
+				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 0 "
+				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 1 "
+				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 3 "
+				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 2 "
 				+ "ELSE 4 "
 				+ "END LIMIT ?, ? ;";
 		try (Connection conn = DBC.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
-			ps.setInt(6, index * batchSize);
-			ps.setInt(7, batchSize);
+			ps.setInt(11, index * batchSize);
+			ps.setInt(12, batchSize);
 			ps.setString(1, "%" + search + "%");
-			ps.setString(2, search);
-			ps.setString(3, search + "%");
-			ps.setString(4, "%" + search + "%");
-			ps.setString(5, "%" + search);
+			ps.setString(2, "%" + search + "%");
+			ps.setString(3, search);
+			ps.setString(4, search);
+			ps.setString(5, search + "%");
+			ps.setString(6, search + "%");
+			ps.setString(7, "%" + search + "%");
+			ps.setString(8, "%" + search + "%");
+			ps.setString(9, "%" + search);
+			ps.setString(10, "%" + search);
 			results = ps.executeQuery();
 			conn.commit();
 			return mapper.mapBatch(results);
@@ -202,11 +207,12 @@ public class DAOComputer extends DAO<Computer> {
 	public double searchCount(String search) {
 		ResultSet results = null;
 		double compCount = 0;
-		String query = "SELECT COUNT(id) AS count FROM computer "
-				+ "WHERE computer.name LIKE ? ;";
+		String query = "SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id "
+				+ "WHERE computer.name LIKE ? OR company.name LIKE ? ;";
 		try (Connection conn = DBC.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setString(1, "%" + search + "%");
+			ps.setString(2, "%" + search + "%");
 			results = ps.executeQuery();
 			if (results.next()) {
 				compCount = results.getDouble("count");
