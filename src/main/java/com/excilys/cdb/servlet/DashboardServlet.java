@@ -36,7 +36,8 @@ public class DashboardServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		cs.resetPages();
+		String search = request.getParameter("search");
+		cs.resetPages(search);
 		maxPage = cs.getPageComp().getIdxMaxPage();
 		request.setAttribute("entitiesPerPage", cs.getPageComp().getEntitiesPerPage());
 		currentPage = currentPage > maxPage ? maxPage : currentPage;
@@ -51,14 +52,20 @@ public class DashboardServlet extends HttpServlet {
 		}
 		if (paramPage != null) {
 			currentPage = paramPage.intValue();
-			currentPage = Math.max(currentPage, 0);
-			currentPage = Math.min(currentPage, maxPage);
 		}
+		currentPage = Math.max(currentPage, 0);
+		currentPage = Math.min(currentPage, maxPage);
 		cs.selectPage(currentPage);
-		List<DTOComputer> listComp = ComputerMapper.getInstance().mapListToDTO(cs.selectAll().getEntities());
+		List<DTOComputer> listComp;
+		if (search != null && !search.isEmpty()) {
+			listComp = ComputerMapper.getInstance().mapListToDTO(cs.searchComp(search).getEntities());
+			request.setAttribute("search", search);
+		} else {
+			listComp = ComputerMapper.getInstance().mapListToDTO(cs.selectAll().getEntities());
+		}
 		request.setAttribute("currentPage", currentPage);
 		request.setAttribute("listComp", listComp);
-		request.setAttribute("compCount", (int) cs.getCount());
+		request.setAttribute("compCount", (int) cs.getPageComp().getNbEntities());
 		request.setAttribute("firstCallCreate", true);
 		RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
 		rd.forward(request, response);
@@ -78,5 +85,4 @@ public class DashboardServlet extends HttpServlet {
 		}
 		doGet(request, response);
 	}
-
 }

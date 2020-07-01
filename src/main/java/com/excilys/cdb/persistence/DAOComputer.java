@@ -48,9 +48,40 @@ public class DAOComputer extends DAO<Computer> {
 	public List<Computer> findBatch(int batchSize, int index) {
 		ResultSet results = null;
 		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-				+ "LIMIT " + index * batchSize + ", " + batchSize +";";
+				+ "LIMIT ?, ?;";
 		try (Connection conn = DBC.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, index * batchSize);
+			ps.setInt(2, batchSize);
+			results = ps.executeQuery();
+			conn.commit();
+			return mapper.mapBatch(results);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			doRollBack();
+		}
+		return null;
+	}
+	
+	public List<Computer> searchBatch(String search, int batchSize, int index) {
+		ResultSet results = null;
+		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+				+ "WHERE computer.name LIKE ? ORDER BY CASE "
+				+ "WHEN computer.name LIKE ? THEN 0 "
+				+ "WHEN computer.name LIKE ? THEN 1 "
+				+ "WHEN computer.name LIKE ? THEN 3 "
+				+ "WHEN computer.name LIKE ? THEN 2 "
+				+ "ELSE 4 "
+				+ "END LIMIT ?, ? ;";
+		try (Connection conn = DBC.getConn();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(6, index * batchSize);
+			ps.setInt(7, batchSize);
+			ps.setString(1, "%" + search + "%");
+			ps.setString(2, search);
+			ps.setString(3, search + "%");
+			ps.setString(4, "%" + search + "%");
+			ps.setString(5, "%" + search);
 			results = ps.executeQuery();
 			conn.commit();
 			return mapper.mapBatch(results);
@@ -163,6 +194,26 @@ public class DAOComputer extends DAO<Computer> {
 			conn.commit();
 		} catch (SQLException e) {
 			//TODO
+			doRollBack();
+		}
+		return compCount;
+	}
+	
+	public double searchCount(String search) {
+		ResultSet results = null;
+		double compCount = 0;
+		String query = "SELECT COUNT(id) AS count FROM computer "
+				+ "WHERE computer.name LIKE ? ;";
+		try (Connection conn = DBC.getConn();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setString(1, "%" + search + "%");
+			results = ps.executeQuery();
+			if (results.next()) {
+				compCount = results.getDouble("count");
+			}
+			conn.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
 			doRollBack();
 		}
 		return compCount;

@@ -25,8 +25,12 @@ public class ComputerService {
 		return singleInstance;
 	}
 	
-	public void resetPages() {
-		pageComp.init(getCount());
+	public void resetPages(String search) {
+		if (search != null && !search.trim().isEmpty()) {
+			pageComp.init(getSearchCount(search));
+		} else {
+			pageComp.init(getCount());
+		}
 	}
 	
 	public Page<Computer> selectAll() {
@@ -37,8 +41,16 @@ public class ComputerService {
 		return pageComp;
 	}
 	
+	public Page<Computer> searchComp(String input) {
+		return pageComp.filled(dao.searchBatch(input, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	}
+	
 	public double getCount() {
 		return dao.getCount();
+	}
+	
+	public double getSearchCount(String search) {
+		return dao.searchCount(search);
 	}
 	
 	public void nextPage() {

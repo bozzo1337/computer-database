@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,8 +31,7 @@ public class DeleteServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		RequestDispatcher rd = request.getRequestDispatcher("/dashboard");
-		rd.forward(request, response);
+		response.sendRedirect(request.getContextPath() + "/dashboard");
 	}
 
 	/**
@@ -42,7 +40,9 @@ public class DeleteServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		List<String> idsComputersToDelete = Arrays.asList(request.getParameter("selection").split(","));
 		for (String idCompToDelete : idsComputersToDelete) {
-			cs.delete(cs.selectById(Long.valueOf(idCompToDelete)));
+			if (!idCompToDelete.trim().isEmpty()) {
+				cs.delete(cs.selectById(Long.valueOf(idCompToDelete)));
+			}
 		}
 		doGet(request, response);
 	}

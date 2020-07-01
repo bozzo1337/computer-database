@@ -86,7 +86,7 @@ public class CLI {
 
 	private void commandComputers() {
 		String input;
-		cs.resetPages();
+		cs.resetPages(null);
 		System.out.format(cs.selectAll().toString());
 		System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
 		while (!(input = in.next()).equals("q")) {

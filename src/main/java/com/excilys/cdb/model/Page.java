@@ -44,7 +44,7 @@ public class Page<T> {
 	
 	public void init(double count) {
 		nbEntities = count;
-		idxMaxPage = (int) (Math.ceil(nbEntities / entitiesPerPage) - 1);
+		idxMaxPage = nbEntities % entitiesPerPage == 0 ? (int) (nbEntities / entitiesPerPage) : (int) (Math.ceil(nbEntities / entitiesPerPage) - 1);
 		idxCurrentPage = 0;
 	}
 	

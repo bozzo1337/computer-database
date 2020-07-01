@@ -32,7 +32,7 @@
 			</h1>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
-					<form id="searchForm" action="#" method="GET" class="form-inline">
+					<form id="searchForm" action="dashboard" method="GET" class="form-inline">
 
 						<input type="search" id="searchbox" name="search"
 							class="form-control" placeholder="Search name" /> <input
@@ -98,7 +98,7 @@
 		<div class="container text-center">
 			<ul class="pagination">
 				<c:if test="${ currentPage > 0 }">
-					<li><a href="dashboard?page=${ Math.max(0, currentPage - 1) }"
+					<li><a href="dashboard?search=${ search }&page=${ currentPage - 1 }"
 						aria-label="Previous" id="previousPage"> <span
 							aria-hidden="true">&laquo;</span>
 					</a></li>
@@ -107,24 +107,24 @@
 					end="${ Math.min(maxPage, currentPage + 3) }">
 					<c:choose>
 						<c:when test="${ i ne currentPage }">
-							<li><a href="dashboard?page=${i}"><c:out
+							<li><a href="dashboard?search=${ search }&page=${i}"><c:out
 										value="${ i+1 }" /></a></li>
 						</c:when>
 						<c:otherwise>
-							<li class="active"><a href="dashboard?page=${i}"><c:out
+							<li class="active"><a href="dashboard?search=${ search }&page=${i}"><c:out
 										value="${ i+1 }" /></a></li>
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
 				<c:if test="${ currentPage < maxPage }">
 					<li><a
-						href="dashboard?page=${ Math.min(currentPage + 1, maxPage) }"
+						href="dashboard?search=${ search }&page=${ currentPage + 1 }"
 						aria-label="Next" id="nextPage"> <span aria-hidden="true">&raquo;</span>
 					</a></li>
 				</c:if>
 			</ul>
 			<div class="btn-group btn-group-sm pull-right" role="group">
-				<form action="dashboard" method="post">
+				<form action="dashboard?search=${ search }" method="post">
 					<c:choose>
 						<c:when test="${ entitiesPerPage eq 10 }">
 							<button type="submit" class="btn active" name="button10">10</button>
@@ -154,5 +154,4 @@
 		</div>
 	</footer>
 </body>
-<script>enableCursor();</script>
 </html>
