@@ -44,7 +44,7 @@ public class Page<T> {
 	
 	public void init(double count) {
 		nbEntities = count;
-		idxMaxPage = nbEntities % entitiesPerPage == 0 ? (int) (nbEntities / entitiesPerPage) : (int) (Math.ceil(nbEntities / entitiesPerPage) - 1);
+		idxMaxPage = (nbEntities % entitiesPerPage == 0) ? (int) (nbEntities / entitiesPerPage) - 1 : (int) (Math.ceil(nbEntities / entitiesPerPage) - 1);
 		idxCurrentPage = 0;
 	}
 	
@@ -75,9 +75,9 @@ public class Page<T> {
 	@Override
 	public String toString() {
 		StringBuilder output = new StringBuilder("Page n°" + (this.idxCurrentPage + 1) +
-				"/" + (this.idxMaxPage + 1) + "%n" + header);
+				"/" + (this.idxMaxPage + 1) + "\n" + header);
 		for (T entity : entities) {
-			output.append(entity.toString() + "%n");
+			output.append(entity.toString() + "\n");
 		}
 		return output.toString();
 	}

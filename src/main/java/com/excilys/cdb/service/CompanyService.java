@@ -40,4 +40,8 @@ public class CompanyService {
 	public List<Company> selectAll() {
 		return dao.findAll();
 	}
+	
+	public void delete(Company company) {
+		dao.delete(company);
+	}
 }

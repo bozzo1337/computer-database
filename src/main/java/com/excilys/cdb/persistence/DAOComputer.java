@@ -26,7 +26,7 @@ public class DAOComputer extends DAO<Computer> {
 			+ "END LIMIT ?, ? ;";
 	private static final String INSERT_COMPUTER = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES(?, ?, ?, ?);";
 	private static final String UPDATE_COMPUTER = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?;";
-	private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id=?;";
+	public static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id=?;";
 	private static final String COUNT_COMPUTER = "SELECT COUNT(id) AS count FROM computer;";
 	private static final String COUNT_SEARCH = "SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id "
 			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ;";
@@ -287,6 +287,16 @@ public class DAOComputer extends DAO<Computer> {
 			e.printStackTrace();
 			doRollBack();
 		}	
+	}
+	
+	public void deleteComputerTransaction(PreparedStatement ps, Long id) {
+		try {
+			ps.setLong(1, id);
+			ps.addBatch();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public double count() {

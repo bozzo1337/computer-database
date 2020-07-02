@@ -3,6 +3,7 @@ package com.excilys.cdb.ui;
 import java.time.LocalDate;
 import java.util.Scanner;
 
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
@@ -23,7 +24,7 @@ public class CLI {
 			System.err.format("Erreur de connexion, veuillez réessayer...%n");
 		}
 		System.out.format("Connexion OK%n");
-		System.out.format("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, quit%n>");
+		System.out.format("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, deleteCompany, quit%n>");
 		while (true) {
 			cli.nextCommand(cli.in.next());
 		}
@@ -59,6 +60,10 @@ public class CLI {
 			commandDelete();
 			System.out.format("%n>");
 			break;
+		case "deleteCompany":
+			commandDeleteCompany();
+			System.out.format("%n>");
+			break;
 		case "quit":
 			commandQuit();
 			break;
@@ -81,13 +86,14 @@ public class CLI {
 		System.out.format("create : Crée l'ordinateur indiqué.%n");
 		System.out.format("update : Met à jour l'ordinateur ciblé.%n");
 		System.out.format("delete : Supprime l'ordinateur ciblé.%n");
+		System.out.format("deleteCompany : Supprime l'entreprise ainsi que tous les ordinateurs liés.%n");
 		System.out.format("quit : Quitte le programme.");
 	}
 
 	private void commandComputers() {
 		String input;
 		cs.resetPages(null);
-		System.out.format(cs.selectAll().toString());
+		System.out.println(cs.selectAll().toString());
 		System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
 		while (!(input = in.next()).equals("q")) {
 			switch (input) {
@@ -215,6 +221,24 @@ public class CLI {
 			System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
 			if (in.next().equals("y")) {
 				cs.delete(compToDelete);
+			}
+		} else {
+			System.out.format("Aucun résultat.");
+			return;
+		}
+	}
+	
+	private void commandDeleteCompany() {
+		System.out.format("Suppression d'une entreprise :%n");
+		System.out.format("Sélection d'une entreprise par ID :%n>");
+		Long idRead = Validator.validateID(in.next());
+		if (idRead != null) {
+			Company compToDelete = cas.selectById(idRead);
+			System.out.format("Entreprise sélectionné :%n");
+			System.out.format(compToDelete.toString());
+			System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
+			if (in.next().equals("y")) {
+				cas.delete(compToDelete);
 			}
 		} else {
 			System.out.format("Aucun résultat.");

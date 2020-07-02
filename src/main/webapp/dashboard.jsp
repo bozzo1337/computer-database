@@ -50,7 +50,7 @@
 			</div>
 		</div>
 
-		<form id="deleteForm" action="delete" method="POST">
+		<form id="deleteForm" action="delete?search=${ search }&order=${ order }&page=${ currentPage }" method="POST">
 			<input type="hidden" name="selection" value="">
 		</form>
 

@@ -11,7 +11,7 @@ public class ComputerService {
 	private static ComputerService singleInstance = null;
 	private Page<Computer> pageComp;
 	private DAOComputer dao;
-	private String pageHeader = "ID | Name | Intro | Disc | CompID%n";
+	private String pageHeader = "ID | Name | Intro | Disc | CompID\n";
 	
 	private ComputerService() {
 		dao = DAOComputer.getInstance();
