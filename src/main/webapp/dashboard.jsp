@@ -19,8 +19,8 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard?page=0"> Application - Computer
-				Database </a>
+			<a class="navbar-brand" href="dashboard?page=0"> Application -
+				Computer Database </a>
 		</div>
 	</header>
 
@@ -32,7 +32,8 @@
 			</h1>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
-					<form id="searchForm" action="dashboard" method="GET" class="form-inline">
+					<form id="searchForm" action="dashboard" method="GET"
+						class="form-inline">
 
 						<input type="search" id="searchbox" name="search"
 							class="form-control" placeholder="Search name" /> <input
@@ -67,13 +68,44 @@
 									class="fa fa-trash-o fa-lg"></i>
 							</a>
 						</span></th>
-						<th><a href="dashboard?order=computer">Computer name</a></th>
-						<th><a href="dashboard?order=introduced">Introduced date (DD/MM/YYYY)</a></th>
+						<th><c:choose>
+								<c:when test="${ order == 'computer' }">
+									<a href="dashboard?search=${ search }&order=computerdesc">Computer name</a>
+								</c:when>
+								<c:otherwise>
+									<a href="dashboard?search=${ search }&order=computer">Computer name</a>
+								</c:otherwise>
+							</c:choose></th>
+						<th><c:choose>
+								<c:when test="${ order == 'introduced' }">
+									<a href="dashboard?search=${ search }&order=introduceddesc">Introduced date
+										(DD/MM/YYYY)</a>
+								</c:when>
+								<c:otherwise>
+									<a href="dashboard?search=${ search }&order=introduced">Introduced date
+										(DD/MM/YYYY)</a>
+								</c:otherwise>
+							</c:choose></th>
 						<!-- Table header for Discontinued Date -->
-						<th><a href="dashboard?order=discontinued">Discontinued date (DD/MM/YYYY)</a></th>
+						<th><c:choose>
+								<c:when test="${ order == 'discontinued' }">
+									<a href="dashboard?search=${ search }&order=discontinueddesc">Discontinued
+										date (DD/MM/YYYY)</a>
+								</c:when>
+								<c:otherwise>
+									<a href="dashboard?search=${ search }&order=discontinued">Discontinued date
+										(DD/MM/YYYY)</a>
+								</c:otherwise>
+							</c:choose></th>
 						<!-- Table header for Company -->
-						<th><a href="dashboard?order=company">Company</a></th>
-
+						<th><c:choose>
+								<c:when test="${ order == 'company' }">
+									<a href="dashboard?search=${ search }&order=companydesc">Company</a>
+								</c:when>
+								<c:otherwise>
+									<a href="dashboard?search=${ search }&order=company">Company</a>
+								</c:otherwise>
+							</c:choose></th>
 					</tr>
 				</thead>
 				<!-- Browse attribute computers -->
@@ -82,8 +114,8 @@
 						<tr>
 							<td class="editMode"><input type="checkbox" name="cb"
 								class="cb" value="${ comp.id }"></td>
-							<td><a href="edit?computerId=${ comp.id }&firstCall=true" onclick=""><c:out
-										value="${ comp.name }" /></a></td>
+							<td><a href="edit?computerId=${ comp.id }&firstCall=true"
+								onclick=""><c:out value="${ comp.name }" /></a></td>
 							<td><c:out value="${ comp.introduced }" /></td>
 							<td><c:out value="${ comp.discontinued }" /></td>
 							<td><c:out value="${ comp.companyName }" /></td>
@@ -98,7 +130,8 @@
 		<div class="container text-center">
 			<ul class="pagination">
 				<c:if test="${ currentPage > 0 }">
-					<li><a href="dashboard?search=${ search }&order=${ order }&page=${ currentPage - 1 }"
+					<li><a
+						href="dashboard?search=${ search }&order=${ order }&page=${ currentPage - 1 }"
 						aria-label="Previous" id="previousPage"> <span
 							aria-hidden="true">&laquo;</span>
 					</a></li>
@@ -107,11 +140,13 @@
 					end="${ Math.min(maxPage, currentPage + 3) }">
 					<c:choose>
 						<c:when test="${ i ne currentPage }">
-							<li><a href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
+							<li><a
+								href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
 										value="${ i+1 }" /></a></li>
 						</c:when>
 						<c:otherwise>
-							<li class="active"><a href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
+							<li class="active"><a
+								href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
 										value="${ i+1 }" /></a></li>
 						</c:otherwise>
 					</c:choose>
@@ -124,7 +159,8 @@
 				</c:if>
 			</ul>
 			<div class="btn-group btn-group-sm pull-right" role="group">
-				<form action="dashboard?search=${ search }&order=${ order }" method="post">
+				<form action="dashboard?search=${ search }&order=${ order }"
+					method="post">
 					<c:choose>
 						<c:when test="${ entitiesPerPage eq 10 }">
 							<button type="submit" class="btn active" name="button10">10</button>

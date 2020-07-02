@@ -41,12 +41,16 @@ public class ComputerService {
 		return pageComp;
 	}
 	
-	public Page<Computer> searchComp(String input) {
-		return pageComp.filled(dao.searchBatch(input, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	public Page<Computer> searchComp(String search) {
+		return pageComp.filled(dao.searchBatch(search, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}
 	
 	public Page<Computer> orderComp(String orderType) {
 		return pageComp.filled(dao.orderBatch(orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	}
+	
+	public Page<Computer> orderedSearchComp(String search, String orderType) {
+		return pageComp.filled(dao.orderedSearch(search, orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}
 	
 	public double getCount() {

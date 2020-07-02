@@ -46,12 +46,28 @@ public class DashboardServlet extends HttpServlet {
     	if (orderType != null) {
 	    	switch (orderType) {
 	    	case "computer":
+	    		currentPage = 0;
+	    		break;
+	    	case "computerdesc":
+	    		currentPage = 0;
 	    		break;
 	    	case "introduced":
+	    		currentPage = 0;
+	    		break;
+	    	case "introduceddesc":
+	    		currentPage = 0;
 	    		break;
 	    	case "discontinued":
+	    		currentPage = 0;
+	    		break;
+	    	case "discontinueddesc":
+	    		currentPage = 0;
 	    		break;
 	    	case "company":
+	    		currentPage = 0;
+	    		break;
+	    	case "companydesc":
+	    		currentPage = 0;
 	    		break;
 	    	default:
 	    		orderType = null;
@@ -63,12 +79,13 @@ public class DashboardServlet extends HttpServlet {
     
     private void setUpDashboard(HttpServletRequest request) {
     	cs.resetPages(search);
-    	setUpCurrentPage(request);
     	String orderType = handleOrder(request);
+    	setUpCurrentPage(request);
     	List<DTOComputer> listComp;
-		if (search != null && !search.isEmpty()) {
+		if (search != null && !search.isEmpty() && orderType != null) {
+			listComp = ComputerMapper.getInstance().mapListToDTO(cs.orderedSearchComp(search, orderType).getEntities());
+		} else if (search != null && !search.isEmpty()) {
 			listComp = ComputerMapper.getInstance().mapListToDTO(cs.searchComp(search).getEntities());
-			request.setAttribute("search", search);
 		} else if (orderType != null) {
 			listComp = ComputerMapper.getInstance().mapListToDTO(cs.orderComp(orderType).getEntities());
 		} else {
@@ -101,6 +118,7 @@ public class DashboardServlet extends HttpServlet {
 		search = request.getParameter("search");
 		handleSearch();
 		setUpDashboard(request);
+		request.setAttribute("search", search);
 		request.setAttribute("entitiesPerPage", cs.getPageComp().getEntitiesPerPage());
 		request.setAttribute("maxPage", new Long(maxPage));
 		request.setAttribute("currentPage", currentPage);

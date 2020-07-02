@@ -30,14 +30,39 @@ public class DAOComputer extends DAO<Computer> {
 	private static final String COUNT_COMPUTER = "SELECT COUNT(id) AS count FROM computer;";
 	private static final String COUNT_SEARCH = "SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id "
 			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ;";
-	private static final String ORDER_COMPUTER = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.name LIMIT ?, ?;";
-	private static final String ORDER_INTRO = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.introduced LIMIT ?, ?;";
-	private static final String ORDER_DISC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.discontinued LIMIT ?, ?;";
-	private static final String ORDER_COMPANY = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY company.name LIMIT ?, ?;";
+	private static final String ORDER_COMPUTER_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.name ASC LIMIT ?, ?;";
+	private static final String ORDER_INTRO_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.introduced ASC LIMIT ?, ?;";
+	private static final String ORDER_DISC_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.discontinued ASC LIMIT ?, ?;";
+	private static final String ORDER_COMPANY_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY company.name ASC LIMIT ?, ?;";
+	private static final String ORDER_COMPUTER_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.name DESC LIMIT ?, ?;";
+	private static final String ORDER_INTRO_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.introduced DESC LIMIT ?, ?;";
+	private static final String ORDER_DISC_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.discontinued DESC LIMIT ?, ?;";
+	private static final String ORDER_COMPANY_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY company.name DESC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_COMPUTER_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.name ASC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_INTRO_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.introduced ASC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_DISC_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.discontinued ASC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_COMPANY_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY company.name ASC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_COMPUTER_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.name DESC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_INTRO_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.introduced DESC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_DISC_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.discontinued DESC LIMIT ?, ?;";
+	private static final String SEARCH_ORDER_COMPANY_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY company.name DESC LIMIT ?, ?;";
+	
 	
 	private DAOComputer() {
 		this.mapper = ComputerMapper.getInstance();
@@ -114,16 +139,28 @@ public class DAOComputer extends DAO<Computer> {
 		String query;
 		switch(orderType) {
 		case "computer":
-			query = ORDER_COMPUTER;
+			query = ORDER_COMPUTER_ASC;
+			break;
+		case "computerdesc":
+			query = ORDER_COMPUTER_DESC;
 			break;
 		case "introduced":
-			query = ORDER_INTRO;
+			query = ORDER_INTRO_ASC;
+			break;
+		case "introduceddesc":
+			query = ORDER_INTRO_DESC;
 			break;
 		case "discontinued":
-			query = ORDER_DISC;
+			query = ORDER_DISC_ASC;
+			break;
+		case "discontinueddesc":
+			query = ORDER_DISC_DESC;
 			break;
 		case "company":
-			query = ORDER_COMPANY;
+			query = ORDER_COMPANY_ASC;
+			break;
+		case "companydesc":
+			query = ORDER_COMPANY_DESC;
 			break;
 		default:
 			return null;
@@ -132,6 +169,53 @@ public class DAOComputer extends DAO<Computer> {
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
+			results = ps.executeQuery();
+			conn.commit();
+			return mapper.mapBatch(results);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			doRollBack();
+		}
+		return null;
+	}
+	
+	public List<Computer> orderedSearch(String search, String orderType, int batchSize, int index) {
+		ResultSet results = null;
+		String query;
+		switch(orderType) {
+		case "computer":
+			query = SEARCH_ORDER_COMPUTER_ASC;
+			break;
+		case "computerdesc":
+			query = SEARCH_ORDER_COMPUTER_DESC;
+			break;
+		case "introduced":
+			query = SEARCH_ORDER_INTRO_ASC;
+			break;
+		case "introduceddesc":
+			query = SEARCH_ORDER_INTRO_DESC;
+			break;
+		case "discontinued":
+			query = SEARCH_ORDER_DISC_ASC;
+			break;
+		case "discontinueddesc":
+			query = SEARCH_ORDER_DISC_DESC;
+			break;
+		case "company":
+			query = SEARCH_ORDER_COMPANY_ASC;
+			break;
+		case "companydesc":
+			query = SEARCH_ORDER_COMPANY_DESC;
+			break;
+		default:
+			return null;
+		}
+		try (Connection conn = DBC.getConn();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setString(1, "%" + search + "%");
+			ps.setString(2, "%" + search + "%");
+			ps.setInt(3, index * batchSize);
+			ps.setInt(4, batchSize);
 			results = ps.executeQuery();
 			conn.commit();
 			return mapper.mapBatch(results);
