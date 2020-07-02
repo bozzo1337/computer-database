@@ -23,6 +23,7 @@ public class DashboardServlet extends HttpServlet {
 	private ComputerService cs = ComputerService.getInstance();
 	private int currentPage = 0;
 	private int maxPage;
+	private String search;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -31,40 +32,78 @@ public class DashboardServlet extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
+    
+    private void handleSearch() {
+    	if (search != null && !search.trim().isEmpty()) {
+			search = search.contains("\\") ? search.replace("\\", "") : search;
+			search = search.contains("_") ? search.replace("_", "\\_") : search;
+			search = search.contains("%") ? search.replace("%", "\\%") : search;
+		}
+    }
+    
+    private String handleOrder(HttpServletRequest request) {
+    	String orderType = request.getParameter("order");
+    	if (orderType != null) {
+	    	switch (orderType) {
+	    	case "computer":
+	    		break;
+	    	case "introduced":
+	    		break;
+	    	case "discontinued":
+	    		break;
+	    	case "company":
+	    		break;
+	    	default:
+	    		orderType = null;
+	    	}
+    	}
+    	request.setAttribute("order", orderType);
+    	return orderType;
+    }
+    
+    private void setUpDashboard(HttpServletRequest request) {
+    	cs.resetPages(search);
+    	setUpCurrentPage(request);
+    	String orderType = handleOrder(request);
+    	List<DTOComputer> listComp;
+		if (search != null && !search.isEmpty()) {
+			listComp = ComputerMapper.getInstance().mapListToDTO(cs.searchComp(search).getEntities());
+			request.setAttribute("search", search);
+		} else if (orderType != null) {
+			listComp = ComputerMapper.getInstance().mapListToDTO(cs.orderComp(orderType).getEntities());
+		} else {
+			listComp = ComputerMapper.getInstance().mapListToDTO(cs.selectAll().getEntities());
+		}
+		request.setAttribute("listComp", listComp);
+    }
+    
+    private void setUpCurrentPage(HttpServletRequest request) {
+    	maxPage = cs.getPageComp().getIdxMaxPage();
+    	currentPage = currentPage > maxPage ? maxPage : currentPage;
+    	Integer paramPage = null;
+		if (request.getParameter("page") != null) {
+			try {
+				paramPage = Integer.parseInt(request.getParameter("page"));
+				currentPage = paramPage.intValue();
+			} catch (NumberFormatException e) {
+				paramPage = null;
+			}
+		}
+		currentPage = Math.max(currentPage, 0);
+		currentPage = Math.min(currentPage, maxPage);
+		cs.selectPage(currentPage);
+    }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String search = request.getParameter("search");
-		cs.resetPages(search);
-		maxPage = cs.getPageComp().getIdxMaxPage();
+		search = request.getParameter("search");
+		handleSearch();
+		setUpDashboard(request);
 		request.setAttribute("entitiesPerPage", cs.getPageComp().getEntitiesPerPage());
-		currentPage = currentPage > maxPage ? maxPage : currentPage;
 		request.setAttribute("maxPage", new Long(maxPage));
-		Integer paramPage = null;
-		if (request.getParameter("page") != null) {
-			try {
-				paramPage = Integer.parseInt(request.getParameter("page"));
-			} catch (NumberFormatException e) {
-				paramPage = null;
-			}
-		}
-		if (paramPage != null) {
-			currentPage = paramPage.intValue();
-		}
-		currentPage = Math.max(currentPage, 0);
-		currentPage = Math.min(currentPage, maxPage);
-		cs.selectPage(currentPage);
-		List<DTOComputer> listComp;
-		if (search != null && !search.isEmpty()) {
-			listComp = ComputerMapper.getInstance().mapListToDTO(cs.searchComp(search).getEntities());
-			request.setAttribute("search", search);
-		} else {
-			listComp = ComputerMapper.getInstance().mapListToDTO(cs.selectAll().getEntities());
-		}
 		request.setAttribute("currentPage", currentPage);
-		request.setAttribute("listComp", listComp);
 		request.setAttribute("compCount", (int) cs.getPageComp().getNbEntities());
 		request.setAttribute("firstCallCreate", true);
 		RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");

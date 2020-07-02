@@ -14,8 +14,31 @@ import com.excilys.cdb.model.Computer;
 public class DAOComputer extends DAO<Computer> {
 	
 	private static DAOComputer singleInstance = null;
+	private static final String SELECT_ONE = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?;";
+	private static final String SELECT_BATCH = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id LIMIT ?, ?;";
+	private static final String SEARCH_BATCH = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY CASE "
+			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 0 "
+			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 1 "
+			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 3 "
+			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 2 "
+			+ "ELSE 4 "
+			+ "END LIMIT ?, ? ;";
+	private static final String INSERT_COMPUTER = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES(?, ?, ?, ?);";
+	private static final String UPDATE_COMPUTER = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?;";
+	private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id=?;";
+	private static final String COUNT_COMPUTER = "SELECT COUNT(id) AS count FROM computer;";
+	private static final String COUNT_SEARCH = "SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ;";
+	private static final String ORDER_COMPUTER = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.name LIMIT ?, ?;";
+	private static final String ORDER_INTRO = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.introduced LIMIT ?, ?;";
+	private static final String ORDER_DISC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY computer.discontinued LIMIT ?, ?;";
+	private static final String ORDER_COMPANY = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
+			+ "ORDER BY company.name LIMIT ?, ?;";
 	
-
 	private DAOComputer() {
 		this.mapper = ComputerMapper.getInstance();
 	}
@@ -30,10 +53,9 @@ public class DAOComputer extends DAO<Computer> {
 	@Override
 	public Computer findById(Long id) {
 		ResultSet results = null;
-		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-				+ "WHERE computer.id = " + id + ";";
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+				PreparedStatement ps = conn.prepareStatement(SELECT_ONE)) {
+			ps.setLong(1, id);
 			results = ps.executeQuery();
 			conn.commit();
 			return mapper.map(results);
@@ -47,10 +69,8 @@ public class DAOComputer extends DAO<Computer> {
 	@Override
 	public List<Computer> findBatch(int batchSize, int index) {
 		ResultSet results = null;
-		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-				+ "LIMIT ?, ?;";
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+				PreparedStatement ps = conn.prepareStatement(SELECT_BATCH)) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
@@ -65,16 +85,8 @@ public class DAOComputer extends DAO<Computer> {
 	
 	public List<Computer> searchBatch(String search, int batchSize, int index) {
 		ResultSet results = null;
-		String query = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-				+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY CASE "
-				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 0 "
-				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 1 "
-				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 3 "
-				+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 2 "
-				+ "ELSE 4 "
-				+ "END LIMIT ?, ? ;";
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+				PreparedStatement ps = conn.prepareStatement(SEARCH_BATCH)) {
 			ps.setInt(11, index * batchSize);
 			ps.setInt(12, batchSize);
 			ps.setString(1, "%" + search + "%");
@@ -96,35 +108,43 @@ public class DAOComputer extends DAO<Computer> {
 		}
 		return null;
 	}
-	
-	@Override
-	public void create(Computer computer) {
-		createComputer(computer.getName(), computer.getIntroduced(),
-				computer.getDiscontinued(), computer.getCompanyId());	
-	}
 
-	@Override
-	public void update(Computer computer) {
-		updateComputer(computer.getId(), computer.getName(),
-				computer.getIntroduced(), computer.getDiscontinued(),
-				computer.getCompanyId());
-	}
-
-	@Override
-	public void delete(Computer computer) {
-		deleteComputer(computer.getId());
-	}
-
-	@Override
-	public double getCount() {
-		return count();
-	}
-
-	public void createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
-		String query = "INSERT INTO computer(name, introduced, discontinued, company_id)";
-		query += " VALUES(?, ?, ?, ?);";
+	public List<Computer> orderBatch(String orderType, int batchSize, int index) {
+		ResultSet results = null;
+		String query;
+		switch(orderType) {
+		case "computer":
+			query = ORDER_COMPUTER;
+			break;
+		case "introduced":
+			query = ORDER_INTRO;
+			break;
+		case "discontinued":
+			query = ORDER_DISC;
+			break;
+		case "company":
+			query = ORDER_COMPANY;
+			break;
+		default:
+			return null;
+		}
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)){
+				PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, index * batchSize);
+			ps.setInt(2, batchSize);
+			results = ps.executeQuery();
+			conn.commit();
+			return mapper.mapBatch(results);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			doRollBack();
+		}
+		return null;
+	}
+	
+	public void createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
+		try (Connection conn = DBC.getConn();
+				PreparedStatement ps = conn.prepareStatement(INSERT_COMPUTER)){
 			ps.setString(1, name);
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
@@ -148,9 +168,8 @@ public class DAOComputer extends DAO<Computer> {
 	}
 
 	public void updateComputer(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
-		String query = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?;";
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)){
+				PreparedStatement ps = conn.prepareStatement(UPDATE_COMPUTER)){
 			ps.setString(1, name);
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
@@ -174,9 +193,9 @@ public class DAOComputer extends DAO<Computer> {
 	}
 
 	public void deleteComputer(Long id) {
-		String query = "DELETE FROM computer WHERE id=" + id + ";";
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+				PreparedStatement ps = conn.prepareStatement(DELETE_COMPUTER)) {
+			ps.setLong(1, id);
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
@@ -187,11 +206,10 @@ public class DAOComputer extends DAO<Computer> {
 	}
 	
 	public double count() {
-		String query = "SELECT COUNT(id) AS count FROM computer;";
 		ResultSet results = null;
 		double compCount = 0;
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+				PreparedStatement ps = conn.prepareStatement(COUNT_COMPUTER)) {
 			results = ps.executeQuery();
 			if (results.next()) {
 				compCount = results.getDouble("count");
@@ -207,10 +225,8 @@ public class DAOComputer extends DAO<Computer> {
 	public double searchCount(String search) {
 		ResultSet results = null;
 		double compCount = 0;
-		String query = "SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id "
-				+ "WHERE computer.name LIKE ? OR company.name LIKE ? ;";
 		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+				PreparedStatement ps = conn.prepareStatement(COUNT_SEARCH)) {
 			ps.setString(1, "%" + search + "%");
 			ps.setString(2, "%" + search + "%");
 			results = ps.executeQuery();
@@ -223,5 +239,28 @@ public class DAOComputer extends DAO<Computer> {
 			doRollBack();
 		}
 		return compCount;
+	}
+	
+	@Override
+	public void create(Computer computer) {
+		createComputer(computer.getName(), computer.getIntroduced(),
+				computer.getDiscontinued(), computer.getCompanyId());	
+	}
+
+	@Override
+	public void update(Computer computer) {
+		updateComputer(computer.getId(), computer.getName(),
+				computer.getIntroduced(), computer.getDiscontinued(),
+				computer.getCompanyId());
+	}
+
+	@Override
+	public void delete(Computer computer) {
+		deleteComputer(computer.getId());
+	}
+
+	@Override
+	public double getCount() {
+		return count();
 	}
 }

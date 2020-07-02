@@ -46,21 +46,21 @@ public class Validator {
 		if (!validateName(computerDTO.getName())) {
 			throw new IncorrectNameException("Empty name");
 		}
-		if (computerDTO.getIntroduced() != "") {
+		if (!computerDTO.getIntroduced().equals("")) {
 			try {
 				intro = validateDate(computerDTO.getIntroduced());
 			} catch (DateTimeParseException e) {
 				throw new IncorrectIntroDateException("Incorrect intro date format", e);
 			}
 		}
-		if (computerDTO.getDiscontinued() != "") {
+		if (!computerDTO.getDiscontinued().equals("")) {
 			try {
 				disc = validateDate(computerDTO.getDiscontinued());
 			} catch (DateTimeParseException e) {
 				throw new IncorrectDiscDateException("Incorrect disc date format", e);
 			}
 		}
-		if (computerDTO.getCompanyId() != "0") {
+		if (!computerDTO.getCompanyId().equals("0")) {
 			try {
 				validateID(computerDTO.getCompanyId());
 			} catch (NumberFormatException e) {

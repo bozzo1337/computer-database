@@ -45,6 +45,10 @@ public class ComputerService {
 		return pageComp.filled(dao.searchBatch(input, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}
 	
+	public Page<Computer> orderComp(String orderType) {
+		return pageComp.filled(dao.orderBatch(orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	}
+	
 	public double getCount() {
 		return dao.getCount();
 	}
