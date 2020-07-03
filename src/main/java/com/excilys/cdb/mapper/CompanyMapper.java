@@ -2,9 +2,10 @@ package com.excilys.cdb.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
+import com.excilys.cdb.dto.DTOCompany;
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
 public class CompanyMapper extends Mapper<Company> {
@@ -22,34 +23,33 @@ public class CompanyMapper extends Mapper<Company> {
 	}
 
 	@Override
-	public Company map(ResultSet results) {
-		try {
-			if (results != null && results.next()) {
-				return mapOne(results);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public Company map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+		Company company;
+		if (source == null) {
+			throw new NullMappingSourceException("Mapping source null");
 		}
-		return null;
-	}
-
-	@Override
-	public List<Company> mapBatch(ResultSet results) {
-		ArrayList<Company> companies = new ArrayList<Company>();
-		try {
-			while (results != null && results.next()) {
-				companies.add(mapOne(results));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (source.getClass() == ResultSet.class) {
+			company = mapFromResultSet((ResultSet) source);
+		} else if (source.getClass() == DTOCompany.class) {
+			company = mapFromDTO((DTOCompany) source);
+		} else {
+			throw new UnknownMappingSourceException("Mapping source not recognized");
 		}
-		return companies;
-	}
-
-	public Company mapOne(ResultSet results) throws SQLException {
-		Company company = new Company();
-		company.setId(results.getLong("company.id"));
-		company.setName(results.getString("company.name"));
 		return company;
+	}
+
+	private Company mapFromResultSet(ResultSet results) {
+		Company company = null;
+		try {
+			company = new Company(results.getLong("company.id"), results.getString("company.name"));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return company;
+	}
+
+	private Company mapFromDTO(DTOCompany companyDTO) {
+		return new Company(Long.valueOf(companyDTO.getId(), companyDTO.getName());
 	}
 }

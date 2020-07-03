@@ -78,7 +78,7 @@ public class ComputerService {
 	}
 	
 	public void create(DTOComputer computerDTO) {
-		dao.create(ComputerMapper.getInstance().mapFromValidDTO(computerDTO));
+		dao.create(ComputerMapper.getInstance().mapFromDTO(computerDTO));
 	}
 	
 	public void create(Computer comp) {
@@ -90,7 +90,7 @@ public class ComputerService {
 	}
 	
 	public void update(DTOComputer computerDTO) {
-		dao.update(ComputerMapper.getInstance().mapFromValidDTO(computerDTO));
+		dao.update(ComputerMapper.getInstance().mapFromDTO(computerDTO));
 	}
 	
 	public void delete(Computer comp) {

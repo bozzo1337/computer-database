@@ -5,10 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
@@ -29,36 +29,47 @@ public class ComputerMapper extends Mapper<Computer> {
 	}
 
 	@Override
-	public Computer map(ResultSet results) {
+	public Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+		Computer computer;
+		if (source == null) {
+			throw new NullMappingSourceException("Mapping source null");
+		}
+		if (source.getClass() == ResultSet.class) {
+			computer = mapFromResultSet((ResultSet) source);
+		} else if (source.getClass() == DTOComputer.class) {
+			computer = mapFromDTO((DTOComputer) source);
+		} else {
+			throw new UnknownMappingSourceException("Mapping source not recognized");
+		}
+		return computer;
+	}
+
+	private Computer mapFromResultSet(ResultSet results) {
+		Computer computer = null;
 		try {
-			if (results != null && results.next()) {
-				return mapOne(results);
+			Computer.Builder computerBuilder = new Computer.Builder();
+			computerBuilder.withId(results.getLong("computer.id")).withName(results.getString("computer.name"));
+			Date intro = results.getDate("computer.introduced");
+			if (intro != null) {
+				computerBuilder.withIntroDate(intro.toLocalDate());
 			}
-		} catch (SQLException e) {
+			Date disc = results.getDate("computer.discontinued");
+			if (disc != null) {
+				computerBuilder.withDiscDate(disc.toLocalDate());
+			}
+			Long companyId = results.getLong("computer.company_id");
+			computerBuilder.withCompanyId(companyId == 0 ? null : companyId);
+			Company company = CompanyMapper.getInstance().map(results);
+			computerBuilder.withCompany(company);
+			computer = computerBuilder.build();
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			// TODO treat exception
 			e.printStackTrace();
 		}
-		return null;
+		return computer;
 	}
 
-	public List<DTOComputer> mapListToDTO(List<Computer> listComp) {
-		ArrayList<DTOComputer> dtos = new ArrayList<DTOComputer>();
-		for (Computer comp : listComp) {
-			dtos.add(mapToDTO(comp));
-		}
-		return dtos;
-	}
-
-	public DTOComputer mapToDTO(Computer computer) {
-		String id = computer.getId().toString();
-		String name = computer.getName();
-		String introduced = computer.getIntroduced() != null ? computer.getIntroduced().format(df) : "";
-		String discontinued = computer.getDiscontinued() != null ? computer.getDiscontinued().format(df) : "";
-		String companyId = computer.getCompanyId() != null ? computer.getCompanyId().toString() : "0";
-		String companyName = computer.getCompany() != null ? computer.getCompany().getName() : "";
-		return new DTOComputer(id, name, introduced, discontinued, companyId, companyName);
-	}
-
-	public Computer mapFromValidDTO(DTOComputer computerDTO) {
+	private Computer mapFromDTO(DTOComputer computerDTO) {
 		Long id = !(computerDTO.getId() == null) ? Long.valueOf(computerDTO.getId()) : null;
 		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df)
 				: null;
@@ -69,36 +80,5 @@ public class ComputerMapper extends Mapper<Computer> {
 		Computer computer = new Computer.Builder().withId(id).withName(computerDTO.getName()).withIntroDate(intro)
 				.withDiscDate(disc).withCompanyId(compId).build();
 		return computer;
-	}
-
-	@Override
-	public List<Computer> mapBatch(ResultSet results) {
-		ArrayList<Computer> computers = new ArrayList<Computer>();
-		try {
-			while (results != null && results.next()) {
-				computers.add(mapOne(results));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return computers;
-	}
-
-	private Computer mapOne(ResultSet results) throws SQLException {
-		Computer.Builder computerBuilder = new Computer.Builder();
-		computerBuilder.withId(results.getLong("computer.id")).withName(results.getString("computer.name"));
-		Date intro = results.getDate("computer.introduced");
-		if (intro != null) {
-			computerBuilder.withIntroDate(intro.toLocalDate());
-		}
-		Date disc = results.getDate("computer.discontinued");
-		if (disc != null) {
-			computerBuilder.withDiscDate(disc.toLocalDate());
-		}
-		Long companyId = results.getLong("computer.company_id");
-		computerBuilder.withCompanyId(companyId == 0 ? null : companyId);
-		Company company = CompanyMapper.getInstance().mapOne(results);
-		computerBuilder.withCompany(company);
-		return computerBuilder.build();
 	}
 }

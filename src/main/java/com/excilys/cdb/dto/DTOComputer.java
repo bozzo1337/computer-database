@@ -9,28 +9,58 @@ public class DTOComputer {
 	private String companyId;
 	private String companyName;
 	
-	public DTOComputer(String name, String introduced, String discontinued, String companyId) {
-		this.name = name.trim();
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
+	public static class Builder {
+		private String id;
+		private String name;
+		private String introduced;
+		private String discontinued;
+		private String companyId;
+		private String companyName;
+		
+		public Builder withId(String id) {
+			this.id = id;
+			return this;
+		}
+		
+		public Builder withName(String name) {
+			this.name = name;
+			return this;
+		}
+		
+		public Builder withIntroDate(String introduced) {
+			this.introduced = introduced;
+			return this;
+		}
+		
+		public Builder withDiscDate(String discontinued) {
+			this.discontinued = discontinued;
+			return this;
+		}
+		
+		public Builder withCompanyId(String companyId) {
+			this.companyId = companyId;
+			return this;
+		}
+		
+		public Builder withCompanyName(String companyName) {
+			this.companyName = companyName;
+			return this;
+		}
+		
+		public DTOComputer build() {
+			DTOComputer computerDTO = new DTOComputer();
+			computerDTO.id = this.id;
+			computerDTO.name = this.name;
+			computerDTO.introduced = this.introduced;
+			computerDTO.discontinued = this.discontinued;
+			computerDTO.companyId = this.companyId;
+			computerDTO.companyName = this.companyName;
+			return computerDTO;
+		}
 	}
 	
-	public DTOComputer(String id, String name, String introduced, String discontinued, String companyId, String companyName) {
-		this.id = id;
-		this.name = name.trim();
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
-		this.companyName = companyName;
-	}
-	
-	public DTOComputer(String id, String name, String introduced, String discontinued, String companyId) {
-		this.id = id;
-		this.name = name.trim();
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
+	private DTOComputer() {
+		
 	}
 	
 	public String getName() {
