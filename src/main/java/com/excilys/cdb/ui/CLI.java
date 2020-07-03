@@ -99,11 +99,11 @@ public class CLI {
 			switch (input) {
 			case "n":
 				cs.nextPage();
-				System.out.format(cs.selectAll().toString());
+				System.out.println(cs.selectAll().toString());
 				break;
 			case "p":
 				cs.previousPage();
-				System.out.format(cs.selectAll().toString());
+				System.out.println(cs.selectAll().toString());
 				break;
 			default:
 				System.out.format("Commande non reconnue.%n");
@@ -113,8 +113,25 @@ public class CLI {
 	}
 	
 	private void commandCompanies() {
+		String input;
 		cas.resetPages();
-		System.out.format(cas.selectPage().toString());
+		System.out.println(cas.selectPage().toString());
+		System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
+		while (!(input = in.next()).equals("q")) {
+			switch (input) {
+			case "n":
+				cas.nextPage();
+				System.out.println(cas.selectPage().toString());
+				break;
+			case "p":
+				cas.previousPage();
+				System.out.println(cas.selectPage().toString());
+				break;
+			default:
+				System.out.format("Commande non reconnue.%n");
+			}
+			System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
+		}
 	}
 	
 	private void commandComputer() {

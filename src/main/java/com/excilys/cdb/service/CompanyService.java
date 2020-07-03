@@ -11,7 +11,7 @@ public class CompanyService {
 	private static CompanyService singleInstance = null;
 	private Page<Company> pageComp;
 	private DAOCompany dao;
-	private String pageHeader = "ID | Name%n";
+	private String pageHeader = "ID | Name\n";
 	
 	private CompanyService() {
 		dao = DAOCompany.getInstance();
@@ -27,6 +27,14 @@ public class CompanyService {
 	
 	public void resetPages() {
 		pageComp.init(dao.getCount());
+	}
+	
+	public void nextPage() {
+		pageComp.nextPage();
+	}
+	
+	public void previousPage() {
+		pageComp.previousPage();
 	}
 	
 	public Company selectById(Long id) {
