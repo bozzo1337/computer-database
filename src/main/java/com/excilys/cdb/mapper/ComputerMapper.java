@@ -59,7 +59,7 @@ public class ComputerMapper extends Mapper<Computer> {
 	}
 	
 	public Computer mapFromValidDTO(DTOComputer computerDTO) {
-		Long id = !computerDTO.getId().isEmpty() ? Long.valueOf(computerDTO.getId()) : null;
+		Long id = !(computerDTO.getId() == null) ? Long.valueOf(computerDTO.getId()) : null;
 		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df) : null;
 		LocalDate disc = !computerDTO.getDiscontinued().isEmpty() ? LocalDate.parse(computerDTO.getDiscontinued(), df) : null;
 		Long compId = !computerDTO.getCompanyId().toString().equals("0") ? Long.valueOf(computerDTO.getCompanyId()) : null;

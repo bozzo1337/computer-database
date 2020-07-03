@@ -50,7 +50,9 @@
 			</div>
 		</div>
 
-		<form id="deleteForm" action="delete?search=${ search }&order=${ order }&page=${ currentPage }" method="POST">
+		<form id="deleteForm"
+			action="delete?search=${ search }&order=${ order }&page=${ currentPage }"
+			method="POST">
 			<input type="hidden" name="selection" value="">
 		</form>
 
@@ -70,20 +72,22 @@
 						</span></th>
 						<th><c:choose>
 								<c:when test="${ order == 'computer' }">
-									<a href="dashboard?search=${ search }&order=computerdesc">Computer name</a>
+									<a href="dashboard?search=${ search }&order=computerdesc">Computer
+										name</a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ search }&order=computer">Computer name</a>
+									<a href="dashboard?search=${ search }&order=computer">Computer
+										name</a>
 								</c:otherwise>
 							</c:choose></th>
 						<th><c:choose>
 								<c:when test="${ order == 'introduced' }">
-									<a href="dashboard?search=${ search }&order=introduceddesc">Introduced date
-										(DD/MM/YYYY)</a>
+									<a href="dashboard?search=${ search }&order=introduceddesc">Introduced
+										date (DD/MM/YYYY)</a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ search }&order=introduced">Introduced date
-										(DD/MM/YYYY)</a>
+									<a href="dashboard?search=${ search }&order=introduced">Introduced
+										date (DD/MM/YYYY)</a>
 								</c:otherwise>
 							</c:choose></th>
 						<!-- Table header for Discontinued Date -->
@@ -93,8 +97,8 @@
 										date (DD/MM/YYYY)</a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ search }&order=discontinued">Discontinued date
-										(DD/MM/YYYY)</a>
+									<a href="dashboard?search=${ search }&order=discontinued">Discontinued
+										date (DD/MM/YYYY)</a>
 								</c:otherwise>
 							</c:choose></th>
 						<!-- Table header for Company -->
@@ -138,18 +142,11 @@
 				</c:if>
 				<c:forEach var="i" begin="${ Math.max(currentPage - 3, 0) }"
 					end="${ Math.min(maxPage, currentPage + 3) }">
-					<c:choose>
-						<c:when test="${ i ne currentPage }">
-							<li><a
-								href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
-										value="${ i+1 }" /></a></li>
-						</c:when>
-						<c:otherwise>
-							<li class="active"><a
-								href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
-										value="${ i+1 }" /></a></li>
-						</c:otherwise>
-					</c:choose>
+					<li <c:if test="${ i eq currentPage }">class="active"</c:if>>
+						<a href="dashboard?search=${ search }&order=${ order }&page=${i}"><c:out
+								value="${ i+1 }" /></a>
+					</li>
+
 				</c:forEach>
 				<c:if test="${ currentPage < maxPage }">
 					<li><a

@@ -3,6 +3,9 @@ package com.excilys.cdb.ui;
 import java.time.LocalDate;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.service.CompanyService;
@@ -11,27 +14,30 @@ import com.excilys.cdb.service.LoginService;
 import com.excilys.cdb.validation.Validator;
 
 public class CLI {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(CLI.class);
 	private LoginService ls = LoginService.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
 	private CompanyService cas = CompanyService.getInstance();
 	private Scanner in = new Scanner(System.in);
-	
+
 	public static void main(String[] args) {
 		CLI cli = new CLI();
 		System.out.format("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
 		while (!cli.login()) {
 			System.err.format("Erreur de connexion, veuillez réessayer...%n");
 		}
+		logger.debug("Hi");
 		System.out.format("Connexion OK%n");
-		System.out.format("Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, deleteCompany, quit%n>");
+		System.out.format(
+				"Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, deleteCompany, quit%n>");
 		while (true) {
 			cli.nextCommand(cli.in.next());
 		}
 	}
 
 	private void nextCommand(String command) {
-		switch(command) {
+		switch (command) {
 		case "help":
 			commandHelp();
 			System.out.format("%n>");
@@ -71,12 +77,12 @@ public class CLI {
 			System.out.format("Commande non reconnue, tapez 'help' pour plus d'informations.%n>");
 		}
 	}
-	
+
 	private boolean login() {
 		System.out.format("Connexion...%n");
 		return ls.login();
 	}
-	
+
 	private void commandHelp() {
 		System.out.format("Commandes disponibles : %n");
 		System.out.format("help : Affiche la liste des commandes détaillées.%n");
@@ -111,7 +117,7 @@ public class CLI {
 			System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
 		}
 	}
-	
+
 	private void commandCompanies() {
 		String input;
 		cas.resetPages();
@@ -133,7 +139,7 @@ public class CLI {
 			System.out.format("Page suivante : n, Page précédente : p, Quitter : q%n>");
 		}
 	}
-	
+
 	private void commandComputer() {
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
@@ -144,7 +150,7 @@ public class CLI {
 			System.out.format("Aucun résultat.");
 		}
 	}
-	
+
 	private void commandCreate() {
 		System.out.format("Création d'un nouvel ordinateur :%n");
 		System.out.format("Nom (requis) :%n>");
@@ -166,7 +172,7 @@ public class CLI {
 		Computer newComp = new Computer(name, intro, disc, compId, null);
 		cs.create(newComp);
 	}
-	
+
 	private void commandUpdate() {
 		Computer compToUpdate = new Computer();
 		System.out.format("Mise à jour d'un ordinateur :%n");
@@ -205,7 +211,7 @@ public class CLI {
 				}
 				break;
 			case "discontinued":
-				System.out.format("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");			
+				System.out.format("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");
 				newDate = Validator.validateDate(in.next());
 				if (newDate != null && Validator.validateTemporality(compToUpdate.getIntroduced(), newDate)) {
 					compToUpdate.setDiscontinued(newDate);
@@ -226,43 +232,51 @@ public class CLI {
 		} while (!field.equals("ok"));
 		cs.update(compToUpdate);
 	}
-	
+
 	private void commandDelete() {
 		System.out.format("Suppression d'un ordinateur :%n");
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
 		if (idRead != null) {
 			Computer compToDelete = cs.selectById(idRead);
-			System.out.format("Ordinateur sélectionné :%n");
-			System.out.format(compToDelete.toString());
-			System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
-			if (in.next().equals("y")) {
-				cs.delete(compToDelete);
+			if (compToDelete != null) {
+				System.out.format("Ordinateur sélectionné :%n");
+				System.out.format(compToDelete.toString());
+				System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
+				if (in.next().equals("y")) {
+					cs.delete(compToDelete);
+				}
+			} else {
+				System.out.format("Aucun résultat.");
 			}
 		} else {
 			System.out.format("Aucun résultat.");
 			return;
 		}
 	}
-	
+
 	private void commandDeleteCompany() {
 		System.out.format("Suppression d'une entreprise :%n");
 		System.out.format("Sélection d'une entreprise par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
 		if (idRead != null) {
 			Company compToDelete = cas.selectById(idRead);
-			System.out.format("Entreprise sélectionné :%n");
-			System.out.format(compToDelete.toString());
-			System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
-			if (in.next().equals("y")) {
-				cas.delete(compToDelete);
+			if (compToDelete != null) {
+				System.out.format("Entreprise sélectionné :%n");
+				System.out.format(compToDelete.toString());
+				System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
+				if (in.next().equals("y")) {
+					cas.delete(compToDelete);
+				}
+			} else {
+				System.out.format("Aucun résultat.");
 			}
 		} else {
 			System.out.format("Aucun résultat.");
 			return;
 		}
 	}
-	
+
 	private void commandQuit() {
 		System.out.format("Fermeture de la connexion...%n");
 		in.close();
