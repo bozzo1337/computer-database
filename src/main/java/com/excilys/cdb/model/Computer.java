@@ -11,40 +11,57 @@ public class Computer {
 	private Long companyId;
 	private Company company;
 	
-	public Computer() {
+	public static class Builder {
+		private Long id;
+		private String name;
+		private LocalDate introduced;
+		private LocalDate discontinued;
+		private Long companyId;
+		private Company company;
+		
+		public Builder withId(Long id) {
+			this.id = id;
+			return this;
+		}
+		
+		public Builder withName(String name) {
+			this.name = name;
+			return this;
+		}
+		
+		public Builder withIntroDate(LocalDate introduced) {
+			this.introduced = introduced;
+			return this;
+		}
+		
+		public Builder withDiscDate(LocalDate discontinued) {
+			this.discontinued = discontinued;
+			return this;
+		}
+		
+		public Builder withCompanyId(Long companyId) {
+			this.companyId = companyId;
+			return this;
+		}
+		
+		public Builder withCompany(Company company) {
+			this.company = company;
+			return this;
+		}
+		
+		public Computer build() {
+			Computer computer = new Computer();
+			computer.id = this.id;
+			computer.name = this.name;
+			computer.introduced = this.introduced;
+			computer.discontinued = this.discontinued;
+			computer.companyId = this.companyId;
+			computer.company = this.company;
+			return computer;
+		}
 	}
 	
-	public Computer(String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
-		this.name = name;
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
-		this.company = null;
-	}
-	
-	public Computer(String name, LocalDate introduced, LocalDate discontinued, Long companyId, Company company) {
-		this.name = name;
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
-		this.company = company;
-	}
-	
-	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId) {
-		this.id = id;
-		this.name = name;
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
-	}
-
-	public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Long companyId, Company company) {
-		this.id = id;
-		this.name = name;
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.companyId = companyId;
-		this.company = company;
+	private Computer() {
 	}
 	
 	public Long getId() {

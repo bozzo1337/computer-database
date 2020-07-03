@@ -13,21 +13,21 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
 public class ComputerMapper extends Mapper<Computer> {
-	
+
 	private static ComputerMapper singleInstance = null;
 	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	
+
 	private ComputerMapper() {
-		
+
 	}
-	
+
 	public static ComputerMapper getInstance() {
 		if (singleInstance == null) {
 			singleInstance = new ComputerMapper();
 		}
 		return singleInstance;
 	}
-	
+
 	@Override
 	public Computer map(ResultSet results) {
 		try {
@@ -39,7 +39,7 @@ public class ComputerMapper extends Mapper<Computer> {
 		}
 		return null;
 	}
-	
+
 	public List<DTOComputer> mapListToDTO(List<Computer> listComp) {
 		ArrayList<DTOComputer> dtos = new ArrayList<DTOComputer>();
 		for (Computer comp : listComp) {
@@ -47,7 +47,7 @@ public class ComputerMapper extends Mapper<Computer> {
 		}
 		return dtos;
 	}
-	
+
 	public DTOComputer mapToDTO(Computer computer) {
 		String id = computer.getId().toString();
 		String name = computer.getName();
@@ -57,13 +57,17 @@ public class ComputerMapper extends Mapper<Computer> {
 		String companyName = computer.getCompany() != null ? computer.getCompany().getName() : "";
 		return new DTOComputer(id, name, introduced, discontinued, companyId, companyName);
 	}
-	
+
 	public Computer mapFromValidDTO(DTOComputer computerDTO) {
 		Long id = !(computerDTO.getId() == null) ? Long.valueOf(computerDTO.getId()) : null;
-		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df) : null;
-		LocalDate disc = !computerDTO.getDiscontinued().isEmpty() ? LocalDate.parse(computerDTO.getDiscontinued(), df) : null;
-		Long compId = !computerDTO.getCompanyId().toString().equals("0") ? Long.valueOf(computerDTO.getCompanyId()) : null;
-		Computer computer = new Computer(id, computerDTO.getName(), intro, disc, compId);
+		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df)
+				: null;
+		LocalDate disc = !computerDTO.getDiscontinued().isEmpty() ? LocalDate.parse(computerDTO.getDiscontinued(), df)
+				: null;
+		Long compId = !computerDTO.getCompanyId().toString().equals("0") ? Long.valueOf(computerDTO.getCompanyId())
+				: null;
+		Computer computer = new Computer.Builder().withId(id).withName(computerDTO.getName()).withIntroDate(intro)
+				.withDiscDate(disc).withCompanyId(compId).build();
 		return computer;
 	}
 
@@ -79,27 +83,22 @@ public class ComputerMapper extends Mapper<Computer> {
 		}
 		return computers;
 	}
-	
+
 	private Computer mapOne(ResultSet results) throws SQLException {
-		Computer computer = new Computer();
-		computer.setId(results.getLong("computer.id"));
-		computer.setName(results.getString("computer.name"));
+		Computer.Builder computerBuilder = new Computer.Builder();
+		computerBuilder.withId(results.getLong("computer.id")).withName(results.getString("computer.name"));
 		Date intro = results.getDate("computer.introduced");
 		if (intro != null) {
-			computer.setIntroduced(intro.toLocalDate());
+			computerBuilder.withIntroDate(intro.toLocalDate());
 		}
 		Date disc = results.getDate("computer.discontinued");
 		if (disc != null) {
-			computer.setDiscontinued(disc.toLocalDate());
+			computerBuilder.withDiscDate(disc.toLocalDate());
 		}
 		Long companyId = results.getLong("computer.company_id");
-		if (companyId == 0) {
-			computer.setCompanyId(null);
-		} else {
-			computer.setCompanyId(companyId);
-		}
+		computerBuilder.withCompanyId(companyId == 0 ? null : companyId);
 		Company company = CompanyMapper.getInstance().mapOne(results);
-		computer.setCompany(company);
-		return computer;
+		computerBuilder.withCompany(company);
+		return computerBuilder.build();
 	}
 }

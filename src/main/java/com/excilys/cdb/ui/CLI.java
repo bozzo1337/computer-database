@@ -27,7 +27,7 @@ public class CLI {
 		while (!cli.login()) {
 			System.err.format("Erreur de connexion, veuillez réessayer...%n");
 		}
-		logger.debug("Hi");
+		logger.error("Hi");
 		System.out.format("Connexion OK%n");
 		System.out.format(
 				"Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, deleteCompany, quit%n>");
@@ -169,12 +169,13 @@ public class CLI {
 		}
 		System.out.format("ID de l'entreprise :%n>");
 		Long compId = Validator.validateID(in.next());
-		Computer newComp = new Computer(name, intro, disc, compId, null);
+		Computer newComp = new Computer.Builder().withName(name).withIntroDate(intro).withDiscDate(disc)
+				.withCompanyId(compId).build();
 		cs.create(newComp);
 	}
 
 	private void commandUpdate() {
-		Computer compToUpdate = new Computer();
+		Computer compToUpdate = null;
 		System.out.format("Mise à jour d'un ordinateur :%n");
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
