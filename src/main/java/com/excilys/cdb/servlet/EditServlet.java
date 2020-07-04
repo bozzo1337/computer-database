@@ -16,7 +16,6 @@ import com.excilys.cdb.exception.IncorrectIDException;
 import com.excilys.cdb.exception.IncorrectIntroDateException;
 import com.excilys.cdb.exception.IncorrectNameException;
 import com.excilys.cdb.exception.IncorrectTemporalityException;
-import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
@@ -56,7 +55,7 @@ public class EditServlet extends HttpServlet {
 			}
 		}
 		if (computerId != null) {
-			computer = ComputerMapper.getInstance().mapToDTO(cs.selectById(computerId));
+			computer = cs.selectById(computerId);
 		}
 		request.setAttribute("firstCall", firstCall);
 		request.setAttribute("computer", computer);
@@ -71,13 +70,14 @@ public class EditServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		boolean updateOK = false;
 		boolean validDTO = true;
-		String id = request.getParameter("computerId");
-		String name = request.getParameter("computerNameInput");
-		String intro = request.getParameter("introduced");
-		String disc = request.getParameter("discontinued");
-		String compId = request.getParameter("companyId");
+		DTOComputer computerDTO = new DTOComputer.Builder()
+				.withId(request.getParameter("computerId"))
+				.withName(request.getParameter("computerNameInput"))
+				.withIntroDate(request.getParameter("introduced"))
+				.withDiscDate(request.getParameter("discontinued"))
+				.withCompanyId(request.getParameter("companyId"))
+				.build();
 		String errMessage = null;
-		DTOComputer computerDTO = new DTOComputer(id, name, intro, disc, compId);
 		try {
 			Validator.validateDTO(computerDTO);
 		} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException |

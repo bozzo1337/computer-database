@@ -7,7 +7,7 @@ public class UnknownMappingSourceException extends Exception {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public UnknownMappingSourceException(String message) {
-		super(message);
+	public UnknownMappingSourceException() {
+		super("Mapping source not recognized");
 	}
 }

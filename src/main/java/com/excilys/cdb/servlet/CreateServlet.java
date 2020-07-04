@@ -58,12 +58,13 @@ public class CreateServlet extends HttpServlet {
 		firstCallCreate = false;
 		boolean creationOK = false;
 		boolean validDTO = true;
-		String name = request.getParameter("computerNameInput");
-		String intro = request.getParameter("introduced");
-		String disc = request.getParameter("discontinued");
-		String compId = request.getParameter("companyId");
+		DTOComputer computerDTO = new DTOComputer.Builder()
+				.withName(request.getParameter("computerNameInput"))
+				.withIntroDate(request.getParameter("introduced"))
+				.withDiscDate(request.getParameter("discontinued"))
+				.withCompanyId(request.getParameter("companyId"))
+				.build();
 		String errMessage = null;
-		DTOComputer computerDTO = new DTOComputer(name, intro, disc, compId);
 		try {
 			Validator.validateDTO(computerDTO);
 		} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException |

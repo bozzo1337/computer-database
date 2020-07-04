@@ -1,7 +1,7 @@
 package com.excilys.cdb.servlet;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.stream.Stream;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.service.ComputerService;
 
 /**
@@ -81,17 +80,17 @@ public class DashboardServlet extends HttpServlet {
     	cs.resetPages(search);
     	String orderType = handleOrder(request);
     	setUpCurrentPage(request);
-    	List<DTOComputer> listComp;
+    	Stream<DTOComputer> streamComp;
 		if (search != null && !search.isEmpty() && orderType != null) {
-			listComp = ComputerMapper.getInstance().mapListToDTO(cs.orderedSearchComp(search, orderType).getEntities());
+			streamComp = cs.orderedSearchComp(search, orderType).getEntities().stream();
 		} else if (search != null && !search.isEmpty()) {
-			listComp = ComputerMapper.getInstance().mapListToDTO(cs.searchComp(search).getEntities());
+			streamComp = cs.searchComp(search).getEntities().stream();
 		} else if (orderType != null) {
-			listComp = ComputerMapper.getInstance().mapListToDTO(cs.orderComp(orderType).getEntities());
+			streamComp = cs.orderComp(orderType).getEntities().stream();
 		} else {
-			listComp = ComputerMapper.getInstance().mapListToDTO(cs.selectAll().getEntities());
+			streamComp = cs.selectAll().getEntities().stream();
 		}
-		request.setAttribute("listComp", listComp);
+		request.setAttribute("listComp", streamComp);
     }
     
     private void setUpCurrentPage(HttpServletRequest request) {

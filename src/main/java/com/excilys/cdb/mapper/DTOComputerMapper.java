@@ -1,10 +1,10 @@
 package com.excilys.cdb.mapper;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
 public class DTOComputerMapper extends Mapper<DTOComputer> {
@@ -24,20 +24,20 @@ public class DTOComputerMapper extends Mapper<DTOComputer> {
 	}
 	
 	@Override
-	public DTOComputer map(Object source) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public List<DTOComputer> mapListToDTO(List<Computer> listComp) {
-		ArrayList<DTOComputer> dtos = new ArrayList<DTOComputer>();
-		for (Computer comp : listComp) {
-			dtos.add(mapToDTO(comp));
+	public DTOComputer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+		DTOComputer computerDTO;
+		if (source == null) {
+			throw new NullMappingSourceException();
 		}
-		return dtos;
+		if (source.getClass() == Computer.class) {
+			computerDTO = mapFromComputer((Computer) source);
+		} else {
+			throw new UnknownMappingSourceException();
+		}
+		return computerDTO;
 	}
 
-	public DTOComputer mapToDTO(Computer computer) {
+	private DTOComputer mapFromComputer(Computer computer) {
 		DTOComputer.Builder builderDTO = new DTOComputer.Builder();
 		builderDTO.withId(computer.getId().toString());
 		builderDTO.withName(computer.getName());
@@ -46,5 +46,5 @@ public class DTOComputerMapper extends Mapper<DTOComputer> {
 		builderDTO.withCompanyId(computer.getCompanyId() != null ? computer.getCompanyId().toString() : "0");
 		builderDTO.withCompanyName(computer.getCompany() != null ? computer.getCompany().getName() : "");
 		return builderDTO.build();
-	}	
+	}
 }

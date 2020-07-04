@@ -32,14 +32,14 @@ public class ComputerMapper extends Mapper<Computer> {
 	public Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
 		Computer computer;
 		if (source == null) {
-			throw new NullMappingSourceException("Mapping source null");
+			throw new NullMappingSourceException();
 		}
 		if (source.getClass() == ResultSet.class) {
 			computer = mapFromResultSet((ResultSet) source);
 		} else if (source.getClass() == DTOComputer.class) {
 			computer = mapFromDTO((DTOComputer) source);
 		} else {
-			throw new UnknownMappingSourceException("Mapping source not recognized");
+			throw new UnknownMappingSourceException();
 		}
 		return computer;
 	}

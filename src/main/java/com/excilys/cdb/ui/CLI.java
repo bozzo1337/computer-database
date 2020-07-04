@@ -6,29 +6,35 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.IncorrectDiscDateException;
+import com.excilys.cdb.exception.IncorrectIDException;
+import com.excilys.cdb.exception.IncorrectIntroDateException;
+import com.excilys.cdb.exception.IncorrectNameException;
+import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.persistence.DBConnector;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.service.LoginService;
 import com.excilys.cdb.validation.Validator;
 
 public class CLI {
 
-	private static final Logger logger = LoggerFactory.getLogger(CLI.class);
-	private LoginService ls = LoginService.getInstance();
+	private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
+	private static final DBConnector DBC = DBConnector.getInstance();
 	private ComputerService cs = ComputerService.getInstance();
 	private CompanyService cas = CompanyService.getInstance();
 	private Scanner in = new Scanner(System.in);
 
 	public static void main(String[] args) {
 		CLI cli = new CLI();
-		System.out.format("Système de gestion d'ordinateurs.%nBienvenue, veuillez vous identifier.%n");
-		while (!cli.login()) {
-			System.err.format("Erreur de connexion, veuillez réessayer...%n");
+		System.out.format("Système de gestion d'ordinateurs.%nConnexion...%n");
+		if (DBC.getConn() == null) {
+			System.err.format("Erreur de connexion...%n");
+			LOGGER.error("Connection failed");
+			return;
 		}
-		logger.error("Hi");
-		System.out.format("Connexion OK%n");
+		System.out.format("Connexion OK, Bienvenue !%n");
 		System.out.format(
 				"Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, deleteCompany, quit%n>");
 		while (true) {
@@ -76,11 +82,6 @@ public class CLI {
 		default:
 			System.out.format("Commande non reconnue, tapez 'help' pour plus d'informations.%n>");
 		}
-	}
-
-	private boolean login() {
-		System.out.format("Connexion...%n");
-		return ls.login();
 	}
 
 	private void commandHelp() {
@@ -143,7 +144,7 @@ public class CLI {
 	private void commandComputer() {
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
-		Computer comp;
+		DTOComputer comp;
 		if (idRead != null && (comp = cs.selectById(idRead)) != null) {
 			System.out.format(comp.toString());
 		} else {
@@ -155,27 +156,36 @@ public class CLI {
 		System.out.format("Création d'un nouvel ordinateur :%n");
 		System.out.format("Nom (requis) :%n>");
 		String name = in.next();
+		DTOComputer.Builder newCompBuilder = new DTOComputer.Builder();
 		if (!Validator.validateName(name)) {
 			System.err.format("Nom requis ! Retour à l'accueil.");
 			return;
 		}
+		newCompBuilder.withName(name);
 		System.out.format("LocalDate intro (jj/mm/aaaa) :%n>");
 		LocalDate intro = Validator.validateDate(in.next());
+		if (intro != null) {
+			newCompBuilder.withIntroDate(intro.toString());
+		}
 		System.out.format("LocalDate disc (>= intro) :%n>");
 		LocalDate disc = Validator.validateDate(in.next());
+		if (disc != null) {
+			newCompBuilder.withDiscDate(disc.toString());
+		}
 		if (!Validator.validateTemporality(intro, disc)) {
 			System.err.format("Erreur de temporalité ! Retour à l'accueil.");
 			return;
 		}
 		System.out.format("ID de l'entreprise :%n>");
 		Long compId = Validator.validateID(in.next());
-		Computer newComp = new Computer.Builder().withName(name).withIntroDate(intro).withDiscDate(disc)
-				.withCompanyId(compId).build();
-		cs.create(newComp);
+		if (compId != null) {
+			newCompBuilder.withCompanyId(compId.toString());
+		}
+		cs.create(newCompBuilder.build());
 	}
 
 	private void commandUpdate() {
-		Computer compToUpdate = null;
+		DTOComputer compToUpdate = null;
 		System.out.format("Mise à jour d'un ordinateur :%n");
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
@@ -207,21 +217,35 @@ public class CLI {
 			case "introduced":
 				System.out.format("Nouvelle date de mise en service (jj/mm/aaaa) :%n>");
 				newDate = Validator.validateDate(in.next());
-				if (newDate != null && Validator.validateTemporality(newDate, compToUpdate.getDiscontinued())) {
-					compToUpdate.setIntroduced(newDate);
+				if (newDate != null) {
+					compToUpdate.setIntroduced(newDate.toString());
+					 try {
+						Validator.validateDTO(compToUpdate);
+					} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException
+							| IncorrectIDException | IncorrectTemporalityException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				break;
 			case "discontinued":
 				System.out.format("Nouvelle date de mise hors service (jj/mm/aaaa) :%n>");
 				newDate = Validator.validateDate(in.next());
-				if (newDate != null && Validator.validateTemporality(compToUpdate.getIntroduced(), newDate)) {
-					compToUpdate.setDiscontinued(newDate);
+				if (newDate != null) {
+					compToUpdate.setDiscontinued(newDate.toString());
+					 try {
+						Validator.validateDTO(compToUpdate);
+					} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException
+							| IncorrectIDException | IncorrectTemporalityException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				break;
 			case "company_id":
 				System.out.format("Nouvel identifiant d'entreprise :%n>");
 				Long newCompId = Validator.validateID(in.next());
-				compToUpdate.setCompanyId(newCompId);
+				compToUpdate.setCompanyId(newCompId.toString());
 				break;
 			case "ok":
 				System.out.format("Modification(s) terminée(s).%n");
@@ -239,7 +263,7 @@ public class CLI {
 		System.out.format("Sélection d'un ordinateur par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
 		if (idRead != null) {
-			Computer compToDelete = cs.selectById(idRead);
+			DTOComputer compToDelete = cs.selectById(idRead);
 			if (compToDelete != null) {
 				System.out.format("Ordinateur sélectionné :%n");
 				System.out.format(compToDelete.toString());
@@ -267,7 +291,7 @@ public class CLI {
 				System.out.format(compToDelete.toString());
 				System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
 				if (in.next().equals("y")) {
-					cas.delete(compToDelete);
+					cas.delete(compToDelete.getId());
 				}
 			} else {
 				System.out.format("Aucun résultat.");
@@ -279,15 +303,6 @@ public class CLI {
 	}
 
 	private void commandQuit() {
-		System.out.format("Fermeture de la connexion...%n");
-		in.close();
-		if (ls.quit()) {
-			System.out.format("Fin de connexion OK, au revoir !%n");
-			System.exit(0);
-		} else {
-			System.out.format("Echec de la fermeture, au revoir quand même !%n");
-			System.exit(1);
-		}
-		ls.quit();
+		System.out.format("Au revoir%n");
 	}
 }

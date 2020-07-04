@@ -7,7 +7,7 @@ public class NullMappingSourceException extends Exception {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NullMappingSourceException(String message) {
-		super(message);
+	public NullMappingSourceException() {
+		super("Mapping source null");
 	}
 }

@@ -37,6 +37,10 @@ public class CompanyService {
 		pageComp.previousPage();
 	}
 	
+	public List<Company> selectAll() {
+		return dao.findAll();
+	}
+	
 	public Company selectById(Long id) {
 		return dao.findById(id);
 	}
@@ -45,11 +49,7 @@ public class CompanyService {
 		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
 	}
 	
-	public List<Company> selectAll() {
-		return dao.findAll();
-	}
-	
-	public void delete(Company company) {
-		dao.delete(company);
+	public void delete(Long id) {
+		dao.deleteCompany(id);
 	}
 }

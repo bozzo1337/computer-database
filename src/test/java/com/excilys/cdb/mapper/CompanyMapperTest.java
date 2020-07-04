@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
 public class CompanyMapperTest {
@@ -26,19 +28,19 @@ public class CompanyMapperTest {
 		MockitoAnnotations.initMocks(this);
 	}
 	
-	@Test
-	public void mapResultSetNull() {
-		assertNull("Mapping null ResultSet", mapper.map(null));
+	@Test(expected = NullMappingSourceException.class)
+	public void mapResultSetNull() throws NullMappingSourceException, UnknownMappingSourceException {
+		 mapper.map(null);		
 	}
 	
 	@Test
-	public void mapResultSetEmpty() throws SQLException {
+	public void mapResultSetEmpty() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(false);
 		assertNull("Mapping empty ResultSet", mapper.map(resultSet));
 	}
 	
 	@Test
-	public void mapResultSetOneRow() throws SQLException {
+	public void mapResultSetOneRow() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(true, false);
 		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(1L));
 		Mockito.when(resultSet.getString("company.name")).thenReturn("Company1");
@@ -47,7 +49,7 @@ public class CompanyMapperTest {
 	}
 	
 	@Test
-	public void mapResultSetMultipleRows() throws SQLException {
+	public void mapResultSetMultipleRows() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(true, true, true, false);
 		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(3L), new Long(5L), new Long(6L));
 		Mockito.when(resultSet.getString("company.name")).thenReturn("Company3", "Company5", "Company6");
@@ -55,6 +57,6 @@ public class CompanyMapperTest {
 		compList.add(new Company(new Long(3L), "Company3"));
 		compList.add(new Company(new Long(5L), "Company5"));
 		compList.add(new Company(new Long(6L), "Company6"));
-		assertEquals(compList, mapper.mapBatch(resultSet));
+		assertEquals(compList, mapper.map(resultSet));
 	}
 }

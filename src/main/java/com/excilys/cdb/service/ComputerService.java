@@ -1,6 +1,10 @@
 package com.excilys.cdb.service;
 
+import java.util.stream.Collectors;
+
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
@@ -9,13 +13,13 @@ import com.excilys.cdb.persistence.DAOComputer;
 public class ComputerService {
 	
 	private static ComputerService singleInstance = null;
-	private Page<Computer> pageComp;
+	private Page<DTOComputer> pageComp;
 	private DAOComputer dao;
 	private String pageHeader = "ID | Name | Intro | Disc | CompID\n";
 	
 	private ComputerService() {
 		dao = DAOComputer.getInstance();
-		pageComp = new Page<Computer>(pageHeader);
+		pageComp = new Page<DTOComputer>(pageHeader);
 	}
 	
 	public static ComputerService getInstance() {
@@ -33,28 +37,40 @@ public class ComputerService {
 		}
 	}
 	
-	public Page<Computer> selectAll() {
-		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	public Page<DTOComputer> selectAll() {
+		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
+				.stream()
+				.map(c -> dao.mapToDTO(c))
+				.collect(Collectors.toList()));
 	}
 	
-	public Page<Computer> getPageComp() {
+	public Page<DTOComputer> getPageComp() {
 		return pageComp;
 	}
 	
-	public Page<Computer> searchComp(String search) {
-		return pageComp.filled(dao.searchBatch(search, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	public Page<DTOComputer> searchComp(String search) {
+		return pageComp.filled(dao.searchBatch(search, pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
+				.stream()
+				.map(c -> dao.mapToDTO(c))
+				.collect(Collectors.toList()));
 	}
 	
-	public Page<Computer> orderComp(String orderType) {
-		return pageComp.filled(dao.orderBatch(orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	public Page<DTOComputer> orderComp(String orderType) {
+		return pageComp.filled(dao.orderBatch(orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
+				.stream()
+				.map(c -> dao.mapToDTO(c))
+				.collect(Collectors.toList()));
 	}
 	
-	public Page<Computer> orderedSearchComp(String search, String orderType) {
-		return pageComp.filled(dao.orderedSearch(search, orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+	public Page<DTOComputer> orderedSearchComp(String search, String orderType) {
+		return pageComp.filled(dao.orderedSearch(search, orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
+				.stream()
+				.map(c -> dao.mapToDTO(c))
+				.collect(Collectors.toList()));
 	}
 	
 	public double getCount() {
-		return dao.getCount();
+		return dao.count();
 	}
 	
 	public double getSearchCount(String search) {
@@ -73,27 +89,31 @@ public class ComputerService {
 		pageComp.selectPage(index);
 	}
 	
-	public Computer selectById(Long id) {
-		return dao.findById(id);
+	public DTOComputer selectById(Long id) {
+		return dao.mapToDTO(dao.findById(id));
 	}
 	
 	public void create(DTOComputer computerDTO) {
-		dao.create(ComputerMapper.getInstance().mapFromDTO(computerDTO));
-	}
-	
-	public void create(Computer comp) {
-		dao.create(comp);
-	}
-	
-	public void update(Computer comp) {
-		dao.update(comp);
+		try {
+			Computer computer = ComputerMapper.getInstance().map(computerDTO);
+			dao.create(computer);
+		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 	
 	public void update(DTOComputer computerDTO) {
-		dao.update(ComputerMapper.getInstance().mapFromDTO(computerDTO));
+		try {
+			Computer computer = ComputerMapper.getInstance().map(computerDTO); 
+			dao.update(computer);
+		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	public void delete(Computer comp) {
-		dao.delete(comp);
+	public void delete(DTOComputer computerDTO) {
+		dao.delete(Long.valueOf(computerDTO.getId()));
 	}
 }

@@ -6,66 +6,27 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.mapper.ComputerMapper;
+import com.excilys.cdb.mapper.DTOComputerMapper;
 import com.excilys.cdb.model.Computer;
 
-public class DAOComputer extends DAO<Computer> {
+public class DAOComputer {
 	
 	private static DAOComputer singleInstance = null;
-	private static final String SELECT_ONE = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?;";
-	private static final String SELECT_BATCH = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id LIMIT ?, ?;";
-	private static final String SEARCH_BATCH = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY CASE "
-			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 0 "
-			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 1 "
-			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 3 "
-			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 2 "
-			+ "ELSE 4 "
-			+ "END LIMIT ?, ? ;";
-	private static final String INSERT_COMPUTER = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES(?, ?, ?, ?);";
-	private static final String UPDATE_COMPUTER = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?;";
-	public static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id=?;";
-	private static final String COUNT_COMPUTER = "SELECT COUNT(id) AS count FROM computer;";
-	private static final String COUNT_SEARCH = "SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ;";
-	private static final String ORDER_COMPUTER_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.name ASC LIMIT ?, ?;";
-	private static final String ORDER_INTRO_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.introduced ASC LIMIT ?, ?;";
-	private static final String ORDER_DISC_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.discontinued ASC LIMIT ?, ?;";
-	private static final String ORDER_COMPANY_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY company.name ASC LIMIT ?, ?;";
-	private static final String ORDER_COMPUTER_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.name DESC LIMIT ?, ?;";
-	private static final String ORDER_INTRO_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.introduced DESC LIMIT ?, ?;";
-	private static final String ORDER_DISC_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY computer.discontinued DESC LIMIT ?, ?;";
-	private static final String ORDER_COMPANY_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "ORDER BY company.name DESC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_COMPUTER_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.name ASC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_INTRO_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.introduced ASC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_DISC_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.discontinued ASC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_COMPANY_ASC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY company.name ASC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_COMPUTER_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.name DESC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_INTRO_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.introduced DESC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_DISC_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.discontinued DESC LIMIT ?, ?;";
-	private static final String SEARCH_ORDER_COMPANY_DESC = "SELECT * FROM computer LEFT JOIN company ON computer.company_id = company.id "
-			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY company.name DESC LIMIT ?, ?;";
-	
+	private DBConnector dbc;
+	private ComputerMapper mapperComputer;
+	private DTOComputerMapper mapperDTOComputer;
 	
 	private DAOComputer() {
-		this.mapper = ComputerMapper.getInstance();
+		this.dbc = DBConnector.getInstance();
+		this.mapperComputer = ComputerMapper.getInstance();
+		this.mapperDTOComputer = DTOComputerMapper.getInstance(); 
 	}
 	
 	public static DAOComputer getInstance() {
@@ -75,43 +36,56 @@ public class DAOComputer extends DAO<Computer> {
 		return singleInstance;
 	}
 
-	@Override
 	public Computer findById(Long id) {
 		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(SELECT_ONE)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE.toString())) {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
 			conn.commit();
-			return mapper.map(results);
+			return mapperComputer.map(results);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
 
-	@Override
 	public List<Computer> findBatch(int batchSize, int index) {
+		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(SELECT_BATCH)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH.toString())) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
+			while (results.next()) {
+				computers.add(mapperComputer.map(results));
+			}
 			conn.commit();
-			return mapper.mapBatch(results);
+			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
 	
 	public List<Computer> searchBatch(String search, int batchSize, int index) {
+		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(SEARCH_BATCH)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.SEARCH_BATCH.toString())) {
 			ps.setInt(11, index * batchSize);
 			ps.setInt(12, batchSize);
 			ps.setString(1, "%" + search + "%");
@@ -125,110 +99,116 @@ public class DAOComputer extends DAO<Computer> {
 			ps.setString(9, "%" + search);
 			ps.setString(10, "%" + search);
 			results = ps.executeQuery();
+			while (results.next()) {
+				computers.add(mapperComputer.map(results));
+			}
 			conn.commit();
-			return mapper.mapBatch(results);
+			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
 
 	public List<Computer> orderBatch(String orderType, int batchSize, int index) {
+		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
-		String query;
-		switch(orderType) {
-		case "computer":
-			query = ORDER_COMPUTER_ASC;
-			break;
-		case "computerdesc":
-			query = ORDER_COMPUTER_DESC;
-			break;
-		case "introduced":
-			query = ORDER_INTRO_ASC;
-			break;
-		case "introduceddesc":
-			query = ORDER_INTRO_DESC;
-			break;
-		case "discontinued":
-			query = ORDER_DISC_ASC;
-			break;
-		case "discontinueddesc":
-			query = ORDER_DISC_DESC;
-			break;
-		case "company":
-			query = ORDER_COMPANY_ASC;
-			break;
-		case "companydesc":
-			query = ORDER_COMPANY_DESC;
-			break;
-		default:
-			return null;
-		}
-		try (Connection conn = DBC.getConn();
+		String query = formatQuery(SQLRequest.ORDER.toString(), orderType);
+		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
+			while (results.next()) {
+				computers.add(mapperComputer.map(results));
+			}
 			conn.commit();
-			return mapper.mapBatch(results);
+			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
 	
 	public List<Computer> orderedSearch(String search, String orderType, int batchSize, int index) {
+		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
-		String query;
-		switch(orderType) {
-		case "computer":
-			query = SEARCH_ORDER_COMPUTER_ASC;
-			break;
-		case "computerdesc":
-			query = SEARCH_ORDER_COMPUTER_DESC;
-			break;
-		case "introduced":
-			query = SEARCH_ORDER_INTRO_ASC;
-			break;
-		case "introduceddesc":
-			query = SEARCH_ORDER_INTRO_DESC;
-			break;
-		case "discontinued":
-			query = SEARCH_ORDER_DISC_ASC;
-			break;
-		case "discontinueddesc":
-			query = SEARCH_ORDER_DISC_DESC;
-			break;
-		case "company":
-			query = SEARCH_ORDER_COMPANY_ASC;
-			break;
-		case "companydesc":
-			query = SEARCH_ORDER_COMPANY_DESC;
-			break;
-		default:
-			return null;
-		}
-		try (Connection conn = DBC.getConn();
+		String query = formatQuery(SQLRequest.SEARCH_ORDER.toString(), orderType);
+		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setString(1, "%" + search + "%");
 			ps.setString(2, "%" + search + "%");
 			ps.setInt(3, index * batchSize);
 			ps.setInt(4, batchSize);
 			results = ps.executeQuery();
+			while (results.next()) {
+				computers.add(mapperComputer.map(results));
+			}
 			conn.commit();
-			return mapper.mapBatch(results);
+			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
 	
-	public void createComputer(String name, LocalDate intro, LocalDate disc, Long compId) {
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(INSERT_COMPUTER)){
+	private String formatQuery(String query, String orderType) {
+		switch(orderType) {
+		case "computer":
+			query = String.format(query, "computer.name ASC");
+			break;
+		case "computerdesc":
+			query = String.format(query, "computer.name DESC");
+			break;
+		case "introduced":
+			query = String.format(query, "computer.introduced ASC");
+			break;
+		case "introduceddesc":
+			query = String.format(query, "computer.introduced DESC");
+			break;
+		case "discontinued":
+			query = String.format(query, "computer.discontinued ASC");
+			break;
+		case "discontinueddesc":
+			query = String.format(query, "computer.discontinued DESC");
+			break;
+		case "company":
+			query = String.format(query, "computer.company_id ASC");
+			break;
+		case "companydesc":
+			query = String.format(query, "computer.company_id DESC");
+			break;
+		default:
+			return null;
+		}
+		return query;
+	}
+	
+	public void create(Computer computer) {
+		create(computer.getName(), computer.getIntroduced(), computer.getDiscontinued(), computer.getCompanyId());
+	}
+	
+	public void create(String name, LocalDate intro, LocalDate disc, Long compId) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.INSERT_COMPUTER.toString())){
 			ps.setString(1, name);
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
@@ -247,13 +227,17 @@ public class DAOComputer extends DAO<Computer> {
 		} catch (SQLException e) {
 			//TODO
 			e.printStackTrace();
-			doRollBack();
 		}
 	}
 
-	public void updateComputer(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(UPDATE_COMPUTER)){
+	public void update(Computer computer) {
+		update(computer.getId(), computer.getName(), computer.getIntroduced(), computer.getDiscontinued(), computer.getCompanyId());
+
+	}
+	
+	public void update(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.UPDATE_COMPUTER.toString())){
 			ps.setString(1, name);
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
@@ -272,27 +256,28 @@ public class DAOComputer extends DAO<Computer> {
 			conn.commit();
 		} catch (SQLException e) {
 			//TODO
-			doRollBack();
+			e.printStackTrace();
 		}
 	}
 
-	public void deleteComputer(Long id) {
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(DELETE_COMPUTER)) {
+	public void delete(Long id) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.DELETE_COMPUTER.toString())) {
 			ps.setLong(1, id);
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			doRollBack();
 		}	
 	}
 	
-	public void deleteComputerTransaction(PreparedStatement ps, Long id) {
-		try {
+	public void deleteComputersOfCompany(Long id) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString())) {
 			ps.setLong(1, id);
-			ps.addBatch();
+			ps.executeUpdate();
+			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -302,8 +287,8 @@ public class DAOComputer extends DAO<Computer> {
 	public double count() {
 		ResultSet results = null;
 		double compCount = 0;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(COUNT_COMPUTER)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.COUNT_COMPUTER.toString())) {
 			results = ps.executeQuery();
 			if (results.next()) {
 				compCount = results.getDouble("count");
@@ -311,7 +296,7 @@ public class DAOComputer extends DAO<Computer> {
 			conn.commit();
 		} catch (SQLException e) {
 			//TODO
-			doRollBack();
+			e.printStackTrace();
 		}
 		return compCount;
 	}
@@ -319,8 +304,8 @@ public class DAOComputer extends DAO<Computer> {
 	public double searchCount(String search) {
 		ResultSet results = null;
 		double compCount = 0;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(COUNT_SEARCH)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.COUNT_SEARCH.toString())) {
 			ps.setString(1, "%" + search + "%");
 			ps.setString(2, "%" + search + "%");
 			results = ps.executeQuery();
@@ -330,31 +315,18 @@ public class DAOComputer extends DAO<Computer> {
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
 		}
 		return compCount;
 	}
 	
-	@Override
-	public void create(Computer computer) {
-		createComputer(computer.getName(), computer.getIntroduced(),
-				computer.getDiscontinued(), computer.getCompanyId());	
-	}
-
-	@Override
-	public void update(Computer computer) {
-		updateComputer(computer.getId(), computer.getName(),
-				computer.getIntroduced(), computer.getDiscontinued(),
-				computer.getCompanyId());
-	}
-
-	@Override
-	public void delete(Computer computer) {
-		deleteComputer(computer.getId());
-	}
-
-	@Override
-	public double getCount() {
-		return count();
+	public DTOComputer mapToDTO(Computer computer) {
+		DTOComputer computerDTO = null;
+		try {
+			computerDTO = mapperDTOComputer.map(computer);
+		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return computerDTO;
 	}
 }

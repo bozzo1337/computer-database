@@ -1,30 +1,28 @@
 package com.excilys.cdb.persistence;
 
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.mapper.CompanyMapper;
 import com.excilys.cdb.model.Company;
 
-public class DAOCompany extends DAO<Company> {
-	
+public class DAOCompany {
+
 	private static DAOCompany singleInstance = null;
-	
-	private static final String SELECT_ONE = "SELECT * FROM company WHERE id=?;";
-	private static final String ORDER_ALL = "SELECT * FROM company ORDER BY name;";
-	private static final String SELECT_BATCH = "SELECT * FROM company LIMIT ?, ?;";
-	private static final String COUNT_ALL = "SELECT COUNT(id) AS count FROM company;";
-	private static final String SELECT_COMPUTERS_IN_COMPANY = "SELECT computer.id FROM computer WHERE computer.company_id=?;";
-	private static final String DELETE_COMPANY = "DELETE FROM company WHERE id=?;";
+	private DBConnector dbc;
+	private CompanyMapper mapperCompany;
 
 	private DAOCompany() {
-		this.mapper = CompanyMapper.getInstance();
+		this.dbc = DBConnector.getInstance();
+		this.mapperCompany = CompanyMapper.getInstance();
 	}
-	
+
 	public static DAOCompany getInstance() {
 		if (singleInstance == null) {
 			singleInstance = new DAOCompany();
@@ -32,111 +30,111 @@ public class DAOCompany extends DAO<Company> {
 		return singleInstance;
 	}
 
-	@Override
 	public Company findById(Long id) {
 		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(SELECT_ONE)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE_COMPANY.toString())) {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
 			conn.commit();
-			return mapper.map(results);
+			return mapperCompany.map(results);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
-	}
-
-	@Override
-	public void create(Company pojo) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void update(Company pojo) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void delete(Company company) {
-		deleteCompany(company.getId());
-	}
-	
-	private void deleteCompany(Long id) {
-		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement psSelectComputers = conn.prepareStatement(SELECT_COMPUTERS_IN_COMPANY);
-						PreparedStatement psDeleteComputers = conn.prepareStatement(DAOComputer.DELETE_COMPUTER);
-				PreparedStatement psDeleteCompany = conn.prepareStatement(DELETE_COMPANY)) {
-			psSelectComputers.setLong(1, id);
-			results = psSelectComputers.executeQuery();
-			while (results.next()) {
-				DAOComputer.getInstance().deleteComputerTransaction(psDeleteComputers, results.getLong("computer.id"));
-			}
-			psDeleteComputers.executeBatch();
-			psDeleteCompany.setLong(1, id);
-			psDeleteCompany.executeUpdate();
-			conn.commit();
-		} catch (BatchUpdateException e) {
-			e.printStackTrace();
-			doRollBack();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			doRollBack();
-		}		
-	}
-
-	@Override
-	public double getCount() {
-		return count();
 	}
 	
 	public List<Company> findAll() {
+		List<Company> companies = new ArrayList<Company>();
 		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(ORDER_ALL)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_COMPANIES.toString())) {
 			results = ps.executeQuery();
+			while (results.next()) {
+				companies.add(mapperCompany.map(results));
+			}
 			conn.commit();
-			return mapper.mapBatch(results);
+			return companies;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
 
-	@Override
+	public void deleteCompany(Long id) {
+		try (Connection conn = dbc.getConn()) {
+
+			try (PreparedStatement psDeleteComputers = conn
+					.prepareStatement(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString());
+					PreparedStatement psDeleteCompany = conn.prepareStatement(SQLRequest.DELETE_COMPANY.toString())) {
+				psDeleteComputers.setLong(1, id);
+				psDeleteComputers.executeUpdate();
+				psDeleteCompany.setLong(1, id);
+				psDeleteCompany.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	public double getCount() {
+		return count();
+	}
+
 	public List<Company> findBatch(int batchSize, int index) {
+		List<Company> companies = new ArrayList<Company>();
 		ResultSet results = null;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(SELECT_BATCH)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH_COMPANY.toString())) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
+			while (results.next()) {
+				companies.add(mapperCompany.map(results));
+			}
 			conn.commit();
-			return mapper.mapBatch(results);
+			return companies;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			doRollBack();
+		} catch (NullMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	public double count() {
 		ResultSet results = null;
 		double compCount = 0;
-		try (Connection conn = DBC.getConn();
-				PreparedStatement ps = conn.prepareStatement(COUNT_ALL)) {
+		try (Connection conn = dbc.getConn();
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.COUNT_COMPANY.toString())) {
 			results = ps.executeQuery();
 			if (results.next()) {
 				compCount = results.getDouble("count");
 			}
 		} catch (SQLException e) {
-			//TODO
-			doRollBack();
+			// TODO
+			e.printStackTrace();
 		}
 		return compCount;
 	}

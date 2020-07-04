@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
 public class ComputerMapperTest {
@@ -29,19 +31,19 @@ public class ComputerMapperTest {
 		MockitoAnnotations.initMocks(this);
 	}
 
-	@Test
-	public void mapResultSetNull() {
-		assertNull("Mapping null ResultSet", mapper.map(null));
+	@Test(expected = NullMappingSourceException.class)
+	public void mapResultSetNull() throws NullMappingSourceException, UnknownMappingSourceException {
+		mapper.map(null);
 	}
 
 	@Test
-	public void mapResultSetEmpty() throws SQLException {
+	public void mapResultSetEmpty() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(false);
 		assertNull("Mapping empty ResultSet", mapper.map(resultSet));
 	}
 
 	@Test
-	public void mapResultSetOneRow() throws SQLException {
+	public void mapResultSetOneRow() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(true, false);
 		Mockito.when(resultSet.getLong("computer.id")).thenReturn(new Long(1L));
 		Mockito.when(resultSet.getString("computer.name")).thenReturn("Computer1");
@@ -55,7 +57,7 @@ public class ComputerMapperTest {
 	}
 
 	@Test
-	public void mapResultSetMultipleRows() throws SQLException {
+	public void mapResultSetMultipleRows() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(true, true, true, false);
 		Mockito.when(resultSet.getLong("computer.id")).thenReturn(new Long(15L), new Long(12L), new Long(955L));
 		Mockito.when(resultSet.getString("computer.name")).thenReturn("Computer15", "Computer12", "Computer955");
@@ -77,6 +79,6 @@ public class ComputerMapperTest {
 		compList.add(comp1);
 		compList.add(comp2);
 		compList.add(comp3);
-		assertEquals(compList, mapper.mapBatch(resultSet));
+		assertEquals(compList, mapper.map(resultSet));
 	}
 }

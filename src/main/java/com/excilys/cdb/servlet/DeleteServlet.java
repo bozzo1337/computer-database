@@ -41,11 +41,10 @@ public class DeleteServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		List<String> idsComputersToDelete = Arrays.asList(request.getParameter("selection").split(","));
-		for (String idCompToDelete : idsComputersToDelete) {
-			if (!idCompToDelete.trim().isEmpty()) {
-				cs.delete(cs.selectById(Long.valueOf(idCompToDelete)));
-			}
-		}
+		idsComputersToDelete
+		.stream()
+		.mapToLong(Long::parseLong)
+		.forEach(id -> cs.delete(cs.selectById(Long.valueOf(id))));
 		doGet(request, response);
 	}
 

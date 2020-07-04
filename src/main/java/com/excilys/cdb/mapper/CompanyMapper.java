@@ -26,14 +26,14 @@ public class CompanyMapper extends Mapper<Company> {
 	public Company map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
 		Company company;
 		if (source == null) {
-			throw new NullMappingSourceException("Mapping source null");
+			throw new NullMappingSourceException();
 		}
 		if (source.getClass() == ResultSet.class) {
 			company = mapFromResultSet((ResultSet) source);
 		} else if (source.getClass() == DTOCompany.class) {
 			company = mapFromDTO((DTOCompany) source);
 		} else {
-			throw new UnknownMappingSourceException("Mapping source not recognized");
+			throw new UnknownMappingSourceException();
 		}
 		return company;
 	}
@@ -50,6 +50,6 @@ public class CompanyMapper extends Mapper<Company> {
 	}
 
 	private Company mapFromDTO(DTOCompany companyDTO) {
-		return new Company(Long.valueOf(companyDTO.getId(), companyDTO.getName());
+		return new Company(Long.valueOf(companyDTO.getId()), companyDTO.getName());
 	}
 }

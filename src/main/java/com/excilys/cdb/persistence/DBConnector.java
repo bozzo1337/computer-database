@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -19,7 +18,7 @@ public class DBConnector {
 	private String login;
 	private String password;
 	private HikariConfig config = new HikariConfig();
-	private HikariDataSource ds;
+	private HikariDataSource dataSource;
 	
 	private DBConnector() {
 		InputStream inputStream = null;
@@ -34,7 +33,7 @@ public class DBConnector {
 			config.setJdbcUrl(url);
 			config.setPassword(password);
 			config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-			ds = new HikariDataSource(config);
+			dataSource = new HikariDataSource(config);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,7 +61,7 @@ public class DBConnector {
 		try {
 			if (conn == null || conn.isClosed()) {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				conn = ds.getConnection();
+				conn = dataSource.getConnection();
 				conn.setAutoCommit(false);
 			}
 		} catch (SQLException e) {
@@ -73,24 +72,5 @@ public class DBConnector {
 			e.printStackTrace();
 		}
 		return conn;
-	}
-	
-	public boolean initConn() {
-		try {
-			conn = DriverManager.getConnection(url, login, password);
-			conn.setAutoCommit(false);
-			return true;
-		} catch (SQLException e) {
-			return false;
-		}
-	}
-	
-	public boolean closeConn() {
-		try {
-			conn.close();
-			return true;
-		} catch (SQLException e) {
-			return false;
-		}
 	}
 }
