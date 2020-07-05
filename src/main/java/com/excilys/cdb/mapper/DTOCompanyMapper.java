@@ -26,7 +26,7 @@ public class DTOCompanyMapper extends Mapper<DTOCompany> {
 		if (source == null) {
 			throw new NullMappingSourceException();
 		}
-		if (source.getClass() == Company.class) {
+		if (source instanceof Company) {
 			companyDTO = mapFromCompany((Company) source);
 		} else {
 			throw new UnknownMappingSourceException();

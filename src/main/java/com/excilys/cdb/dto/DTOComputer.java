@@ -89,7 +89,7 @@ public class DTOComputer {
 
 	@Override
 	public String toString() {
-		return id + " | " + name + " | " + introduced + " | " + discontinued + " | " + companyId;
+		return id + " | " + name + " | " + introduced + " | " + discontinued + " | " + companyId + " | " + companyName;
 	}
 
 	public void setId(String id) {

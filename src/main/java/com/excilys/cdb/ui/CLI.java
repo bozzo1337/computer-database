@@ -146,9 +146,9 @@ public class CLI {
 		Long idRead = Validator.validateID(in.next());
 		DTOComputer comp;
 		if (idRead != null && (comp = cs.selectById(idRead)) != null) {
-			System.out.format(comp.toString());
+			System.out.println(comp.toString());
 		} else {
-			System.out.format("Aucun résultat.");
+			System.out.println("Aucun résultat.");
 		}
 	}
 

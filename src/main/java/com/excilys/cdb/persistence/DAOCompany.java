@@ -31,13 +31,16 @@ public class DAOCompany {
 	}
 
 	public Company findById(Long id) {
+		Company company = null;
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE_COMPANY.toString())) {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
+			if (results.next()) {
+				company = mapperCompany.map(results);
+			}
 			conn.commit();
-			return mapperCompany.map(results);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (NullMappingSourceException e) {
@@ -47,7 +50,7 @@ public class DAOCompany {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return company;
 	}
 	
 	public List<Company> findAll() {

@@ -3,14 +3,14 @@ package com.excilys.cdb.persistence;
 public enum SQLRequest {
 
 	
-	SELECT_ONE("SELECT (computer.id, computer.name, computer.introduced, computer.discontinued, "
-			+ "computer.company_id, company.id, company.name) FROM computer LEFT JOIN company ON "
+	SELECT_ONE("SELECT computer.id, computer.name, computer.introduced, computer.discontinued, "
+			+ "computer.company_id, company.id, company.name FROM computer LEFT JOIN company ON "
 			+ "computer.company_id = company.id WHERE computer.id = ?;"),
-	SELECT_BATCH("SELECT (computer.id, computer.name, computer.introduced, computer.discontinued, "
-			+ "computer.company_id, company.id, company.name) FROM computer LEFT JOIN company ON "
+	SELECT_BATCH("SELECT computer.id, computer.name, computer.introduced, computer.discontinued, "
+			+ "computer.company_id, company.id, company.name FROM computer LEFT JOIN company ON "
 			+ "computer.company_id = company.id LIMIT ?, ?;"),
-	SEARCH_BATCH("SELECT (computer.id, computer.name, computer.introduced, computer.discontinued, "
-			+ "computer.company_id, company.id, company.name) FROM computer LEFT JOIN company ON "
+	SEARCH_BATCH("SELECT computer.id, computer.name, computer.introduced, computer.discontinued, "
+			+ "computer.company_id, company.id, company.name FROM computer LEFT JOIN company ON "
 			+ "computer.company_id = company.id "
 			+ "WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY CASE "
 			+ "WHEN computer.name LIKE ? OR company.name LIKE ? THEN 0 "
@@ -25,15 +25,15 @@ public enum SQLRequest {
 	COUNT_COMPUTER("SELECT COUNT(id) AS count FROM computer;"),
 	COUNT_SEARCH("SELECT COUNT(computer.id) AS count FROM computer LEFT JOIN company ON "
 			+ "computer.company_id = company.id WHERE computer.name LIKE ? OR company.name LIKE ? ;"),
-	ORDER("SELECT (computer.id, computer.name, computer.introduced, computer.discontinued, "
-			+ "computer.company_id, company.id, company.name) FROM computer LEFT JOIN company ON "
+	ORDER("SELECT computer.id, computer.name, computer.introduced, computer.discontinued, "
+			+ "computer.company_id, company.id, company.name FROM computer LEFT JOIN company ON "
 			+ "computer.company_id = company.id ORDER BY %s LIMIT ?, ?;"),
-	SEARCH_ORDER("SELECT (computer.id, computer.name, computer.introduced, computer.discontinued, "
-			+ "computer.company_id, company.id, company.name) FROM computer LEFT JOIN company ON "
+	SEARCH_ORDER("SELECT computer.id, computer.name, computer.introduced, computer.discontinued, "
+			+ "computer.company_id, company.id, company.name FROM computer LEFT JOIN company ON "
 			+ "computer.company_id = company.id WHERE computer.name LIKE ? OR company.name LIKE ? "
 			+ "ORDER BY %s LIMIT ?, ?;"),
 	DELETE_COMPUTERS_OF_COMPANY("DELETE FROM computer WHERE company_id=?;"),
-	SELECT_COMPANIES("SELECT (company.id, company.name) FROM company;"),
+	SELECT_COMPANIES("SELECT company.id, company.name FROM company ORDER BY company.name;"),
 	SELECT_ONE_COMPANY("SELECT * FROM company WHERE id=?;"),
 	SELECT_BATCH_COMPANY("SELECT * FROM company LIMIT ?, ?;"),
 	COUNT_COMPANY("SELECT COUNT(id) AS count FROM company;"),

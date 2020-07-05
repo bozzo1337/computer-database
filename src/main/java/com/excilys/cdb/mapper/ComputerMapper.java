@@ -34,9 +34,9 @@ public class ComputerMapper extends Mapper<Computer> {
 		if (source == null) {
 			throw new NullMappingSourceException();
 		}
-		if (source.getClass() == ResultSet.class) {
+		if (source instanceof ResultSet) {
 			computer = mapFromResultSet((ResultSet) source);
-		} else if (source.getClass() == DTOComputer.class) {
+		} else if (source instanceof DTOComputer) {
 			computer = mapFromDTO((DTOComputer) source);
 		} else {
 			throw new UnknownMappingSourceException();

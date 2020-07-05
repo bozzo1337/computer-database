@@ -29,7 +29,7 @@ public class DTOComputerMapper extends Mapper<DTOComputer> {
 		if (source == null) {
 			throw new NullMappingSourceException();
 		}
-		if (source.getClass() == Computer.class) {
+		if (source instanceof Computer) {
 			computerDTO = mapFromComputer((Computer) source);
 		} else {
 			throw new UnknownMappingSourceException();

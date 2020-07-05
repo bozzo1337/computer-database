@@ -1,7 +1,7 @@
 package com.excilys.cdb.servlet;
 
 import java.io.IOException;
-import java.util.stream.Stream;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -80,17 +80,17 @@ public class DashboardServlet extends HttpServlet {
     	cs.resetPages(search);
     	String orderType = handleOrder(request);
     	setUpCurrentPage(request);
-    	Stream<DTOComputer> streamComp;
+    	List<DTOComputer> listComp;
 		if (search != null && !search.isEmpty() && orderType != null) {
-			streamComp = cs.orderedSearchComp(search, orderType).getEntities().stream();
+			listComp = cs.orderedSearchComp(search, orderType).getEntities();
 		} else if (search != null && !search.isEmpty()) {
-			streamComp = cs.searchComp(search).getEntities().stream();
+			listComp = cs.searchComp(search).getEntities();
 		} else if (orderType != null) {
-			streamComp = cs.orderComp(orderType).getEntities().stream();
+			listComp = cs.orderComp(orderType).getEntities();
 		} else {
-			streamComp = cs.selectAll().getEntities().stream();
+			listComp = cs.selectAll().getEntities();
 		}
-		request.setAttribute("listComp", streamComp);
+		request.setAttribute("listComp", listComp);
     }
     
     private void setUpCurrentPage(HttpServletRequest request) {

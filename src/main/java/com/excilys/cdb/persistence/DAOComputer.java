@@ -9,6 +9,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
@@ -19,6 +22,7 @@ import com.excilys.cdb.model.Computer;
 public class DAOComputer {
 	
 	private static DAOComputer singleInstance = null;
+	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
 	private DBConnector dbc;
 	private ComputerMapper mapperComputer;
 	private DTOComputerMapper mapperDTOComputer;
@@ -37,23 +41,26 @@ public class DAOComputer {
 	}
 
 	public Computer findById(Long id) {
+		Computer computer = null;
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE.toString())) {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
+			if (results.next()) {
+				computer = mapperComputer.map(results);
+			}
 			conn.commit();
-			return mapperComputer.map(results);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (NullMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (UnknownMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-		return null;
+		return computer;
 	}
 
 	public List<Computer> findBatch(int batchSize, int index) {
@@ -63,22 +70,22 @@ public class DAOComputer {
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH.toString())) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
+			LOGGER.debug(ps.toString());
 			results = ps.executeQuery();
 			while (results.next()) {
 				computers.add(mapperComputer.map(results));
 			}
 			conn.commit();
-			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (NullMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (UnknownMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-		return null;
+		return computers;
 	}
 	
 	public List<Computer> searchBatch(String search, int batchSize, int index) {
@@ -103,17 +110,16 @@ public class DAOComputer {
 				computers.add(mapperComputer.map(results));
 			}
 			conn.commit();
-			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (NullMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (UnknownMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-		return null;
+		return computers;
 	}
 
 	public List<Computer> orderBatch(String orderType, int batchSize, int index) {
@@ -129,17 +135,16 @@ public class DAOComputer {
 				computers.add(mapperComputer.map(results));
 			}
 			conn.commit();
-			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (NullMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (UnknownMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-		return null;
+		return computers;
 	}
 	
 	public List<Computer> orderedSearch(String search, String orderType, int batchSize, int index) {
@@ -157,17 +162,16 @@ public class DAOComputer {
 				computers.add(mapperComputer.map(results));
 			}
 			conn.commit();
-			return computers;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (NullMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (UnknownMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-		return null;
+		return computers;
 	}
 	
 	private String formatQuery(String query, String orderType) {
@@ -325,7 +329,7 @@ public class DAOComputer {
 			computerDTO = mapperDTOComputer.map(computer);
 		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return computerDTO;
 	}
