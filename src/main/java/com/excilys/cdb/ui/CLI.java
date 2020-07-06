@@ -1,5 +1,6 @@
 package com.excilys.cdb.ui;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -29,10 +30,14 @@ public class CLI {
 	public static void main(String[] args) {
 		CLI cli = new CLI();
 		System.out.format("Système de gestion d'ordinateurs.%nConnexion...%n");
-		if (DBC.getConn() == null) {
-			System.err.format("Erreur de connexion...%n");
-			LOGGER.error("Connection failed");
-			return;
+		try {
+			if (DBC.getConn() == null) {
+				System.err.format("Erreur de connexion...%n");
+				LOGGER.error("Connection failed");
+				return;
+			}
+		} catch (SQLException e) {
+			LOGGER.error("Connection failed due to Exception");
 		}
 		System.out.format("Connexion OK, Bienvenue !%n");
 		System.out.format(

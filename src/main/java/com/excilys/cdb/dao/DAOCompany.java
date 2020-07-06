@@ -7,32 +7,39 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dao.mapper.CompanyMapper;
 import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
 public class DAOCompany {
 
 	private static DAOCompany singleInstance = null;
+	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompany.class);
 	private DBConnector dbc;
 	private CompanyMapper mapperCompany;
 
 	private DAOCompany() {
-		this.dbc = DBConnector.getInstance();
 		this.mapperCompany = CompanyMapper.getInstance();
 	}
 
-	public static DAOCompany getInstance() {
+	public static DAOCompany getInstance(DBConnector dbc) {
 		if (singleInstance == null) {
 			singleInstance = new DAOCompany();
+		}
+		if (singleInstance.dbc != dbc) {
+			singleInstance.dbc = dbc;
 		}
 		return singleInstance;
 	}
 
-	public Company findById(Long id) {
-		Company company = null;
+	public Company findById(Long id) throws PersistenceException {
+		Company company = new Company();
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE_COMPANY.toString())) {
@@ -42,19 +49,14 @@ public class DAOCompany {
 				company = mapperCompany.map(results);
 			}
 			conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during SELECT one company", e);
+			throw new PersistenceException("Error during SELECT one company", e);
 		}
 		return company;
 	}
-	
-	public List<Company> findAll() {
+
+	public List<Company> findAll() throws PersistenceException {
 		List<Company> companies = new ArrayList<Company>();
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
@@ -64,22 +66,15 @@ public class DAOCompany {
 				companies.add(mapperCompany.map(results));
 			}
 			conn.commit();
-			return companies;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during SELECT all companies", e);
+			throw new PersistenceException("Error during SELECT all companies", e);
 		}
-		return null;
+		return companies;
 	}
 
-	public void deleteCompany(Long id) {
+	public void delete(Long id) throws PersistenceException {
 		try (Connection conn = dbc.getConn()) {
-
 			try (PreparedStatement psDeleteComputers = conn
 					.prepareStatement(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString());
 					PreparedStatement psDeleteCompany = conn.prepareStatement(SQLRequest.DELETE_COMPANY.toString())) {
@@ -90,19 +85,16 @@ public class DAOCompany {
 				conn.commit();
 			} catch (SQLException e) {
 				conn.rollback();
-				e.printStackTrace();
+				LOGGER.error("Error during DELETE Statement", e);
+				throw new PersistenceException("Error during DELETE Statement", e);
 			}
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			LOGGER.error("Error with Connection during DELETE", e1);
+			throw new PersistenceException("Error with Connection during DELETE", e1);
 		}
 	}
 
-	public double getCount() {
-		return count();
-	}
-
-	public List<Company> findBatch(int batchSize, int index) {
+	public List<Company> findBatch(int batchSize, int index) throws PersistenceException {
 		List<Company> companies = new ArrayList<Company>();
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
@@ -114,20 +106,14 @@ public class DAOCompany {
 				companies.add(mapperCompany.map(results));
 			}
 			conn.commit();
-			return companies;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during SELECT batch companies", e);
+			throw new PersistenceException("Error during SELECT batch companies", e);
 		}
-		return null;
+		return companies;
 	}
 
-	public double count() {
+	public double count() throws PersistenceException {
 		ResultSet results = null;
 		double compCount = 0;
 		try (Connection conn = dbc.getConn();
@@ -137,8 +123,8 @@ public class DAOCompany {
 				compCount = results.getDouble("count");
 			}
 		} catch (SQLException e) {
-			// TODO
-			e.printStackTrace();
+			LOGGER.error("Error during SELECT batch companies", e);
+			throw new PersistenceException("Error during SELECT batch companies", e);
 		}
 		return compCount;
 	}
