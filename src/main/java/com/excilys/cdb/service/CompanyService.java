@@ -2,9 +2,9 @@ package com.excilys.cdb.service;
 
 import java.util.List;
 
+import com.excilys.cdb.dao.DAOCompany;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
-import com.excilys.cdb.persistence.DAOCompany;
 
 public class CompanyService {
 	

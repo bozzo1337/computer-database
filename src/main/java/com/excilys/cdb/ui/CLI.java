@@ -6,6 +6,7 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.IncorrectDiscDateException;
 import com.excilys.cdb.exception.IncorrectIDException;
@@ -13,7 +14,6 @@ import com.excilys.cdb.exception.IncorrectIntroDateException;
 import com.excilys.cdb.exception.IncorrectNameException;
 import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.persistence.DBConnector;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
 import com.excilys.cdb.validation.Validator;

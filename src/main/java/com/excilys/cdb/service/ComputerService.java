@@ -2,13 +2,13 @@ package com.excilys.cdb.service;
 
 import java.util.stream.Collectors;
 
+import com.excilys.cdb.dao.DAOComputer;
+import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
-import com.excilys.cdb.persistence.DAOComputer;
 
 public class ComputerService {
 	

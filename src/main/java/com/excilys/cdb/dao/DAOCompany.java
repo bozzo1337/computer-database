@@ -1,4 +1,4 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,9 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.connector.DBConnector;
+import com.excilys.cdb.dao.mapper.CompanyMapper;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.mapper.CompanyMapper;
 import com.excilys.cdb.model.Company;
 
 public class DAOCompany {

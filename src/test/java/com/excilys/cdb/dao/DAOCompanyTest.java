@@ -1,4 +1,4 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.dao;
 
 import java.sql.SQLException;
 

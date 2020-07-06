@@ -1,4 +1,4 @@
-package com.excilys.cdb.mapper;
+package com.excilys.cdb.dao.mapper;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.mapper.Mapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 

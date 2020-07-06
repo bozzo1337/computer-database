@@ -1,10 +1,11 @@
-package com.excilys.cdb.mapper;
+package com.excilys.cdb.dto.mapper;
 
 import java.time.format.DateTimeFormatter;
 
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.mapper.Mapper;
 import com.excilys.cdb.model.Computer;
 
 public class DTOComputerMapper extends Mapper<DTOComputer> {

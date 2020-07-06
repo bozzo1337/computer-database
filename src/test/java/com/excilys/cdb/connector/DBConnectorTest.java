@@ -1,4 +1,4 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.connector;
 
 public class DBConnectorTest {
 

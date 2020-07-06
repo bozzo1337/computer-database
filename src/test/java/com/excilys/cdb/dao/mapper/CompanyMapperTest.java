@@ -1,4 +1,4 @@
-package com.excilys.cdb.mapper;
+package com.excilys.cdb.dao.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

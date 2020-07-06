@@ -1,4 +1,4 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.connector;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

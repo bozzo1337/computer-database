@@ -1,4 +1,4 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.dao;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -12,11 +12,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.cdb.connector.DBConnector;
+import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.dto.mapper.DTOComputerMapper;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.mapper.ComputerMapper;
-import com.excilys.cdb.mapper.DTOComputerMapper;
 import com.excilys.cdb.model.Computer;
 
 public class DAOComputer {
