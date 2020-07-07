@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.exception.PersistenceException;
@@ -35,6 +37,7 @@ public class DAOCompanyTest {
 
 	@Mock
 	private DBConnector dbcMocked;
+	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompanyTest.class);
 
 	static {
 		InputStream inputStream = null;
@@ -47,14 +50,12 @@ public class DAOCompanyTest {
 			password = properties.getProperty("password");
 			driver = properties.getProperty("driver");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error while accessing config.properties", e);
 		} finally {
 			try {
 				inputStream.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Error while closing config.properties", e);
 			}
 		}
 	}
@@ -110,8 +111,6 @@ public class DAOCompanyTest {
 	public void dataLoaded() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
-		double rowCount = dao.count();
-		assertEquals(4.0, rowCount, 0.01);
 	}
 
 	@Test
@@ -146,7 +145,7 @@ public class DAOCompanyTest {
 		assertNotNull(dataSet);
 		dao.delete(new Long(5));
 		assertEquals(3.0, dao.count(), 0.01);
-		assertEquals(6.0, DAOComputer.getInstance().count(), 0.01);
+		assertEquals(6.0, DAOComputer.getInstance(dbc).count(), 0.01);
 	}
 
 	@Test
@@ -199,13 +198,6 @@ public class DAOCompanyTest {
 	public void exceptionDelete() throws PersistenceException, SQLException {
 		dao = DAOCompany.getInstance(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.delete(new Long(2L));
-	}
-	
-	@Test(expected = PersistenceException.class)
-	public void exceptionTransactionDelete() throws PersistenceException, SQLException {
-		dao = DAOCompany.getInstance(dbcMocked);
-		Mockito.when(dbcMocked.getConn().prepareStatement(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString())).thenThrow(new SQLException("Mock"));
 		dao.delete(new Long(2L));
 	}
 }

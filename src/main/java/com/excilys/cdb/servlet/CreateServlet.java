@@ -27,15 +27,17 @@ import com.excilys.cdb.validation.Validator;
 @WebServlet(name = "createServlet", urlPatterns = "/create")
 public class CreateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private CompanyService cas = CompanyService.getInstance();
-	private ComputerService cs = ComputerService.getInstance();
+	private CompanyService cas;
+	private ComputerService cs;
 	private boolean firstCallCreate = true;
 	
     /**
      * @see HttpServlet#HttpServlet()
      */
     public CreateServlet() {
-        super();
+        super();	
+        this.cas = ApplicationContextServlet.getInstance().getCompanyService();
+        this.cs = ApplicationContextServlet.getInstance().getComputerService();
         // TODO Auto-generated constructor stub
     }
 

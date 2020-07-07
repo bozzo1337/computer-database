@@ -2,31 +2,29 @@ package com.excilys.cdb.service;
 
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.dao.DAOComputer;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
 public class ComputerService {
 	
-	private static ComputerService singleInstance = null;
+	private static final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
 	private Page<DTOComputer> pageComp;
 	private DAOComputer dao;
 	private String pageHeader = "ID | Name | Intro | Disc | CompID\n";
 	
-	private ComputerService() {
-		dao = DAOComputer.getInstance();
+	public ComputerService(DAOComputer dao) {
+		this.dao = dao;
 		pageComp = new Page<DTOComputer>(pageHeader);
-	}
-	
-	public static ComputerService getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new ComputerService();
-		}
-		return singleInstance;
+		LOGGER.info("ComputerService instantiated");
 	}
 	
 	public void resetPages(String search) {
@@ -38,10 +36,15 @@ public class ComputerService {
 	}
 	
 	public Page<DTOComputer> selectAll() {
-		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
-				.stream()
-				.map(c -> dao.mapToDTO(c))
-				.collect(Collectors.toList()));
+		try {
+			return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
+					.stream()
+					.map(c -> dao.mapToDTO(c))
+					.collect(Collectors.toList()));
+		} catch (PersistenceException | NullMappingSourceException | UnknownMappingSourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public Page<DTOComputer> getPageComp() {

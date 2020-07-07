@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="computerDAO" class="com.excilys.cdb.dao.DAOComputer" factory-method="getInstance">
+	</bean>
+	
+	<bean id="companyDAO" class="com.excilys.cdb.dao.DAOCompany" factory-method="getInstance">
+		<constructor-arg name="dbc" ref="connector"/>
+	</bean>
+	
+	<bean id="connector" class="com.excilys.cdb.connector.DBConnector" factory-method="getInstance">
+	</bean>
+</beans>

@@ -6,7 +6,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dao.DAOCompany;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
@@ -14,23 +13,15 @@ import com.excilys.cdb.model.Page;
 
 public class CompanyService {
 	
-	private static CompanyService singleInstance = null;
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
 	private Page<Company> pageComp;
 	private DAOCompany dao;
 	private String pageHeader = "ID | Name\n";
 	
-	private CompanyService() {
-		dao = DAOCompany.getInstance(DBConnector.getInstance());
+	public CompanyService(DAOCompany dao) {
+		this.dao = dao;
 		pageComp = new Page<Company>(pageHeader);
-	}
-	
-	public static CompanyService getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new CompanyService();
-			LOGGER.info("CompanyService instancied");
-		}
-		return singleInstance;
+		LOGGER.info("CompanyService instantiated");
 	}
 	
 	public void resetPages() {

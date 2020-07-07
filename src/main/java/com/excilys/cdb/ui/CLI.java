@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dto.DTOComputer;
@@ -23,12 +24,19 @@ public class CLI {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
 	private static final DBConnector DBC = DBConnector.getInstance();
-	private ComputerService cs = ComputerService.getInstance();
-	private CompanyService cas = CompanyService.getInstance();
+	private ComputerService cs;
+	private CompanyService cas;
 	private Scanner in = new Scanner(System.in);
 
+	public CLI(CompanyService cas, ComputerService cs) {
+		this.cas = cas;
+		this.cs = cs;
+	}
+	
 	public static void main(String[] args) {
-		CLI cli = new CLI();
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("services.xml", "daos.xml");
+		CLI cli = new CLI((CompanyService) context.getBean("companyService"), (ComputerService) context.getBean("computerService"));
+		context.close();
 		System.out.format("Système de gestion d'ordinateurs.%nConnexion...%n");
 		try {
 			if (DBC.getConn() == null) {

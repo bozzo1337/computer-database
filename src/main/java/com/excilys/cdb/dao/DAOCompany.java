@@ -31,6 +31,7 @@ public class DAOCompany {
 	public static DAOCompany getInstance(DBConnector dbc) {
 		if (singleInstance == null) {
 			singleInstance = new DAOCompany();
+			LOGGER.info("DAOCompany instantiated");
 		}
 		if (singleInstance.dbc != dbc) {
 			singleInstance.dbc = dbc;
