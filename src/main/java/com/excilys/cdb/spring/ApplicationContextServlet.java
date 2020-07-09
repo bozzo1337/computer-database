@@ -9,25 +9,13 @@ import com.excilys.cdb.service.ComputerService;
 
 public class ApplicationContextServlet extends ClassPathXmlApplicationContext {
 
-	private static ApplicationContextServlet singleInstance;
-	private ApplicationContext context;
+	private static ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 	
-	private ApplicationContextServlet() {
-		 context = new AnnotationConfigApplicationContext(AppConfig.class);
-	}
-	
-	public static ApplicationContextServlet getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new ApplicationContextServlet();
-		}
-		return singleInstance;
-	}
-	
-	public ComputerService getComputerService() {
+	public static ComputerService getComputerService() {
 		return context.getBean(ComputerService.class);
 	}
 	
-	public CompanyService getCompanyService() {
+	public static CompanyService getCompanyService() {
 		return context.getBean(CompanyService.class);
 	}
 }

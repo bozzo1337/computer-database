@@ -29,7 +29,7 @@ public class CompanyMapper {
 	}
 
 	private static Company mapFromResultSet(ResultSet results) {
-		Company company = null;
+		Company company = new Company();
 		try {
 			company = new Company(results.getLong("company.id"), results.getString("company.name"));
 		} catch (SQLException e) {

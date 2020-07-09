@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Page;
 
 public class DAOCompanyTest {
 
@@ -39,15 +40,17 @@ public class DAOCompanyTest {
 	private DBConnector dbcMocked;
 	private DBConnector dbc;
 	private DAOCompany dao;
+	private Page<Company> page;
 	private String url;
 	private String login;
 	private String password;
 	private String driver;
 
-	public DAOCompanyTest(DBConnector dbc, DAOCompany dao) {
+	public DAOCompanyTest() {
 		MockitoAnnotations.initMocks(this);
-		this.dbc = dbc;
-		this.dao = dao;
+		this.dbc = new DBConnector();
+		this.dao = new DAOCompany(dbc);
+		this.page = new Page<Company>("");
 		InputStream inputStream = null;
 		try {
 			inputStream = DAOCompanyTest.class.getResourceAsStream("/config.properties");
@@ -134,7 +137,8 @@ public class DAOCompanyTest {
 		companies.add(new Company(new Long(2), "Company2"));
 		companies.add(new Company(new Long(4), "Company4"));
 		companies.add(new Company(new Long(5), "Company5"));
-		assertEquals(companies, dao.findAll());
+		dao.findAll(page);
+		assertEquals(companies, page.getEntities());
 	}
 
 	@Test
@@ -160,7 +164,10 @@ public class DAOCompanyTest {
 		companies.add(new Company(new Long(1), "Company1"));
 		companies.add(new Company(new Long(2), "Company2"));
 		companies.add(new Company(new Long(4), "Company4"));
-		assertEquals(companies, dao.findBatch(3, 0));
+		page.setEntitiesPerPage(3);
+		page.setIdxCurrentPage(0);
+		dao.findBatch(page);
+		assertEquals(companies, page.getEntities());
 	}
 
 	@Test(expected = PersistenceException.class)
@@ -181,14 +188,14 @@ public class DAOCompanyTest {
 	public void exceptionFindAll() throws SQLException, PersistenceException {
 		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findAll();
+		dao.findAll(page);
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionFindBatch() throws SQLException, PersistenceException {
 		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findBatch(2, 0);
+		dao.findBatch(page);
 	}
 	
 	@Test(expected = PersistenceException.class)

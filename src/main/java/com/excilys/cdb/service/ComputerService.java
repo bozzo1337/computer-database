@@ -1,6 +1,5 @@
 package com.excilys.cdb.service;
 
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,93 +19,108 @@ import com.excilys.cdb.model.Page;
 public class ComputerService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
-	private Page<DTOComputer> pageComp;
+	private Page<DTOComputer> pageCompDTO;
+	private Page<Computer> pageComp;
 	private DAOComputer dao;
 	private final String pageHeader = "ID | Name | Intro | Disc | CompID\n";
 	
 	@Autowired
 	public ComputerService(DAOComputer dao) {
 		this.dao = dao;
-		pageComp = new Page<DTOComputer>(pageHeader);
+		pageComp = new Page<Computer>(pageHeader);
+		pageCompDTO = new Page<DTOComputer>(pageHeader);
 		LOGGER.info("ComputerService instantiated");
 	}
 	
 	public void resetPages(String search) {
+		double count = -1;
 		if (search != null && !search.trim().isEmpty()) {
-			pageComp.init(getSearchCount(search));
+			count = getSearchCount(search);
 		} else {
-			pageComp.init(getCount());
+			count = getCount();
 		}
+		pageComp.init(count);
+		pageCompDTO.init(count);
 	}
 	
 	public Page<DTOComputer> selectAll() {
+		pageCompDTO.getEntities().clear();
 		try {
-			return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
-					.stream()
-					.map(c -> dao.mapToDTO(c))
-					.collect(Collectors.toList()));
+			dao.findBatch(pageComp);
+			pageComp.getEntities()
+			.stream()
+			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		} catch (PersistenceException e) {
 			LOGGER.error("Error during selectAll in service", e);
 		}
-		return pageComp;
+		return pageCompDTO;
 	}
 	
 	public Page<DTOComputer> getPageComp() {
-		return pageComp;
+		return pageCompDTO;
 	}
 	
 	public Page<DTOComputer> searchComp(String search) {
+		pageCompDTO.getEntities().clear();
+		pageComp.setSearch(search);
 		try {
-			return pageComp.filled(dao.searchBatch(search, pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
-					.stream()
-					.map(c -> dao.mapToDTO(c))
-					.collect(Collectors.toList()));
+			dao.searchBatch(pageComp);
+			pageComp.getEntities()
+			.stream()
+			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during search in service", e);
 		}
-		return pageComp;
+		return pageCompDTO;
 	}
 	
 	public Page<DTOComputer> orderComp(String orderType) {
+		pageCompDTO.getEntities().clear();
+		pageComp.setOrder(orderType);
 		try {
-			return pageComp.filled(dao.orderBatch(orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
-					.stream()
-					.map(c -> dao.mapToDTO(c))
-					.collect(Collectors.toList()));
+			dao.orderBatch(pageComp);
+			pageComp.getEntities()
+			.stream()
+			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during order in service", e);
 		}
-		return pageComp;
+		return pageCompDTO;
 	}
 	
 	public Page<DTOComputer> orderedSearchComp(String search, String orderType) {
+		pageCompDTO.getEntities().clear();
+		pageComp.setOrder(orderType);
+		pageComp.setSearch(search);
 		try {
-			return pageComp.filled(dao.orderedSearch(search, orderType, pageComp.getEntitiesPerPage(), pageComp.getIdxPage())
-					.stream()
-					.map(c -> dao.mapToDTO(c))
-					.collect(Collectors.toList()));
+			dao.orderedSearch(pageComp);
+			pageComp.getEntities()
+			.stream()
+			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during search order in service", e);
 		}
-		return pageComp;
+		return pageCompDTO;
 	}
 	
 	public double getCount() {
+		double count = -1;
 		try {
-			return dao.count();
+			count = dao.count();
 		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during default count in service", e);
 		}
-		return 0;
+		return count;
 	}
 	
 	public double getSearchCount(String search) {
+		double count = -1;
 		try {
-			return dao.searchCount(search);
+			count = dao.searchCount(search);
 		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during search count in service", e);
 		}
-		return 0;
+		return count;
 	}
 	
 	public void nextPage() {
@@ -122,12 +136,13 @@ public class ComputerService {
 	}
 	
 	public DTOComputer selectById(Long id) {
+		DTOComputer computerDTO = new DTOComputer.Builder().build();
 		try {
-			return dao.mapToDTO(dao.findById(id));
+			computerDTO = dao.mapToDTO(dao.findById(id));
 		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during selectById in service", e);
 		}
-		return null;
+		return computerDTO;
 	}
 	
 	public void create(DTOComputer computerDTO) {
@@ -135,7 +150,7 @@ public class ComputerService {
 			Computer computer = ComputerMapper.map(computerDTO);
 			dao.create(computer);
 		} catch (NullMappingSourceException | UnknownMappingSourceException | PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during create in service", e);
 		}	
 	}
 	
@@ -144,7 +159,7 @@ public class ComputerService {
 			Computer computer = ComputerMapper.map(computerDTO); 
 			dao.update(computer);
 		} catch (NullMappingSourceException | UnknownMappingSourceException | PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during update in service", e);
 		}
 	}
 	
@@ -152,7 +167,7 @@ public class ComputerService {
 		try {
 			dao.delete(Long.valueOf(computerDTO.getId()));
 		} catch (NumberFormatException | PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
+			LOGGER.error("Error during delete in service", e);
 		}
 	}
 }

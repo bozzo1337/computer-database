@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -14,6 +16,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @Component
 public class DBConnector {
 
+	private static Logger LOGGER = LoggerFactory.getLogger(DBConnector.class);
 	private Connection conn = null;
 	private String url;
 	private String login;
@@ -48,6 +51,7 @@ public class DBConnector {
 				e.printStackTrace();
 			}
 		}
+		LOGGER.info("DBConnector instantiated");
 	}
 
 	public Connection getConn() throws SQLException {

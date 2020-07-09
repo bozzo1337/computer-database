@@ -78,4 +78,12 @@ public class ComputerMapperTest {
 		compList.add(comp3);
 		assertEquals(compList, ComputerMapper.map(resultSet));
 	}
+	
+	private Computer handleMappingExceptionLambda(ResultSet resultSet) {
+		try {
+			return ComputerMapper.map(resultSet);
+		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+			return null;
+		}
+	}
 }

@@ -26,7 +26,7 @@ public class DeleteServlet extends HttpServlet {
      */
     public DeleteServlet() {
         super();
-        this.cs = ApplicationContextServlet.getInstance().getComputerService();
+        this.cs = ApplicationContextServlet.getComputerService();
     }
 
 	/**

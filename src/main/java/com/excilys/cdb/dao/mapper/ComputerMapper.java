@@ -35,7 +35,7 @@ public class ComputerMapper {
 	}
 
 	private static Computer mapFromResultSet(ResultSet results) {
-		Computer computer = null;
+		Computer computer = new Computer.Builder().build();
 		try {
 			Computer.Builder computerBuilder = new Computer.Builder();
 			computerBuilder.withId(results.getLong("computer.id")).withName(results.getString("computer.name"));

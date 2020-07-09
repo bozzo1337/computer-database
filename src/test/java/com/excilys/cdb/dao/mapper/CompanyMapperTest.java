@@ -1,11 +1,13 @@
 package com.excilys.cdb.dao.mapper;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.tools.DiagnosticCollector;
 
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,10 +32,9 @@ public class CompanyMapperTest {
 		 CompanyMapper.map(null);		
 	}
 	
-	@Test
-	public void mapResultSetEmpty() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
-		Mockito.when(resultSet.next()).thenReturn(false);
-		assertNull("Mapping empty ResultSet", CompanyMapper.map(resultSet));
+	@Test(expected = UnknownMappingSourceException.class)
+	public void mapUnknownSource() throws NullMappingSourceException, UnknownMappingSourceException {
+		CompanyMapper.map(new DiagnosticCollector<List<Exception>>());
 	}
 	
 	@Test
@@ -54,6 +55,16 @@ public class CompanyMapperTest {
 		compList.add(new Company(new Long(3L), "Company3"));
 		compList.add(new Company(new Long(5L), "Company5"));
 		compList.add(new Company(new Long(6L), "Company6"));
-		assertEquals(compList, CompanyMapper.map(resultSet));
+		ArrayList<Company> compListResult = new ArrayList<Company>();
+		compList.stream().forEach(c -> compListResult.add(handleMappingExceptionLambda(resultSet)));
+		assertEquals(compList, compListResult);
+	}
+	
+	private Company handleMappingExceptionLambda(ResultSet resultSet) {
+		try {
+			return CompanyMapper.map(resultSet);
+		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+			return null;
+		}
 	}
 }

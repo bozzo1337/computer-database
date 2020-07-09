@@ -319,5 +319,6 @@ public class CLI {
 
 	private void commandQuit() {
 		System.out.format("Au revoir%n");
+		System.exit(0);
 	}
 }

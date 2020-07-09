@@ -36,15 +36,15 @@ public class EditServlet extends HttpServlet {
      */
     public EditServlet() {
         super();
-        this.cas = ApplicationContextServlet.getInstance().getCompanyService();
-        this.cs = ApplicationContextServlet.getInstance().getComputerService();
+        this.cas = ApplicationContextServlet.getCompanyService();
+        this.cs = ApplicationContextServlet.getComputerService();
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<Company> listCompanies = cas.selectAll();
+		List<Company> listCompanies = cas.selectAll().getEntities();
 		String compId = request.getParameter("computerId");
 		Boolean firstCall = Boolean.valueOf(request.getParameter("firstCall"));
 		Long computerId = null;

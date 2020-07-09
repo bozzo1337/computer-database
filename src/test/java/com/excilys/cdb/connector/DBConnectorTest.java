@@ -11,8 +11,8 @@ public class DBConnectorTest {
 
 	private DBConnector dbc;
 	
-	public DBConnectorTest(DBConnector dbc) {
-		this.dbc = dbc;
+	public DBConnectorTest() {
+		this.dbc = new DBConnector();
 	}
 	
 	@Test

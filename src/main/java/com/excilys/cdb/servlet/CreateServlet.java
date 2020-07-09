@@ -37,8 +37,8 @@ public class CreateServlet extends HttpServlet {
      */
     public CreateServlet() {
         super();	
-        this.cas = ApplicationContextServlet.getInstance().getCompanyService();
-        this.cs = ApplicationContextServlet.getInstance().getComputerService();
+        this.cas = ApplicationContextServlet.getCompanyService();
+        this.cs = ApplicationContextServlet.getComputerService();
         // TODO Auto-generated constructor stub
     }
 
@@ -46,7 +46,7 @@ public class CreateServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<Company> listCompanies = cas.selectAll();
+		List<Company> listCompanies = cas.selectAll().getEntities();
 		firstCallCreate = Boolean.parseBoolean(request.getParameter("firstCallCreate"));
 		request.setAttribute("firstCallCreate", firstCallCreate);
 		request.setAttribute("listCompanies", listCompanies);

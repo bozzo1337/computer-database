@@ -1,53 +1,53 @@
 package com.excilys.cdb.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.dao.DAOCompany;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
+@Service
 public class CompanyService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
-	private Page<Company> pageComp;
+	private Page<Company> pageCompany;
 	private DAOCompany dao;
 	private String pageHeader = "ID | Name\n";
 	
+	@Autowired
 	public CompanyService(DAOCompany dao) {
 		this.dao = dao;
-		pageComp = new Page<Company>(pageHeader);
+		pageCompany = new Page<Company>(pageHeader);
 		LOGGER.info("CompanyService instantiated");
 	}
 	
 	public void resetPages() {
 		try {
-			pageComp.init(dao.count());
+			pageCompany.init(dao.count());
 		} catch (PersistenceException e) {
 			LOGGER.error("Error during page init", e);
 		}
 	}
 	
 	public void nextPage() {
-		pageComp.nextPage();
+		pageCompany.nextPage();
 	}
 	
 	public void previousPage() {
-		pageComp.previousPage();
+		pageCompany.previousPage();
 	}
 	
-	public List<Company> selectAll() {
-		List<Company> listCompanies = new ArrayList<Company>();
+	public Page<Company> selectAll() {
 		try {
-			listCompanies = dao.findAll();
+			dao.findAll(pageCompany);
 		} catch (PersistenceException e) {
 			LOGGER.error("Error during selectAll", e);
 		}
-		return listCompanies;
+		return pageCompany;
 	}
 	
 	public Company selectById(Long id) {
@@ -62,11 +62,11 @@ public class CompanyService {
 	
 	public Page<Company> selectPage() {
 		try {
-			pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+			dao.findBatch(pageCompany);
 		} catch (PersistenceException e) {
 			LOGGER.error("Error during selectPage", e);
 		}
-		return pageComp;
+		return pageCompany;
 	}
 	
 	public void delete(Long id) {

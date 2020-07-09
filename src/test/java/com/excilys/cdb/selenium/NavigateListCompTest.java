@@ -30,23 +30,4 @@ public class NavigateListCompTest {
 	public void tearDown() {
 		driver.quit();
 	}
-
-	@Test
-	public void navigateList() throws InterruptedException {
-		actions.moveToElement(driver.findElement(By.name("button50"))).perform();
-		actions.pause(1000).click().perform();
-		for (int i = 0; i < 10; i++) {
-			actions.moveToElement(driver.findElement(By.id("nextPage"))).perform();
-			actions.pause(1000).click().perform();
-		}
-		actions.moveToElement(driver.findElement(By.name("button100"))).perform();
-		actions.pause(1000).click().perform();
-		for (int i = 0; i < 4; i++) {
-			actions.moveToElement(driver.findElement(By.id("previousPage"))).perform();
-			actions.pause(1000).click().perform();
-		}
-		actions.moveToElement(driver.findElement(By.name("button10"))).perform();
-		actions.pause(1000).click().perform();
-		actions.pause(1000);
-	}
 }

@@ -6,8 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +20,7 @@ import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.model.Page;
 
 @Repository
 public class DAOComputer {
@@ -34,7 +33,7 @@ public class DAOComputer {
 		this.dbc = dbc;
 		LOGGER.info("DAOComputer instantiated");
 	}
-	
+
 	public void setDBC(DBConnector dbc) {
 		this.dbc = dbc;
 	}
@@ -57,93 +56,88 @@ public class DAOComputer {
 		return computer;
 	}
 
-	public List<Computer> findBatch(int batchSize, int index) throws PersistenceException {
-		List<Computer> computers = new ArrayList<Computer>();
+	public void findBatch(Page<Computer> page) throws PersistenceException {
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH.toString())) {
-			ps.setInt(1, index * batchSize);
-			ps.setInt(2, batchSize);
+			ps.setInt(1, page.getIdxCurrentPage() * page.getEntitiesPerPage());
+			ps.setInt(2, page.getEntitiesPerPage());
+			page.getEntities().clear();
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(ComputerMapper.map(results));
+				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
 			LOGGER.error("Error during SELECT computers batch", e);
 			throw new PersistenceException("Error during SELECT computer batch", e);
 		}
-		return computers;
 	}
 
-	public List<Computer> searchBatch(String search, int batchSize, int index) throws PersistenceException {
-		List<Computer> computers = new ArrayList<Computer>();
+	public void searchBatch(Page<Computer> page) throws PersistenceException {
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SEARCH_BATCH.toString())) {
-			ps.setInt(11, index * batchSize);
-			ps.setInt(12, batchSize);
-			ps.setString(1, "%" + search + "%");
-			ps.setString(2, "%" + search + "%");
-			ps.setString(3, search);
-			ps.setString(4, search);
-			ps.setString(5, search + "%");
-			ps.setString(6, search + "%");
-			ps.setString(7, "%" + search + "%");
-			ps.setString(8, "%" + search + "%");
-			ps.setString(9, "%" + search);
-			ps.setString(10, "%" + search);
+			ps.setInt(11, page.getIdxCurrentPage() * page.getEntitiesPerPage());
+			ps.setInt(12, page.getEntitiesPerPage());
+			ps.setString(1, "%" + page.getSearch() + "%");
+			ps.setString(2, "%" + page.getSearch() + "%");
+			ps.setString(3, page.getSearch());
+			ps.setString(4, page.getSearch());
+			ps.setString(5, page.getSearch() + "%");
+			ps.setString(6, page.getSearch() + "%");
+			ps.setString(7, "%" + page.getSearch() + "%");
+			ps.setString(8, "%" + page.getSearch() + "%");
+			ps.setString(9, "%" + page.getSearch());
+			ps.setString(10, "%" + page.getSearch());
+			page.getEntities().clear();
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(ComputerMapper.map(results));
+				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
 			LOGGER.error("Error during SEARCH computers batch", e);
 			throw new PersistenceException("Error during SEARCH computers batch", e);
 		}
-		return computers;
 	}
 
-	public List<Computer> orderBatch(String orderType, int batchSize, int index) throws PersistenceException {
-		List<Computer> computers = new ArrayList<Computer>();
+	public void orderBatch(Page<Computer> page) throws PersistenceException {
 		ResultSet results = null;
-		String query = formatQuery(SQLRequest.ORDER.toString(), orderType);
+		String query = formatQuery(SQLRequest.ORDER.toString(), page.getOrder());
 		try (Connection conn = dbc.getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
-			ps.setInt(1, index * batchSize);
-			ps.setInt(2, batchSize);
+			ps.setInt(1, page.getIdxCurrentPage() * page.getEntitiesPerPage());
+			ps.setInt(2, page.getEntitiesPerPage());
+			page.getEntities().clear();
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(ComputerMapper.map(results));
+				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
 			LOGGER.error("Error during ORDERED computers batch", e);
 			throw new PersistenceException("Error during ORDERED computers batch", e);
 		}
-		return computers;
 	}
 
-	public List<Computer> orderedSearch(String search, String orderType, int batchSize, int index)
-			throws PersistenceException {
-		List<Computer> computers = new ArrayList<Computer>();
+	public void orderedSearch(Page<Computer> page) throws PersistenceException {
 		ResultSet results = null;
-		String query = formatQuery(SQLRequest.SEARCH_ORDER.toString(), orderType);
+		String query = formatQuery(SQLRequest.SEARCH_ORDER.toString(), page.getOrder());
 		try (Connection conn = dbc.getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
-			ps.setString(1, "%" + search + "%");
-			ps.setString(2, "%" + search + "%");
-			ps.setInt(3, index * batchSize);
-			ps.setInt(4, batchSize);
+			ps.setString(1, "%" + page.getSearch() + "%");
+			ps.setString(2, "%" + page.getSearch() + "%");
+			ps.setInt(3, page.getIdxCurrentPage() * page.getEntitiesPerPage());
+			ps.setInt(4, page.getEntitiesPerPage());
+			page.getEntities().clear();
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(ComputerMapper.map(results));
+				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
 			LOGGER.error("Error during ORDERED SEARCH computers", e);
 			throw new PersistenceException("Error during ORDERED SEARCH computers", e);
 		}
-		return computers;
 	}
 
 	private String formatQuery(String query, String orderType) {
@@ -179,21 +173,20 @@ public class DAOComputer {
 	}
 
 	public void create(Computer computer) throws PersistenceException {
-		create(computer.getName(), computer.getIntroduced(), computer.getDiscontinued(), computer.getCompanyId());
-	}
-
-	public void create(String name, LocalDate intro, LocalDate disc, Long compId) throws PersistenceException {
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.INSERT_COMPUTER.toString())) {
-			ps.setString(1, name);
+			ps.setString(1, computer.getName());
+			LocalDate intro = computer.getIntroduced();
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
 			else
 				ps.setNull(2, java.sql.Types.DATE);
+			LocalDate disc = computer.getDiscontinued();
 			if (disc != null)
 				ps.setDate(3, Date.valueOf(disc));
 			else
 				ps.setNull(3, java.sql.Types.DATE);
+			Long compId = computer.getCompanyId();
 			if (compId != null)
 				ps.setLong(4, compId);
 			else
@@ -207,28 +200,24 @@ public class DAOComputer {
 	}
 
 	public void update(Computer computer) throws PersistenceException {
-		update(computer.getId(), computer.getName(), computer.getIntroduced(), computer.getDiscontinued(),
-				computer.getCompanyId());
-
-	}
-
-	public void update(Long id, String name, LocalDate intro, LocalDate disc, Long compId) throws PersistenceException {
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.UPDATE_COMPUTER.toString())) {
-			ps.setString(1, name);
+			ps.setString(1, computer.getName());
+			LocalDate intro = computer.getIntroduced();
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
 			else
 				ps.setNull(2, java.sql.Types.DATE);
+			LocalDate disc = computer.getDiscontinued();
 			if (disc != null)
 				ps.setDate(3, Date.valueOf(disc));
 			else
 				ps.setNull(3, java.sql.Types.DATE);
+			Long compId = computer.getCompanyId();
 			if (compId != null)
 				ps.setLong(4, compId);
 			else
 				ps.setNull(4, java.sql.Types.BIGINT);
-			ps.setLong(5, id);
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {

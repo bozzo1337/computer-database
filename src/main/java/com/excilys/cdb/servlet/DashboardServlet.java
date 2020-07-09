@@ -30,7 +30,7 @@ public class DashboardServlet extends HttpServlet {
 	 */
 	public DashboardServlet() {
 		super();
-		this.cs = ApplicationContextServlet.getInstance().getComputerService();	
+		this.cs = ApplicationContextServlet.getComputerService();	
 	}
 
 	private void handleSearch() {

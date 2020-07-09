@@ -34,6 +34,7 @@ import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.model.Page;
 
 public class DAOComputerTest {
 
@@ -42,14 +43,16 @@ public class DAOComputerTest {
 	private DBConnector dbcMocked;
 	private DBConnector dbc;
 	private DAOComputer dao;
+	private Page<Computer> page;
 	private String url;
 	private String login;
 	private String password;
 	private String driver;
 
-	public DAOComputerTest(DBConnector dbc, DAOComputer dao) {
-		this.dbc = dbc;
-		this.dao = dao;
+	public DAOComputerTest() {
+		this.dbc = new DBConnector();
+		this.dao = new DAOComputer(dbc);
+		this.page = new Page<Computer>("");
 		MockitoAnnotations.initMocks(this);
 		InputStream inputStream = null;
 		try {
@@ -118,7 +121,7 @@ public class DAOComputerTest {
 	@Test
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
-		assertNotNull(dataSet);
+		assertNotNull(dataSet);		
 		assertNull(dao.findById(new Long(20L)).getName());
 	}
 
@@ -127,74 +130,84 @@ public class DAOComputerTest {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
-		List<Computer> computers = new ArrayList<Computer>();
 		computersName.add("Computer44");
 		computersName.add("Computer15");
 		computersName.add("Computer999");
-		computers = dao.findBatch(3, 1);
+		page.setEntitiesPerPage(3);
+		page.setIdxCurrentPage(1);
+		dao.findBatch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : computers) {
+		for (Computer comp : page.getEntities()) {
 			computersNameResult.add(comp.getName());
 		}
 		assertEquals(computersName, computersNameResult);
 	}
-	
+
 	@Test
 	public void searchBatch() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
-		List<Computer> computers = new ArrayList<Computer>();
 		computersName.add("Computer15");
 		computersName.add("Computer999");
-		computers = dao.searchBatch("Company5", 3, 0);
+		page.setEntitiesPerPage(3);
+		page.setIdxCurrentPage(0);
+		page.setSearch("Company5");
+		dao.searchBatch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : computers) {
+		for (Computer comp : page.getEntities()) {
 			computersNameResult.add(comp.getName());
 		}
 		assertEquals(computersName, computersNameResult);
 	}
-	
+
 	@Test
 	public void orderBatch() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
-		List<Computer> computers = new ArrayList<Computer>();
 		computersName.add("Computer22");
 		computersName.add("Computer3");
 		computersName.add("Computer42");
-		computers = dao.orderBatch("computer", 3, 1);
+		page.setEntitiesPerPage(3);
+		page.setIdxCurrentPage(1);
+		page.setOrder("computer");
+		dao.orderBatch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : computers) {
+		for (Computer comp : page.getEntities()) {
 			computersNameResult.add(comp.getName());
 		}
 		assertEquals(computersName, computersNameResult);
 	}
-	
+
 	@Test
 	public void orderedSearch() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
-		List<Computer> computers = new ArrayList<Computer>();
 		computersName.add("Computer44");
 		computersName.add("Computer42");
-		computers = dao.orderedSearch("Computer4", "companydesc", 2, 0);
+		page.setEntitiesPerPage(2);
+		page.setIdxCurrentPage(0);
+		page.setOrder("companydesc");
+		page.setSearch("Computer4");
+		dao.orderedSearch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : computers) {
+		for (Computer comp : page.getEntities()) {
 			computersNameResult.add(comp.getName());
 		}
 		assertEquals(computersName, computersNameResult);
 	}
-	
+
 	@Test
 	public void create() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		Computer comp = new Computer.Builder().withName("computerTest").withCompanyId(new Long(4L)).build();
 		dao.create(comp);
-		assertEquals(comp.getName(), dao.searchBatch("computerTest", 1, 0).get(0).getName());
+		page.setSearch("ComputerTest");
+		dao.searchBatch(page);
+		assertEquals(comp.getName(), page.getEntities().get(0).getName());
 	}
 
 	@Test
@@ -240,7 +253,7 @@ public class DAOComputerTest {
 	public void exceptionFindBatch() throws SQLException, PersistenceException {
 		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findBatch(2, 0);
+		dao.findBatch(page);
 	}
 
 	@Test(expected = PersistenceException.class)

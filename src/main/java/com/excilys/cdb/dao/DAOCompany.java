@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +16,7 @@ import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Page;
 
 @Repository
 public class DAOCompany {
@@ -53,21 +52,20 @@ public class DAOCompany {
 		return company;
 	}
 
-	public List<Company> findAll() throws PersistenceException {
-		List<Company> companies = new ArrayList<Company>();
+	public void findAll(Page<Company> page) throws PersistenceException {
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_COMPANIES.toString())) {
+			page.getEntities().clear();
 			results = ps.executeQuery();
 			while (results.next()) {
-				companies.add(CompanyMapper.map(results));
+				page.getEntities().add(CompanyMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
 			LOGGER.error("Error during SELECT all companies", e);
 			throw new PersistenceException("Error during SELECT all companies", e);
 		}
-		return companies;
 	}
 
 	public void delete(Long id) throws PersistenceException {
@@ -91,28 +89,27 @@ public class DAOCompany {
 		}
 	}
 
-	public List<Company> findBatch(int batchSize, int index) throws PersistenceException {
-		List<Company> companies = new ArrayList<Company>();
+	public void findBatch(Page<Company> page) throws PersistenceException {
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH_COMPANY.toString())) {
-			ps.setInt(1, index * batchSize);
-			ps.setInt(2, batchSize);
+			ps.setInt(1, page.getIdxCurrentPage() * page.getEntitiesPerPage());
+			ps.setInt(2, page.getEntitiesPerPage());
+			page.getEntities().clear();
 			results = ps.executeQuery();
 			while (results.next()) {
-				companies.add(CompanyMapper.map(results));
+				page.getEntities().add(CompanyMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
 			LOGGER.error("Error during SELECT batch companies", e);
 			throw new PersistenceException("Error during SELECT batch companies", e);
 		}
-		return companies;
 	}
 
 	public double count() throws PersistenceException {
 		ResultSet results = null;
-		double compCount = 0;
+		double compCount = -1;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.COUNT_COMPANY.toString())) {
 			results = ps.executeQuery();

@@ -11,17 +11,14 @@ public class Page<T> {
 	private int idxCurrentPage;
 	private int idxMaxPage;
 	private String header;
-	
+	private String search;
+	private String order;
+
 	public Page(String header) {
 		idxCurrentPage = 0;
 		entitiesPerPage = 10;
 		entities = new ArrayList<T>();
 		this.header = header;
-	}
-	
-	public Page<T> filled(List<T> entities) {
-		this.entities = entities;
-		return this;
 	}
 	
 	public void previousPage() {
@@ -44,7 +41,7 @@ public class Page<T> {
 	
 	public void init(double count) {
 		nbEntities = count;
-		if (count == 0) {
+		if (count <= 0) {
 			idxMaxPage = 0;
 		} else {
 			idxMaxPage = (nbEntities % entitiesPerPage == 0) ? (int) (nbEntities / entitiesPerPage) - 1 : (int) (Math.ceil(nbEntities / entitiesPerPage) - 1);
@@ -56,11 +53,11 @@ public class Page<T> {
 		return entities;
 	}
 	
-	public int getIdxPage() {
+	public int getIdxCurrentPage() {
 		return idxCurrentPage;
 	}
 	
-	public void setIdxPage(int index) {
+	public void setIdxCurrentPage(int index) {
 		this.idxCurrentPage = index;
 	}
 	
@@ -92,5 +89,21 @@ public class Page<T> {
 
 	public void setNbEntities(double nbEntities) {
 		this.nbEntities = nbEntities;
+	}
+	
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
+
+	public String getOrder() {
+		return order;
+	}
+
+	public void setOrder(String order) {
+		this.order = order;
 	}
 }
