@@ -1,26 +1,28 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.connector;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.springframework.stereotype.Component;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+@Component
 public class DBConnector {
-	
-	private static DBConnector singleInstance = null;
+
 	private Connection conn = null;
 	private String url;
 	private String login;
 	private String password;
+	private String driver;
 	private HikariConfig config = new HikariConfig();
 	private HikariDataSource dataSource;
-	
-	private DBConnector() {
+
+	public DBConnector() {
 		InputStream inputStream = null;
 		try {
 			inputStream = DBConnector.class.getResourceAsStream("/config.properties");
@@ -29,14 +31,12 @@ public class DBConnector {
 			url = properties.getProperty("url");
 			login = properties.getProperty("login");
 			password = properties.getProperty("password");
+			driver = properties.getProperty("driver");
 			config.setUsername(login);
 			config.setJdbcUrl(url);
 			config.setPassword(password);
-			config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+			config.setDriverClassName(driver);
 			dataSource = new HikariDataSource(config);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,24 +49,14 @@ public class DBConnector {
 			}
 		}
 	}
-	
-	public static DBConnector getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new DBConnector();
-		}
-		return singleInstance;
-	}
-	
-	public Connection getConn(){
+
+	public Connection getConn() throws SQLException {
 		try {
 			if (conn == null || conn.isClosed()) {
-				Class.forName("com.mysql.cj.jdbc.Driver");
+				Class.forName(driver);
 				conn = dataSource.getConnection();
 				conn.setAutoCommit(false);
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage().toString());
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

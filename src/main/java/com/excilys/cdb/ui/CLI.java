@@ -1,11 +1,14 @@
 package com.excilys.cdb.ui;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.IncorrectDiscDateException;
 import com.excilys.cdb.exception.IncorrectIDException;
@@ -13,26 +16,38 @@ import com.excilys.cdb.exception.IncorrectIntroDateException;
 import com.excilys.cdb.exception.IncorrectNameException;
 import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.persistence.DBConnector;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.spring.AppConfig;
 import com.excilys.cdb.validation.Validator;
 
 public class CLI {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
-	private static final DBConnector DBC = DBConnector.getInstance();
-	private ComputerService cs = ComputerService.getInstance();
-	private CompanyService cas = CompanyService.getInstance();
+	private final DBConnector DBC;
+	private ComputerService cs;
+	private CompanyService cas;
 	private Scanner in = new Scanner(System.in);
 
+	public CLI(DBConnector dbc, CompanyService cas, ComputerService cs) {
+		this.cas = cas;
+		this.cs = cs;
+		this.DBC = dbc;
+	}
+	
 	public static void main(String[] args) {
-		CLI cli = new CLI();
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		CLI cli = new CLI(context.getBean(DBConnector.class), context.getBean(CompanyService.class), context.getBean(ComputerService.class));
+		context.close();
 		System.out.format("Système de gestion d'ordinateurs.%nConnexion...%n");
-		if (DBC.getConn() == null) {
-			System.err.format("Erreur de connexion...%n");
-			LOGGER.error("Connection failed");
-			return;
+		try {
+			if (cli.DBC.getConn() == null) {
+				System.err.format("Erreur de connexion...%n");
+				LOGGER.error("Connection failed");
+				return;
+			}
+		} catch (SQLException e) {
+			LOGGER.error("Connection failed due to Exception");
 		}
 		System.out.format("Connexion OK, Bienvenue !%n");
 		System.out.format(

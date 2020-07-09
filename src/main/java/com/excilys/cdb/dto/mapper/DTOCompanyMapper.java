@@ -1,27 +1,16 @@
-package com.excilys.cdb.mapper;
+package com.excilys.cdb.dto.mapper;
 
 import com.excilys.cdb.dto.DTOCompany;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
-public class DTOCompanyMapper extends Mapper<DTOCompany> {
+public class DTOCompanyMapper {
 
-	private static DTOCompanyMapper singleInstance = null;
-	
 	private DTOCompanyMapper() {
-		
 	}
 	
-	public static DTOCompanyMapper getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new DTOCompanyMapper();
-		}
-		return singleInstance;
-	}
-	
-	@Override
-	public DTOCompany map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+	public static DTOCompany map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
 		DTOCompany companyDTO;
 		if (source == null) {
 			throw new NullMappingSourceException();
@@ -34,7 +23,7 @@ public class DTOCompanyMapper extends Mapper<DTOCompany> {
 		return companyDTO;
 	}
 
-	private DTOCompany mapFromCompany(Company company) {
+	private static DTOCompany mapFromCompany(Company company) {
 		return new DTOCompany(company.getId().toString(), company.getName());
 	}
 }

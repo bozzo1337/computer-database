@@ -19,6 +19,7 @@ import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.spring.ApplicationContextServlet;
 import com.excilys.cdb.validation.Validator;
 
 /**
@@ -27,15 +28,16 @@ import com.excilys.cdb.validation.Validator;
 @WebServlet(name = "editServlet", urlPatterns = "/edit")
 public class EditServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private CompanyService cas = CompanyService.getInstance();
-	private ComputerService cs = ComputerService.getInstance();
+	private CompanyService cas;
+	private ComputerService cs;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public EditServlet() {
         super();
-        // TODO Auto-generated constructor stub
+        this.cas = ApplicationContextServlet.getInstance().getCompanyService();
+        this.cs = ApplicationContextServlet.getInstance().getComputerService();
     }
 
 	/**

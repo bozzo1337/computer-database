@@ -1,4 +1,4 @@
-package com.excilys.cdb.mapper;
+package com.excilys.cdb.dao.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -20,26 +20,23 @@ import com.excilys.cdb.model.Computer;
 
 public class ComputerMapperTest {
 
-	private ComputerMapper mapper;
-
 	@Mock
 	private ResultSet resultSet;
 
 	@Before
 	public void init() {
-		mapper = ComputerMapper.getInstance();
 		MockitoAnnotations.initMocks(this);
 	}
 
 	@Test(expected = NullMappingSourceException.class)
 	public void mapResultSetNull() throws NullMappingSourceException, UnknownMappingSourceException {
-		mapper.map(null);
+		ComputerMapper.map(null);
 	}
 
 	@Test
 	public void mapResultSetEmpty() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(false);
-		assertNull("Mapping empty ResultSet", mapper.map(resultSet));
+		assertNull("Mapping empty ResultSet", ComputerMapper.map(resultSet));
 	}
 
 	@Test
@@ -53,7 +50,7 @@ public class ComputerMapperTest {
 		Computer computer = new Computer.Builder().withId(new Long(1L)).withName("Computer1")
 				.withIntroDate(new Date(1592900853L).toLocalDate()).withDiscDate(new Date(1592900862L).toLocalDate())
 				.withCompanyId(new Long(1L)).build();
-		assertEquals(computer, mapper.map(resultSet));
+		assertEquals(computer, ComputerMapper.map(resultSet));
 	}
 
 	@Test
@@ -79,6 +76,6 @@ public class ComputerMapperTest {
 		compList.add(comp1);
 		compList.add(comp2);
 		compList.add(comp3);
-		assertEquals(compList, mapper.map(resultSet));
+		assertEquals(compList, ComputerMapper.map(resultSet));
 	}
 }

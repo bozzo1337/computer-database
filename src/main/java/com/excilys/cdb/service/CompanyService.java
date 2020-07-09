@@ -1,32 +1,35 @@
 package com.excilys.cdb.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.excilys.cdb.dao.DAOCompany;
+import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
-import com.excilys.cdb.persistence.DAOCompany;
 
 public class CompanyService {
 	
-	private static CompanyService singleInstance = null;
+	private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
 	private Page<Company> pageComp;
 	private DAOCompany dao;
 	private String pageHeader = "ID | Name\n";
 	
-	private CompanyService() {
-		dao = DAOCompany.getInstance();
+	public CompanyService(DAOCompany dao) {
+		this.dao = dao;
 		pageComp = new Page<Company>(pageHeader);
-	}
-	
-	public static CompanyService getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new CompanyService();
-		}
-		return singleInstance;
+		LOGGER.info("CompanyService instantiated");
 	}
 	
 	public void resetPages() {
-		pageComp.init(dao.getCount());
+		try {
+			pageComp.init(dao.count());
+		} catch (PersistenceException e) {
+			LOGGER.error("Error during page init", e);
+		}
 	}
 	
 	public void nextPage() {
@@ -38,18 +41,39 @@ public class CompanyService {
 	}
 	
 	public List<Company> selectAll() {
-		return dao.findAll();
+		List<Company> listCompanies = new ArrayList<Company>();
+		try {
+			listCompanies = dao.findAll();
+		} catch (PersistenceException e) {
+			LOGGER.error("Error during selectAll", e);
+		}
+		return listCompanies;
 	}
 	
 	public Company selectById(Long id) {
-		return dao.findById(id);
+		Company company = new Company();
+		try {
+			company = dao.findById(id);
+		} catch (PersistenceException e) {
+			LOGGER.error("Error during selectById", e);
+		}
+		return company;
 	}
 	
 	public Page<Company> selectPage() {
-		return pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+		try {
+			pageComp.filled(dao.findBatch(pageComp.getEntitiesPerPage(), pageComp.getIdxPage()));
+		} catch (PersistenceException e) {
+			LOGGER.error("Error during selectPage", e);
+		}
+		return pageComp;
 	}
 	
 	public void delete(Long id) {
-		dao.deleteCompany(id);
+		try {
+			dao.delete(id);
+		} catch (PersistenceException e) {
+			LOGGER.error("Error during delete", e);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.excilys.cdb.persistence;
+package com.excilys.cdb.dao;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,84 +11,72 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+import com.excilys.cdb.connector.DBConnector;
+import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.dto.mapper.DTOComputerMapper;
 import com.excilys.cdb.exception.NullMappingSourceException;
+import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.mapper.ComputerMapper;
-import com.excilys.cdb.mapper.DTOComputerMapper;
 import com.excilys.cdb.model.Computer;
 
+@Repository
 public class DAOComputer {
-	
-	private static DAOComputer singleInstance = null;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
 	private DBConnector dbc;
-	private ComputerMapper mapperComputer;
-	private DTOComputerMapper mapperDTOComputer;
-	
-	private DAOComputer() {
-		this.dbc = DBConnector.getInstance();
-		this.mapperComputer = ComputerMapper.getInstance();
-		this.mapperDTOComputer = DTOComputerMapper.getInstance(); 
+
+	@Autowired
+	public DAOComputer(DBConnector dbc) {
+		this.dbc = dbc;
+		LOGGER.info("DAOComputer instantiated");
 	}
 	
-	public static DAOComputer getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new DAOComputer();
-		}
-		return singleInstance;
+	public void setDBC(DBConnector dbc) {
+		this.dbc = dbc;
 	}
 
-	public Computer findById(Long id) {
-		Computer computer = null;
+	public Computer findById(Long id) throws PersistenceException {
+		Computer computer = new Computer.Builder().build();
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE.toString())) {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
 			if (results.next()) {
-				computer = mapperComputer.map(results);
+				computer = ComputerMapper.map(results);
 			}
 			conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during SELECT one computer", e);
+			throw new PersistenceException("Error during SELECT one computer", e);
 		}
 		return computer;
 	}
 
-	public List<Computer> findBatch(int batchSize, int index) {
+	public List<Computer> findBatch(int batchSize, int index) throws PersistenceException {
 		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH.toString())) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
-			LOGGER.debug(ps.toString());
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during SELECT computers batch", e);
+			throw new PersistenceException("Error during SELECT computer batch", e);
 		}
 		return computers;
 	}
-	
-	public List<Computer> searchBatch(String search, int batchSize, int index) {
+
+	public List<Computer> searchBatch(String search, int batchSize, int index) throws PersistenceException {
 		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
 		try (Connection conn = dbc.getConn();
@@ -107,75 +95,59 @@ public class DAOComputer {
 			ps.setString(10, "%" + search);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during SEARCH computers batch", e);
+			throw new PersistenceException("Error during SEARCH computers batch", e);
 		}
 		return computers;
 	}
 
-	public List<Computer> orderBatch(String orderType, int batchSize, int index) {
+	public List<Computer> orderBatch(String orderType, int batchSize, int index) throws PersistenceException {
 		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
 		String query = formatQuery(SQLRequest.ORDER.toString(), orderType);
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+		try (Connection conn = dbc.getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setInt(1, index * batchSize);
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during ORDERED computers batch", e);
+			throw new PersistenceException("Error during ORDERED computers batch", e);
 		}
 		return computers;
 	}
-	
-	public List<Computer> orderedSearch(String search, String orderType, int batchSize, int index) {
+
+	public List<Computer> orderedSearch(String search, String orderType, int batchSize, int index)
+			throws PersistenceException {
 		List<Computer> computers = new ArrayList<Computer>();
 		ResultSet results = null;
 		String query = formatQuery(SQLRequest.SEARCH_ORDER.toString(), orderType);
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(query)) {
+		try (Connection conn = dbc.getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setString(1, "%" + search + "%");
 			ps.setString(2, "%" + search + "%");
 			ps.setInt(3, index * batchSize);
 			ps.setInt(4, batchSize);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NullMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
-		} catch (UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
+		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during ORDERED SEARCH computers", e);
+			throw new PersistenceException("Error during ORDERED SEARCH computers", e);
 		}
 		return computers;
 	}
-	
+
 	private String formatQuery(String query, String orderType) {
-		switch(orderType) {
+		switch (orderType) {
 		case "computer":
 			query = String.format(query, "computer.name ASC");
 			break;
@@ -205,14 +177,14 @@ public class DAOComputer {
 		}
 		return query;
 	}
-	
-	public void create(Computer computer) {
+
+	public void create(Computer computer) throws PersistenceException {
 		create(computer.getName(), computer.getIntroduced(), computer.getDiscontinued(), computer.getCompanyId());
 	}
-	
-	public void create(String name, LocalDate intro, LocalDate disc, Long compId) {
+
+	public void create(String name, LocalDate intro, LocalDate disc, Long compId) throws PersistenceException {
 		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.INSERT_COMPUTER.toString())){
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.INSERT_COMPUTER.toString())) {
 			ps.setString(1, name);
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
@@ -229,19 +201,20 @@ public class DAOComputer {
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
-			//TODO
-			e.printStackTrace();
+			LOGGER.error("Error during INSERT computer", e);
+			throw new PersistenceException("Error during INSERT computer", e);
 		}
 	}
 
-	public void update(Computer computer) {
-		update(computer.getId(), computer.getName(), computer.getIntroduced(), computer.getDiscontinued(), computer.getCompanyId());
+	public void update(Computer computer) throws PersistenceException {
+		update(computer.getId(), computer.getName(), computer.getIntroduced(), computer.getDiscontinued(),
+				computer.getCompanyId());
 
 	}
-	
-	public void update(Long id, String name, LocalDate intro, LocalDate disc, Long compId) {
+
+	public void update(Long id, String name, LocalDate intro, LocalDate disc, Long compId) throws PersistenceException {
 		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.UPDATE_COMPUTER.toString())){
+				PreparedStatement ps = conn.prepareStatement(SQLRequest.UPDATE_COMPUTER.toString())) {
 			ps.setString(1, name);
 			if (intro != null)
 				ps.setDate(2, Date.valueOf(intro));
@@ -259,36 +232,36 @@ public class DAOComputer {
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
-			//TODO
-			e.printStackTrace();
+			LOGGER.error("Error during UPDATE computer", e);
+			throw new PersistenceException("Error during UPDATE computer", e);
 		}
 	}
 
-	public void delete(Long id) {
+	public void delete(Long id) throws PersistenceException {
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.DELETE_COMPUTER.toString())) {
 			ps.setLong(1, id);
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+			LOGGER.error("Error during DELETE computer", e);
+			throw new PersistenceException("Error during DELETE computer", e);
+		}
 	}
-	
-	public void deleteComputersOfCompany(Long id) {
+
+	public void deleteComputersOfCompany(Long id) throws PersistenceException {
 		try (Connection conn = dbc.getConn();
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString())) {
 			ps.setLong(1, id);
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error during DELETE computers of company", e);
+			throw new PersistenceException("Error during DELETE computers of company", e);
 		}
 	}
-	
-	public double count() {
+
+	public double count() throws PersistenceException {
 		ResultSet results = null;
 		double compCount = 0;
 		try (Connection conn = dbc.getConn();
@@ -299,13 +272,13 @@ public class DAOComputer {
 			}
 			conn.commit();
 		} catch (SQLException e) {
-			//TODO
-			e.printStackTrace();
+			LOGGER.error("Error during COUNT computers", e);
+			throw new PersistenceException("Error during COUNT computers", e);
 		}
 		return compCount;
 	}
-	
-	public double searchCount(String search) {
+
+	public double searchCount(String search) throws PersistenceException {
 		ResultSet results = null;
 		double compCount = 0;
 		try (Connection conn = dbc.getConn();
@@ -318,18 +291,18 @@ public class DAOComputer {
 			}
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LOGGER.error("Error during COUNT SEARCH computers", e);
+			throw new PersistenceException("Error during COUNT SEARCH computers", e);
 		}
 		return compCount;
 	}
-	
+
 	public DTOComputer mapToDTO(Computer computer) {
-		DTOComputer computerDTO = null;
+		DTOComputer computerDTO = new DTOComputer.Builder().build();
 		try {
-			computerDTO = mapperDTOComputer.map(computer);
+			computerDTO = DTOComputerMapper.map(computer);
 		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
-			// TODO Auto-generated catch block
-			System.err.println(e.getMessage());
+			LOGGER.error("Error during mapping to DTO", e);
 		}
 		return computerDTO;
 	}

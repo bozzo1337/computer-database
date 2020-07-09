@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.spring.ApplicationContextServlet;
 
 /**
  * Servlet implementation class DeleteServlet
@@ -19,13 +20,13 @@ import com.excilys.cdb.service.ComputerService;
 @WebServlet(name = "deleteServlet", urlPatterns = "/delete")
 public class DeleteServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private ComputerService cs = ComputerService.getInstance();
+	private ComputerService cs;
     /**
      * @see HttpServlet#HttpServlet()
      */
     public DeleteServlet() {
         super();
-        // TODO Auto-generated constructor stub
+        this.cs = ApplicationContextServlet.getInstance().getComputerService();
     }
 
 	/**
