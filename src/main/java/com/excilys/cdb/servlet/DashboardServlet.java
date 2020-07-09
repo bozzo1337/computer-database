@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.spring.ApplicationContextServlet;
 
 /**
  * Servlet implementation class DashboardServlet

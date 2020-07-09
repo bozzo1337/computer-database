@@ -6,12 +6,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.springframework.stereotype.Component;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+@Component
 public class DBConnector {
 
-	private static DBConnector singleInstance = null;
 	private Connection conn = null;
 	private String url;
 	private String login;
@@ -20,7 +22,7 @@ public class DBConnector {
 	private HikariConfig config = new HikariConfig();
 	private HikariDataSource dataSource;
 
-	private DBConnector() {
+	public DBConnector() {
 		InputStream inputStream = null;
 		try {
 			inputStream = DBConnector.class.getResourceAsStream("/config.properties");
@@ -46,13 +48,6 @@ public class DBConnector {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public static DBConnector getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new DBConnector();
-		}
-		return singleInstance;
 	}
 
 	public Connection getConn() throws SQLException {

@@ -17,26 +17,23 @@ import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
 public class CompanyMapperTest {
-	
-	private CompanyMapper mapper;
-	
+		
 	@Mock
 	private ResultSet resultSet;
 	
 	public CompanyMapperTest() {
-		mapper = CompanyMapper.getInstance();
 		MockitoAnnotations.initMocks(this);
 	}
 	
 	@Test(expected = NullMappingSourceException.class)
 	public void mapResultSetNull() throws NullMappingSourceException, UnknownMappingSourceException {
-		 mapper.map(null);		
+		 CompanyMapper.map(null);		
 	}
 	
 	@Test
 	public void mapResultSetEmpty() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
 		Mockito.when(resultSet.next()).thenReturn(false);
-		assertNull("Mapping empty ResultSet", mapper.map(resultSet));
+		assertNull("Mapping empty ResultSet", CompanyMapper.map(resultSet));
 	}
 	
 	@Test
@@ -45,7 +42,7 @@ public class CompanyMapperTest {
 		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(1L));
 		Mockito.when(resultSet.getString("company.name")).thenReturn("Company1");
 		Company company = new Company(new Long(1L), "Company1");
-		assertEquals(company, mapper.map(resultSet));
+		assertEquals(company, CompanyMapper.map(resultSet));
 	}
 	
 	@Test
@@ -57,6 +54,6 @@ public class CompanyMapperTest {
 		compList.add(new Company(new Long(3L), "Company3"));
 		compList.add(new Company(new Long(5L), "Company5"));
 		compList.add(new Company(new Long(6L), "Company6"));
-		assertEquals(compList, mapper.map(resultSet));
+		assertEquals(compList, CompanyMapper.map(resultSet));
 	}
 }

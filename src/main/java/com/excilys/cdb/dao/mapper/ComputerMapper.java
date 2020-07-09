@@ -9,28 +9,17 @@ import java.time.format.DateTimeFormatter;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.mapper.Mapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
-public class ComputerMapper extends Mapper<Computer> {
+public class ComputerMapper {
 
-	private static ComputerMapper singleInstance = null;
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	private ComputerMapper() {
-
 	}
 
-	public static ComputerMapper getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new ComputerMapper();
-		}
-		return singleInstance;
-	}
-
-	@Override
-	public Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+	public static Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
 		Computer computer;
 		if (source == null) {
 			throw new NullMappingSourceException();
@@ -45,7 +34,7 @@ public class ComputerMapper extends Mapper<Computer> {
 		return computer;
 	}
 
-	private Computer mapFromResultSet(ResultSet results) {
+	private static Computer mapFromResultSet(ResultSet results) {
 		Computer computer = null;
 		try {
 			Computer.Builder computerBuilder = new Computer.Builder();
@@ -60,7 +49,7 @@ public class ComputerMapper extends Mapper<Computer> {
 			}
 			Long companyId = results.getLong("computer.company_id");
 			computerBuilder.withCompanyId(companyId == 0 ? null : companyId);
-			Company company = CompanyMapper.getInstance().map(results);
+			Company company = CompanyMapper.map(results);
 			computerBuilder.withCompany(company);
 			computer = computerBuilder.build();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -70,7 +59,7 @@ public class ComputerMapper extends Mapper<Computer> {
 		return computer;
 	}
 
-	private Computer mapFromDTO(DTOComputer computerDTO) {
+	private static Computer mapFromDTO(DTOComputer computerDTO) {
 		Long id = !(computerDTO.getId() == null) ? Long.valueOf(computerDTO.getId()) : null;
 		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df)
 				: null;

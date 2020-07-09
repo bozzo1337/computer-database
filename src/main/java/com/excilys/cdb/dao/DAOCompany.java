@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dao.mapper.CompanyMapper;
@@ -17,28 +19,22 @@ import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
+@Repository
 public class DAOCompany {
 
-	private static DAOCompany singleInstance = null;
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompany.class);
 	private DBConnector dbc;
-	private CompanyMapper mapperCompany;
 
-	private DAOCompany() {
-		this.mapperCompany = CompanyMapper.getInstance();
+	@Autowired
+	public DAOCompany(DBConnector dbc) {
+		this.dbc = dbc;
+		LOGGER.info("DAOCompany instantiated");
 	}
-
-	public static DAOCompany getInstance(DBConnector dbc) {
-		if (singleInstance == null) {
-			singleInstance = new DAOCompany();
-			LOGGER.info("DAOCompany instantiated");
-		}
-		if (singleInstance.dbc != dbc) {
-			singleInstance.dbc = dbc;
-		}
-		return singleInstance;
+	
+	public void setDBC(DBConnector dbc) {
+		this.dbc = dbc;
 	}
-
+	
 	public Company findById(Long id) throws PersistenceException {
 		Company company = new Company();
 		ResultSet results = null;
@@ -47,7 +43,7 @@ public class DAOCompany {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
 			if (results.next()) {
-				company = mapperCompany.map(results);
+				company = CompanyMapper.map(results);
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -64,7 +60,7 @@ public class DAOCompany {
 				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_COMPANIES.toString())) {
 			results = ps.executeQuery();
 			while (results.next()) {
-				companies.add(mapperCompany.map(results));
+				companies.add(CompanyMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -104,7 +100,7 @@ public class DAOCompany {
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
 			while (results.next()) {
-				companies.add(mapperCompany.map(results));
+				companies.add(CompanyMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {

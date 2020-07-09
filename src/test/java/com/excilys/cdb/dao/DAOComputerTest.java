@@ -21,7 +21,6 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -38,11 +37,20 @@ import com.excilys.cdb.model.Computer;
 
 public class DAOComputerTest {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputerTest.class);
 	@Mock
 	private DBConnector dbcMocked;
-	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputerTest.class);
-	
-	static {
+	private DBConnector dbc;
+	private DAOComputer dao;
+	private String url;
+	private String login;
+	private String password;
+	private String driver;
+
+	public DAOComputerTest(DBConnector dbc, DAOComputer dao) {
+		this.dbc = dbc;
+		this.dao = dao;
+		MockitoAnnotations.initMocks(this);
 		InputStream inputStream = null;
 		try {
 			inputStream = DAOCompanyTest.class.getResourceAsStream("/config.properties");
@@ -63,27 +71,17 @@ public class DAOComputerTest {
 		}
 	}
 
-	private static DBConnector dbc = DBConnector.getInstance();
-	private static DAOComputer dao;
-	private static String url;
-	private static String login;
-	private static String password;
-	private static String driver;
-
-	public DAOComputerTest() {
-		MockitoAnnotations.initMocks(this);
-	}
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws ClassNotFoundException, DatabaseUnitException, SQLException {
+	@Before
+	public void setUp() throws ClassNotFoundException, DatabaseUnitException, SQLException {
 		handleSetUpOperation();
+		dao.setDBC(dbc);
 	}
 
-	private static IDataSet getDataSet() throws DataSetException {
+	private IDataSet getDataSet() throws DataSetException {
 		return new FlatXmlDataSetBuilder().build(DAOCompanyTest.class.getResourceAsStream("/dataset.xml"));
 	}
 
-	private static void handleSetUpOperation() throws DatabaseUnitException, SQLException, ClassNotFoundException {
+	private void handleSetUpOperation() throws DatabaseUnitException, SQLException, ClassNotFoundException {
 		final IDatabaseConnection conn = getConnection();
 		final IDataSet data = getDataSet();
 		try {
@@ -93,8 +91,7 @@ public class DAOComputerTest {
 		}
 	}
 
-	private static IDatabaseConnection getConnection()
-			throws ClassNotFoundException, SQLException, DatabaseUnitException {
+	private IDatabaseConnection getConnection() throws ClassNotFoundException, SQLException, DatabaseUnitException {
 		Class.forName(driver);
 		return new DatabaseConnection(DriverManager.getConnection(url, login, password));
 	}
@@ -103,11 +100,6 @@ public class DAOComputerTest {
 		QueryDataSet loadedDataSet = new QueryDataSet(getConnection());
 		loadedDataSet.addTable("company");
 		return loadedDataSet;
-	}
-
-	@Before
-	public void setUp() {
-		dao = DAOComputer.getInstance(dbc);
 	}
 
 	@Test
@@ -136,15 +128,73 @@ public class DAOComputerTest {
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
 		List<Computer> computers = new ArrayList<Computer>();
-		computersName.add("Computer22");
-		computersName.add("Computer18");
+		computersName.add("Computer44");
 		computersName.add("Computer15");
-		computers = dao.findBatch(3, 2);
+		computersName.add("Computer999");
+		computers = dao.findBatch(3, 1);
 		List<String> computersNameResult = new ArrayList<String>();
 		for (Computer comp : computers) {
 			computersNameResult.add(comp.getName());
 		}
 		assertEquals(computersName, computersNameResult);
+	}
+	
+	@Test
+	public void searchBatch() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		List<String> computersName = new ArrayList<String>();
+		List<Computer> computers = new ArrayList<Computer>();
+		computersName.add("Computer15");
+		computersName.add("Computer999");
+		computers = dao.searchBatch("Company5", 3, 0);
+		List<String> computersNameResult = new ArrayList<String>();
+		for (Computer comp : computers) {
+			computersNameResult.add(comp.getName());
+		}
+		assertEquals(computersName, computersNameResult);
+	}
+	
+	@Test
+	public void orderBatch() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		List<String> computersName = new ArrayList<String>();
+		List<Computer> computers = new ArrayList<Computer>();
+		computersName.add("Computer22");
+		computersName.add("Computer3");
+		computersName.add("Computer42");
+		computers = dao.orderBatch("computer", 3, 1);
+		List<String> computersNameResult = new ArrayList<String>();
+		for (Computer comp : computers) {
+			computersNameResult.add(comp.getName());
+		}
+		assertEquals(computersName, computersNameResult);
+	}
+	
+	@Test
+	public void orderedSearch() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		List<String> computersName = new ArrayList<String>();
+		List<Computer> computers = new ArrayList<Computer>();
+		computersName.add("Computer44");
+		computersName.add("Computer42");
+		computers = dao.orderedSearch("Computer4", "companydesc", 2, 0);
+		List<String> computersNameResult = new ArrayList<String>();
+		for (Computer comp : computers) {
+			computersNameResult.add(comp.getName());
+		}
+		assertEquals(computersName, computersNameResult);
+	}
+	
+	@Test
+	public void create() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		Computer comp = new Computer.Builder().withName("computerTest").withCompanyId(new Long(4L)).build();
+		dao.create(comp);
+		assertEquals(comp.getName(), dao.searchBatch("computerTest", 1, 0).get(0).getName());
 	}
 
 	@Test
@@ -162,38 +212,40 @@ public class DAOComputerTest {
 		assertNotNull(dataSet);
 		assertEquals(8.0, dao.count(), 0.01);
 	}
-	
+
 	@Test
 	public void mapToDto() throws NullMappingSourceException, UnknownMappingSourceException {
-		 DTOComputer compDTO = new DTOComputer.Builder().withName("ComputerAA").withCompanyId("4").withId("10").build();
-		 Computer comp = new Computer.Builder().withName("ComputerAA").withCompanyId(new Long(4L)).withId(new Long(10L)).build();
-		 assertEquals(compDTO, dao.mapToDTO(comp));
+		DTOComputer compDTO = new DTOComputer.Builder().withName("ComputerAA").withIntroDate("").withDiscDate("")
+				.withCompanyName("").withCompanyId("4").withId("10").build();
+		Computer comp = new Computer.Builder().withName("ComputerAA").withCompanyId(new Long(4L)).withId(new Long(10L))
+				.build();
+		assertEquals(compDTO, dao.mapToDTO(comp));
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionCount() throws SQLException, PersistenceException {
-		dao = DAOComputer.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.count();
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionFindById() throws SQLException, PersistenceException {
-		dao = DAOComputer.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.findById(new Long(1L));
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionFindBatch() throws SQLException, PersistenceException {
-		dao = DAOComputer.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.findBatch(2, 0);
 	}
-	
+
 	@Test(expected = PersistenceException.class)
 	public void exceptionDelete() throws PersistenceException, SQLException {
-		dao = DAOComputer.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.delete(new Long(2L));
 	}

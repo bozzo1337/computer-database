@@ -1,5 +1,7 @@
-package com.excilys.cdb.servlet;
+package com.excilys.cdb.spring;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.excilys.cdb.service.CompanyService;
@@ -8,10 +10,10 @@ import com.excilys.cdb.service.ComputerService;
 public class ApplicationContextServlet extends ClassPathXmlApplicationContext {
 
 	private static ApplicationContextServlet singleInstance;
-	private ClassPathXmlApplicationContext context;
+	private ApplicationContext context;
 	
 	private ApplicationContextServlet() {
-		 context = new ClassPathXmlApplicationContext("services.xml", "daos.xml");
+		 context = new AnnotationConfigApplicationContext(AppConfig.class);
 	}
 	
 	public static ApplicationContextServlet getInstance() {
@@ -22,10 +24,10 @@ public class ApplicationContextServlet extends ClassPathXmlApplicationContext {
 	}
 	
 	public ComputerService getComputerService() {
-		return (ComputerService) context.getBean("computerService");
+		return context.getBean(ComputerService.class);
 	}
 	
 	public CompanyService getCompanyService() {
-		return (CompanyService) context.getBean("companyService");
+		return context.getBean(CompanyService.class);
 	}
 }

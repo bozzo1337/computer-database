@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
@@ -21,29 +23,20 @@ import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
+@Repository
 public class DAOComputer {
 
-	private static DAOComputer singleInstance = null;
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
 	private DBConnector dbc;
-	private ComputerMapper mapperComputer;
-	private DTOComputerMapper mapperDTOComputer;
 
-	private DAOComputer() {
-		this.dbc = DBConnector.getInstance();
-		this.mapperComputer = ComputerMapper.getInstance();
-		this.mapperDTOComputer = DTOComputerMapper.getInstance();
+	@Autowired
+	public DAOComputer(DBConnector dbc) {
+		this.dbc = dbc;
+		LOGGER.info("DAOComputer instantiated");
 	}
-
-	public static DAOComputer getInstance(DBConnector dbc) {
-		if (singleInstance == null) {
-			singleInstance = new DAOComputer();
-			LOGGER.info("DAOComputer instantiated");
-		}
-		if (singleInstance.dbc != dbc) {
-			singleInstance.dbc = dbc;
-		}
-		return singleInstance;
+	
+	public void setDBC(DBConnector dbc) {
+		this.dbc = dbc;
 	}
 
 	public Computer findById(Long id) throws PersistenceException {
@@ -54,7 +47,7 @@ public class DAOComputer {
 			ps.setLong(1, id);
 			results = ps.executeQuery();
 			if (results.next()) {
-				computer = mapperComputer.map(results);
+				computer = ComputerMapper.map(results);
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -73,7 +66,7 @@ public class DAOComputer {
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -102,7 +95,7 @@ public class DAOComputer {
 			ps.setString(10, "%" + search);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -121,7 +114,7 @@ public class DAOComputer {
 			ps.setInt(2, batchSize);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -143,7 +136,7 @@ public class DAOComputer {
 			ps.setInt(4, batchSize);
 			results = ps.executeQuery();
 			while (results.next()) {
-				computers.add(mapperComputer.map(results));
+				computers.add(ComputerMapper.map(results));
 			}
 			conn.commit();
 		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
@@ -304,9 +297,13 @@ public class DAOComputer {
 		return compCount;
 	}
 
-	public DTOComputer mapToDTO(Computer computer) throws NullMappingSourceException, UnknownMappingSourceException {
+	public DTOComputer mapToDTO(Computer computer) {
 		DTOComputer computerDTO = new DTOComputer.Builder().build();
-		computerDTO = mapperDTOComputer.map(computer);
+		try {
+			computerDTO = DTOComputerMapper.map(computer);
+		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+			LOGGER.error("Error during mapping to DTO", e);
+		}
 		return computerDTO;
 	}
 }

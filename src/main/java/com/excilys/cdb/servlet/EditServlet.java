@@ -19,6 +19,7 @@ import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.spring.ApplicationContextServlet;
 import com.excilys.cdb.validation.Validator;
 
 /**

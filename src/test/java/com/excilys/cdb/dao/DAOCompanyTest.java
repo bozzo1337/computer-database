@@ -21,7 +21,6 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -35,11 +34,20 @@ import com.excilys.cdb.model.Company;
 
 public class DAOCompanyTest {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompanyTest.class);
 	@Mock
 	private DBConnector dbcMocked;
-	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompanyTest.class);
+	private DBConnector dbc;
+	private DAOCompany dao;
+	private String url;
+	private String login;
+	private String password;
+	private String driver;
 
-	static {
+	public DAOCompanyTest(DBConnector dbc, DAOCompany dao) {
+		MockitoAnnotations.initMocks(this);
+		this.dbc = dbc;
+		this.dao = dao;
 		InputStream inputStream = null;
 		try {
 			inputStream = DAOCompanyTest.class.getResourceAsStream("/config.properties");
@@ -60,27 +68,11 @@ public class DAOCompanyTest {
 		}
 	}
 
-	private static DBConnector dbc = DBConnector.getInstance();
-	private static DAOCompany dao;
-	private static String url;
-	private static String login;
-	private static String password;
-	private static String driver;
-
-	public DAOCompanyTest() {
-		MockitoAnnotations.initMocks(this);
-	}
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws ClassNotFoundException, DatabaseUnitException, SQLException {
-		handleSetUpOperation();
-	}
-
-	private static IDataSet getDataSet() throws DataSetException {
+	private IDataSet getDataSet() throws DataSetException {
 		return new FlatXmlDataSetBuilder().build(DAOCompanyTest.class.getResourceAsStream("/dataset.xml"));
 	}
 
-	private static void handleSetUpOperation() throws DatabaseUnitException, SQLException, ClassNotFoundException {
+	private void handleSetUpOperation() throws DatabaseUnitException, SQLException, ClassNotFoundException {
 		final IDatabaseConnection conn = getConnection();
 		final IDataSet data = getDataSet();
 		try {
@@ -90,7 +82,7 @@ public class DAOCompanyTest {
 		}
 	}
 
-	private static IDatabaseConnection getConnection()
+	private IDatabaseConnection getConnection()
 			throws ClassNotFoundException, SQLException, DatabaseUnitException {
 		Class.forName(driver);
 		return new DatabaseConnection(DriverManager.getConnection(url, login, password));
@@ -104,7 +96,13 @@ public class DAOCompanyTest {
 
 	@Before
 	public void setUp() {
-		dao = DAOCompany.getInstance(dbc);
+		try {
+			handleSetUpOperation();
+		} catch (ClassNotFoundException | DatabaseUnitException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		dao.setDBC(dbc);;
 	}
 
 	@Test
@@ -145,7 +143,6 @@ public class DAOCompanyTest {
 		assertNotNull(dataSet);
 		dao.delete(new Long(5));
 		assertEquals(3.0, dao.count(), 0.01);
-		assertEquals(6.0, DAOComputer.getInstance(dbc).count(), 0.01);
 	}
 
 	@Test
@@ -168,35 +165,35 @@ public class DAOCompanyTest {
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionCount() throws SQLException, PersistenceException {
-		dao = DAOCompany.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.count();
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionFindById() throws SQLException, PersistenceException {
-		dao = DAOCompany.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.findById(new Long(1L));
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionFindAll() throws SQLException, PersistenceException {
-		dao = DAOCompany.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.findAll();
 	}
 
 	@Test(expected = PersistenceException.class)
 	public void exceptionFindBatch() throws SQLException, PersistenceException {
-		dao = DAOCompany.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.findBatch(2, 0);
 	}
 	
 	@Test(expected = PersistenceException.class)
 	public void exceptionDelete() throws PersistenceException, SQLException {
-		dao = DAOCompany.getInstance(dbcMocked);
+		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.delete(new Long(2L));
 	}

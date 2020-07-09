@@ -5,27 +5,16 @@ import java.time.format.DateTimeFormatter;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.mapper.Mapper;
 import com.excilys.cdb.model.Computer;
 
-public class DTOComputerMapper extends Mapper<DTOComputer> {
+public class DTOComputerMapper {
 	
-	private static DTOComputerMapper singleInstance = null;
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	private DTOComputerMapper() {
-		
 	}
 	
-	public static DTOComputerMapper getInstance() {
-		if (singleInstance == null) {
-			singleInstance = new DTOComputerMapper();
-		}
-		return singleInstance;
-	}
-	
-	@Override
-	public DTOComputer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+	public static DTOComputer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
 		DTOComputer computerDTO;
 		if (source == null) {
 			throw new NullMappingSourceException();
@@ -38,7 +27,7 @@ public class DTOComputerMapper extends Mapper<DTOComputer> {
 		return computerDTO;
 	}
 
-	private DTOComputer mapFromComputer(Computer computer) {
+	private static DTOComputer mapFromComputer(Computer computer) {
 		DTOComputer.Builder builderDTO = new DTOComputer.Builder();
 		builderDTO.withId(computer.getId().toString());
 		builderDTO.withName(computer.getName());
