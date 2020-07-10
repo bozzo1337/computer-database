@@ -18,7 +18,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<junit.version>4.11</junit.version>
+		<junit.version>4.13</junit.version>
 		<mysql-connector.version>8.0.20</mysql-connector.version>
 		<mockito.version>1.10.19</mockito.version>
 		<logback.version>1.2.3</logback.version>
@@ -103,17 +103,18 @@
 			<artifactId>HikariCP</artifactId>
 			<version>${hikariCP.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

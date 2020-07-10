@@ -1,7 +1,6 @@
 package com.excilys.cdb.dao.mapper;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -10,14 +9,22 @@ import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import com.excilys.cdb.config.AppConfig;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes=AppConfig.class, loader=AnnotationConfigContextLoader.class)
 public class ComputerMapperTest {
 
 	@Mock
@@ -35,21 +42,20 @@ public class ComputerMapperTest {
 
 	@Test
 	public void mapResultSetEmpty() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
-		Mockito.when(resultSet.next()).thenReturn(false);
-		assertNull("Mapping empty ResultSet", ComputerMapper.map(resultSet));
+		assertEquals(new Computer.Builder().withId(0L).withCompany(new Company(0L, null)).build(), ComputerMapper.map(resultSet));
 	}
 
 	@Test
 	public void mapResultSetOneRow() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
-		Mockito.when(resultSet.next()).thenReturn(true, false);
 		Mockito.when(resultSet.getLong("computer.id")).thenReturn(new Long(1L));
 		Mockito.when(resultSet.getString("computer.name")).thenReturn("Computer1");
 		Mockito.when(resultSet.getDate("computer.introduced")).thenReturn(new Date(1592900853L));
 		Mockito.when(resultSet.getDate("computer.discontinued")).thenReturn(new Date(1592900862L));
 		Mockito.when(resultSet.getLong("computer.company_id")).thenReturn(new Long(1L));
+		Company defaultCompany = new Company(0L, null);
 		Computer computer = new Computer.Builder().withId(new Long(1L)).withName("Computer1")
 				.withIntroDate(new Date(1592900853L).toLocalDate()).withDiscDate(new Date(1592900862L).toLocalDate())
-				.withCompanyId(new Long(1L)).build();
+				.withCompanyId(new Long(1L)).withCompany(defaultCompany).build();
 		assertEquals(computer, ComputerMapper.map(resultSet));
 	}
 
@@ -63,27 +69,24 @@ public class ComputerMapperTest {
 		Mockito.when(resultSet.getDate("computer.discontinued")).thenReturn(new Date(1592666677L),
 				new Date(1111111111L), new Date(2L));
 		Mockito.when(resultSet.getLong("computer.company_id")).thenReturn(new Long(45L), new Long(45L), new Long(3L));
+		Company defaultCompany = new Company(0L, null);
 		Computer comp1 = new Computer.Builder().withId(new Long(15L)).withName("Computer15")
 				.withIntroDate(new Date(1592666666L).toLocalDate()).withDiscDate(new Date(1592666677L).toLocalDate())
-				.withCompanyId(new Long(45L)).build();
+				.withCompanyId(new Long(45L)).withCompany(defaultCompany).build();
 		Computer comp2 = new Computer.Builder().withId(new Long(12L)).withName("Computer12")
 				.withIntroDate(new Date(99993L).toLocalDate()).withDiscDate(new Date(1111111111L).toLocalDate())
-				.withCompanyId(new Long(45L)).build();
+				.withCompanyId(new Long(45L)).withCompany(defaultCompany).build();
 		Computer comp3 = new Computer.Builder().withId(new Long(955L)).withName("Computer955")
 				.withIntroDate(new Date(1L).toLocalDate()).withDiscDate(new Date(2L).toLocalDate())
-				.withCompanyId(new Long(3L)).build();
+				.withCompanyId(new Long(3L)).withCompany(defaultCompany).build();
 		ArrayList<Computer> compList = new ArrayList<Computer>();
 		compList.add(comp1);
 		compList.add(comp2);
 		compList.add(comp3);
-		assertEquals(compList, ComputerMapper.map(resultSet));
-	}
-	
-	private Computer handleMappingExceptionLambda(ResultSet resultSet) {
-		try {
-			return ComputerMapper.map(resultSet);
-		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
-			return null;
+		ArrayList<Computer> compListResult = new ArrayList<Computer>();
+		while (resultSet.next()) {
+			compListResult.add(ComputerMapper.map(resultSet));
 		}
+		assertEquals(compList, compListResult);
 	}
 }

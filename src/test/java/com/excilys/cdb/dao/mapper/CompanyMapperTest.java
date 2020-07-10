@@ -10,14 +10,21 @@ import java.util.List;
 import javax.tools.DiagnosticCollector;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import com.excilys.cdb.config.AppConfig;
 import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes=AppConfig.class, loader=AnnotationConfigContextLoader.class)
 public class CompanyMapperTest {
 		
 	@Mock
@@ -39,7 +46,6 @@ public class CompanyMapperTest {
 	
 	@Test
 	public void mapResultSetOneRow() throws SQLException, NullMappingSourceException, UnknownMappingSourceException {
-		Mockito.when(resultSet.next()).thenReturn(true, false);
 		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(1L));
 		Mockito.when(resultSet.getString("company.name")).thenReturn("Company1");
 		Company company = new Company(new Long(1L), "Company1");
@@ -56,15 +62,9 @@ public class CompanyMapperTest {
 		compList.add(new Company(new Long(5L), "Company5"));
 		compList.add(new Company(new Long(6L), "Company6"));
 		ArrayList<Company> compListResult = new ArrayList<Company>();
-		compList.stream().forEach(c -> compListResult.add(handleMappingExceptionLambda(resultSet)));
-		assertEquals(compList, compListResult);
-	}
-	
-	private Company handleMappingExceptionLambda(ResultSet resultSet) {
-		try {
-			return CompanyMapper.map(resultSet);
-		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
-			return null;
+		while (resultSet.next()) {
+			compListResult.add(CompanyMapper.map(resultSet));
 		}
+		assertEquals(compList, compListResult);
 	}
 }

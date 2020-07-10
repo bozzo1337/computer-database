@@ -22,23 +22,33 @@ import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import com.excilys.cdb.config.AppConfig;
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes=AppConfig.class, loader=AnnotationConfigContextLoader.class)
 public class DAOCompanyTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompanyTest.class);
 	@Mock
 	private DBConnector dbcMocked;
+	@Autowired
 	private DBConnector dbc;
+	@Autowired
 	private DAOCompany dao;
 	private Page<Company> page;
 	private String url;
@@ -46,10 +56,9 @@ public class DAOCompanyTest {
 	private String password;
 	private String driver;
 
+	@Autowired
 	public DAOCompanyTest() {
 		MockitoAnnotations.initMocks(this);
-		this.dbc = new DBConnector();
-		this.dao = new DAOCompany(dbc);
 		this.page = new Page<Company>("");
 		InputStream inputStream = null;
 		try {

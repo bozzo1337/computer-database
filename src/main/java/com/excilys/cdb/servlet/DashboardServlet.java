@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.config.ApplicationContextServlet;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.spring.ApplicationContextServlet;
 
 /**
  * Servlet implementation class DashboardServlet
@@ -20,7 +20,7 @@ import com.excilys.cdb.spring.ApplicationContextServlet;
 @WebServlet(name = "dashboardServlet", urlPatterns = "/dashboard")
 public class DashboardServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private ComputerService cs;
+	private ComputerService computerService;
 	private int currentPage = 0;
 	private int maxPage;
 	private String search;
@@ -30,7 +30,7 @@ public class DashboardServlet extends HttpServlet {
 	 */
 	public DashboardServlet() {
 		super();
-		this.cs = ApplicationContextServlet.getComputerService();	
+		this.computerService = ApplicationContextServlet.getComputerService();	
 	}
 
 	private void handleSearch() {
@@ -78,24 +78,24 @@ public class DashboardServlet extends HttpServlet {
 	}
 
 	private void setUpDashboard(HttpServletRequest request) {
-		cs.resetPages(search);
+		computerService.resetPages(search);
 		String orderType = handleOrder(request);
 		setUpCurrentPage(request);
 		List<DTOComputer> listComp;
 		if (search != null && !search.isEmpty() && orderType != null) {
-			listComp = cs.orderedSearchComp(search, orderType).getEntities();
+			listComp = computerService.orderedSearchComp(search, orderType).getEntities();
 		} else if (search != null && !search.isEmpty()) {
-			listComp = cs.searchComp(search).getEntities();
+			listComp = computerService.searchComp(search).getEntities();
 		} else if (orderType != null) {
-			listComp = cs.orderComp(orderType).getEntities();
+			listComp = computerService.orderComp(orderType).getEntities();
 		} else {
-			listComp = cs.selectAll().getEntities();
+			listComp = computerService.selectAll().getEntities();
 		}
 		request.setAttribute("listComp", listComp);
 	}
 
 	private void setUpCurrentPage(HttpServletRequest request) {
-		maxPage = cs.getPageComp().getIdxMaxPage();
+		maxPage = computerService.getPageComp().getIdxMaxPage();
 		currentPage = currentPage > maxPage ? maxPage : currentPage;
 		Integer paramPage = null;
 		if (request.getParameter("page") != null) {
@@ -108,7 +108,7 @@ public class DashboardServlet extends HttpServlet {
 		}
 		currentPage = Math.max(currentPage, 0);
 		currentPage = Math.min(currentPage, maxPage);
-		cs.selectPage(currentPage);
+		computerService.selectPage(currentPage);
 	}
 
 	/**
@@ -121,10 +121,10 @@ public class DashboardServlet extends HttpServlet {
 		handleSearch();
 		setUpDashboard(request);
 		request.setAttribute("search", search);
-		request.setAttribute("entitiesPerPage", cs.getPageComp().getEntitiesPerPage());
+		request.setAttribute("entitiesPerPage", computerService.getPageComp().getEntitiesPerPage());
 		request.setAttribute("maxPage", new Long(maxPage));
 		request.setAttribute("currentPage", currentPage);
-		request.setAttribute("compCount", (int) cs.getPageComp().getNbEntities());
+		request.setAttribute("compCount", (int) computerService.getPageComp().getNbEntities());
 		request.setAttribute("firstCallCreate", true);
 		RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
 		rd.forward(request, response);
@@ -138,11 +138,11 @@ public class DashboardServlet extends HttpServlet {
 			throws ServletException, IOException {
 		currentPage = 0;
 		if (request.getParameter("button10") != null) {
-			cs.getPageComp().setEntitiesPerPage(10);
+			computerService.getPageComp().setEntitiesPerPage(10);
 		} else if (request.getParameter("button50") != null) {
-			cs.getPageComp().setEntitiesPerPage(50);
+			computerService.getPageComp().setEntitiesPerPage(50);
 		} else if (request.getParameter("button100") != null) {
-			cs.getPageComp().setEntitiesPerPage(100);
+			computerService.getPageComp().setEntitiesPerPage(100);
 		}
 		doGet(request, response);
 	}

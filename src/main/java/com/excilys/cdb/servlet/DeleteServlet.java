@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.config.ApplicationContextServlet;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.spring.ApplicationContextServlet;
 
 /**
  * Servlet implementation class DeleteServlet
