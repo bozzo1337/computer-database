@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import com.excilys.cdb.dao.DAOComputer;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
@@ -149,7 +148,7 @@ public class ComputerService {
 		try {
 			Computer computer = ComputerMapper.map(computerDTO);
 			dao.create(computer);
-		} catch (NullMappingSourceException | UnknownMappingSourceException | PersistenceException e) {
+		} catch (MappingException | PersistenceException e) {
 			LOGGER.error("Error during create in service", e);
 		}	
 	}
@@ -158,7 +157,7 @@ public class ComputerService {
 		try {
 			Computer computer = ComputerMapper.map(computerDTO); 
 			dao.update(computer);
-		} catch (NullMappingSourceException | UnknownMappingSourceException | PersistenceException e) {
+		} catch (MappingException | PersistenceException e) {
 			LOGGER.error("Error during update in service", e);
 		}
 	}

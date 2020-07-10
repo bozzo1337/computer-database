@@ -16,9 +16,8 @@ import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.dto.mapper.DTOComputerMapper;
-import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
@@ -49,7 +48,7 @@ public class DAOComputer {
 				computer = ComputerMapper.map(results);
 			}
 			conn.commit();
-		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+		} catch (SQLException | MappingException e) {
 			LOGGER.error("Error during SELECT one computer", e);
 			throw new PersistenceException("Error during SELECT one computer", e);
 		}
@@ -68,7 +67,7 @@ public class DAOComputer {
 				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+		} catch (SQLException | MappingException e) {
 			LOGGER.error("Error during SELECT computers batch", e);
 			throw new PersistenceException("Error during SELECT computer batch", e);
 		}
@@ -96,7 +95,7 @@ public class DAOComputer {
 				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+		} catch (SQLException | MappingException e) {
 			LOGGER.error("Error during SEARCH computers batch", e);
 			throw new PersistenceException("Error during SEARCH computers batch", e);
 		}
@@ -114,7 +113,7 @@ public class DAOComputer {
 				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+		} catch (SQLException | MappingException e) {
 			LOGGER.error("Error during ORDERED computers batch", e);
 			throw new PersistenceException("Error during ORDERED computers batch", e);
 		}
@@ -134,7 +133,7 @@ public class DAOComputer {
 				page.getEntities().add(ComputerMapper.map(results));
 			}
 			conn.commit();
-		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
+		} catch (SQLException | MappingException e) {
 			LOGGER.error("Error during ORDERED SEARCH computers", e);
 			throw new PersistenceException("Error during ORDERED SEARCH computers", e);
 		}
@@ -218,6 +217,7 @@ public class DAOComputer {
 				ps.setLong(4, compId);
 			else
 				ps.setNull(4, java.sql.Types.BIGINT);
+			ps.setLong(5, computer.getId());
 			ps.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {
@@ -290,7 +290,7 @@ public class DAOComputer {
 		DTOComputer computerDTO = new DTOComputer.Builder().build();
 		try {
 			computerDTO = DTOComputerMapper.map(computer);
-		} catch (NullMappingSourceException | UnknownMappingSourceException e) {
+		} catch (MappingException e) {
 			LOGGER.error("Error during mapping to DTO", e);
 		}
 		return computerDTO;

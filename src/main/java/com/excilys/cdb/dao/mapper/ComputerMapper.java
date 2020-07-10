@@ -6,22 +6,27 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.NullMappingSourceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
-import com.excilys.cdb.model.Company;
+import com.excilys.cdb.exception.mapping.MappingResultSetException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
 public class ComputerMapper {
 
 	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final Logger LOGGER = LoggerFactory.getLogger(ComputerMapper.class);
 
 	private ComputerMapper() {
 	}
 
-	public static Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+	public static Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException, MappingResultSetException {
 		Computer computer;
 		if (source == null) {
+			LOGGER.error("Null source while mapping Computer");
 			throw new NullMappingSourceException();
 		}
 		if (source instanceof ResultSet) {
@@ -29,16 +34,21 @@ public class ComputerMapper {
 		} else if (source instanceof DTOComputer) {
 			computer = mapFromDTO((DTOComputer) source);
 		} else {
+			LOGGER.error("Unknown source while mapping Computer");
 			throw new UnknownMappingSourceException();
 		}
 		return computer;
 	}
 
-	private static Computer mapFromResultSet(ResultSet results) {
+	private static Computer mapFromResultSet(ResultSet results) throws MappingResultSetException {
 		Computer computer = new Computer.Builder().build();
 		try {
 			Computer.Builder computerBuilder = new Computer.Builder();
-			computerBuilder.withId(results.getLong("computer.id")).withName(results.getString("computer.name"));
+			Long id = results.getLong("computer.id");
+			if (id != 0 ) {
+				computerBuilder.withId(id);
+			}
+			computerBuilder.withName(results.getString("computer.name"));
 			Date intro = results.getDate("computer.introduced");
 			if (intro != null) {
 				computerBuilder.withIntroDate(intro.toLocalDate());
@@ -48,25 +58,44 @@ public class ComputerMapper {
 				computerBuilder.withDiscDate(disc.toLocalDate());
 			}
 			Long companyId = results.getLong("computer.company_id");
-			computerBuilder.withCompanyId(companyId == 0 ? null : companyId);
-			Company company = CompanyMapper.map(results);
-			computerBuilder.withCompany(company);
+			if (companyId != 0) {
+				computerBuilder.withCompanyId(companyId);
+				computerBuilder.withCompanyName(results.getString("company.name"));
+			}
 			computer = computerBuilder.build();
-		} catch (SQLException | NullMappingSourceException | UnknownMappingSourceException e) {
-			// TODO treat exception
-			e.printStackTrace();
+		} catch (SQLException e) {
+			LOGGER.error("Error while mapping Computer from ResultSet", e);
+			throw new MappingResultSetException();
 		}
 		return computer;
 	}
 
 	private static Computer mapFromDTO(DTOComputer computerDTO) {
-		Long id = !(computerDTO.getId() == null) ? Long.valueOf(computerDTO.getId()) : null;
-		LocalDate intro = !computerDTO.getIntroduced().isEmpty() ? LocalDate.parse(computerDTO.getIntroduced(), df)
-				: null;
-		LocalDate disc = !computerDTO.getDiscontinued().isEmpty() ? LocalDate.parse(computerDTO.getDiscontinued(), df)
-				: null;
-		Long compId = !computerDTO.getCompanyId().toString().equals("0") ? Long.valueOf(computerDTO.getCompanyId())
-				: null;
+		Long id;
+		if (computerDTO.getId() == null || computerDTO.getId().isEmpty()) {
+			id = null;
+		} else {
+			id = Long.valueOf(computerDTO.getId());
+		}
+		LocalDate intro;
+		if (computerDTO.getIntroduced() == null || computerDTO.getIntroduced().isEmpty()) {
+			intro = null;
+		} else {
+			intro = LocalDate.parse(computerDTO.getIntroduced(), df);
+		}
+		LocalDate disc;
+		if (computerDTO.getDiscontinued() == null || computerDTO.getDiscontinued().isEmpty()) {
+			disc = null;
+		} else {
+			disc = LocalDate.parse(computerDTO.getDiscontinued(), df);
+		}
+		String compIdString = computerDTO.getCompanyId();
+		Long compId;
+		if(compIdString == null || "0".equals(computerDTO.getCompanyId())) {
+			compId = null;
+		} else {
+			compId = Long.valueOf(compIdString);
+		}
 		Computer computer = new Computer.Builder().withId(id).withName(computerDTO.getName()).withIntroDate(intro)
 				.withDiscDate(disc).withCompanyId(compId).build();
 		return computer;

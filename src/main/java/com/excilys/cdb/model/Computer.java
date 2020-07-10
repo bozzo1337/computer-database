@@ -9,7 +9,7 @@ public class Computer {
 	private LocalDate introduced;
 	private LocalDate discontinued;
 	private Long companyId;
-	private Company company;
+	private String companyName;
 	
 	public static class Builder {
 		private Long id;
@@ -17,7 +17,7 @@ public class Computer {
 		private LocalDate introduced;
 		private LocalDate discontinued;
 		private Long companyId;
-		private Company company;
+		private String companyName;
 		
 		public Builder withId(Long id) {
 			this.id = id;
@@ -44,8 +44,8 @@ public class Computer {
 			return this;
 		}
 		
-		public Builder withCompany(Company company) {
-			this.company = company;
+		public Builder withCompanyName(String companyName) {
+			this.companyName = companyName;
 			return this;
 		}
 		
@@ -56,7 +56,7 @@ public class Computer {
 			computer.introduced = this.introduced;
 			computer.discontinued = this.discontinued;
 			computer.companyId = this.companyId;
-			computer.company = this.company;
+			computer.companyName = this.companyName;
 			return computer;
 		}
 	}
@@ -110,20 +110,20 @@ public class Computer {
 				discontinued + " | " + companyId;
 	}
 
-	public Company getCompany() {
-		return company;
+	public String getCompanyName() {
+		return companyName;
 	}
 
-	public void setCompany(Company company) {
-		this.company = company;
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((company == null) ? 0 : company.hashCode());
 		result = prime * result + ((companyId == null) ? 0 : companyId.hashCode());
+		result = prime * result + ((companyName == null) ? 0 : companyName.hashCode());
 		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
@@ -140,15 +140,15 @@ public class Computer {
 		if (getClass() != obj.getClass())
 			return false;
 		Computer other = (Computer) obj;
-		if (company == null) {
-			if (other.company != null)
-				return false;
-		} else if (!company.equals(other.company))
-			return false;
 		if (companyId == null) {
 			if (other.companyId != null)
 				return false;
 		} else if (!companyId.equals(other.companyId))
+			return false;
+		if (companyName == null) {
+			if (other.companyName != null)
+				return false;
+		} else if (!companyName.equals(other.companyName))
 			return false;
 		if (discontinued == null) {
 			if (other.discontinued != null)

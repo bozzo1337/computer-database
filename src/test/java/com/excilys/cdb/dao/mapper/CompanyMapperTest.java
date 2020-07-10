@@ -19,8 +19,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.excilys.cdb.config.AppConfig;
-import com.excilys.cdb.exception.NullMappingSourceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
 @RunWith(SpringJUnit4ClassRunner.class)

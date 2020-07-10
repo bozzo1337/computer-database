@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dao.mapper.CompanyMapper;
-import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 

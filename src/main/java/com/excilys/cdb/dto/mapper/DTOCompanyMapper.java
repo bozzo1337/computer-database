@@ -1,8 +1,8 @@
 package com.excilys.cdb.dto.mapper;
 
 import com.excilys.cdb.dto.DTOCompany;
-import com.excilys.cdb.exception.NullMappingSourceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
 public class DTOCompanyMapper {

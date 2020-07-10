@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -36,14 +37,15 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import com.excilys.cdb.config.AppConfig;
 import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.NullMappingSourceException;
 import com.excilys.cdb.exception.PersistenceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=AppConfig.class, loader=AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = AppConfig.class, loader = AnnotationConfigContextLoader.class)
 public class DAOComputerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputerTest.class);
@@ -129,7 +131,7 @@ public class DAOComputerTest {
 	@Test
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
-		assertNotNull(dataSet);		
+		assertNotNull(dataSet);
 		assertNull(dao.findById(new Long(20L)).getName());
 	}
 
@@ -220,6 +222,19 @@ public class DAOComputerTest {
 	}
 
 	@Test
+	public void update() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		Computer comp = dao.findById(new Long(3L));
+		comp.setName("3Computer");
+		comp.setCompanyId(new Long(4L));
+		comp.setCompanyName("Company4");
+		dao.update(comp);
+		
+		assertEquals(comp, dao.findById(new Long(3L)));
+	}
+
+	@Test
 	public void delete() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
@@ -229,10 +244,25 @@ public class DAOComputerTest {
 	}
 
 	@Test
+	public void deleteComputersOfCompany() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		dao.deleteComputersOfCompany(new Long(5L));
+		assertEquals(6.0, dao.count(), 0.01);
+	}
+
+	@Test
 	public void count() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		assertEquals(8.0, dao.count(), 0.01);
+	}
+
+	@Test
+	public void searchCount() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		assertEquals(3.0, dao.searchCount("Computer1"), 0.01);
 	}
 
 	@Test
@@ -249,6 +279,13 @@ public class DAOComputerTest {
 		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.count();
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionSearchCount() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		dao.searchCount("");
 	}
 
 	@Test(expected = PersistenceException.class)
@@ -270,5 +307,49 @@ public class DAOComputerTest {
 		dao.setDBC(dbcMocked);
 		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
 		dao.delete(new Long(2L));
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionSearchBatch() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		dao.searchBatch(page);
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionOrderBatch() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		page.setOrder("computer");
+		dao.orderBatch(page);
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionOrderedSearch() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		page.setOrder("computer");
+		dao.orderedSearch(page);
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionCreate() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		dao.create(new Computer.Builder().build());
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionUpdate() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		dao.update(new Computer.Builder().build());
+	}
+
+	@Test(expected = PersistenceException.class)
+	public void exceptionDeleteComputersOfCompany() throws SQLException, PersistenceException {
+		dao.setDBC(dbcMocked);
+		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
+		dao.deleteComputersOfCompany(new Long(5L));
 	}
 }
