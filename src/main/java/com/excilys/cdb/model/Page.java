@@ -53,6 +53,10 @@ public class Page<T> {
 		return entities;
 	}
 	
+	public void setEntities(List<T> entities) {
+		this.entities = entities;
+	}
+	
 	public int getIdxCurrentPage() {
 		return idxCurrentPage;
 	}

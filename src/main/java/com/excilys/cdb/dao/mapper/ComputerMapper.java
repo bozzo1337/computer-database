@@ -8,22 +8,26 @@ import java.time.format.DateTimeFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.exception.mapping.MappingResultSetException;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
 import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
-public class ComputerMapper {
+@Component
+public class ComputerMapper implements RowMapper<Computer> {
 
-	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final Logger LOGGER = LoggerFactory.getLogger(ComputerMapper.class);
 
 	private ComputerMapper() {
 	}
 
-	public static Computer map(Object source) throws NullMappingSourceException, UnknownMappingSourceException, MappingResultSetException {
+	public Computer map(Object source) throws MappingException {
 		Computer computer;
 		if (source == null) {
 			LOGGER.error("Null source while mapping Computer");
@@ -40,7 +44,7 @@ public class ComputerMapper {
 		return computer;
 	}
 
-	private static Computer mapFromResultSet(ResultSet results) throws MappingResultSetException {
+	private Computer mapFromResultSet(ResultSet results) throws MappingResultSetException {
 		Computer computer = new Computer.Builder().build();
 		try {
 			Computer.Builder computerBuilder = new Computer.Builder();
@@ -70,7 +74,7 @@ public class ComputerMapper {
 		return computer;
 	}
 
-	private static Computer mapFromDTO(DTOComputer computerDTO) {
+	private Computer mapFromDTO(DTOComputer computerDTO) {
 		Long id;
 		if (computerDTO.getId() == null || computerDTO.getId().isEmpty()) {
 			id = null;
@@ -98,6 +102,17 @@ public class ComputerMapper {
 		}
 		Computer computer = new Computer.Builder().withId(id).withName(computerDTO.getName()).withIntroDate(intro)
 				.withDiscDate(disc).withCompanyId(compId).build();
+		return computer;
+	}
+
+	@Override
+	public Computer mapRow(ResultSet rs, int rowNum) throws SQLException {
+		Computer computer = new Computer.Builder().build();
+		try {
+			computer = map(rs);
+		} catch (MappingException e) {
+			LOGGER.debug("Exception during mapRow Computer", e);
+		}
 		return computer;
 	}
 }

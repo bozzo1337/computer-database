@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,9 +24,6 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +32,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.excilys.cdb.config.AppConfig;
-import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
 import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
-import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
@@ -49,10 +44,6 @@ import com.excilys.cdb.model.Page;
 public class DAOComputerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputerTest.class);
-	@Mock
-	private DBConnector dbcMocked;
-	@Autowired
-	private DBConnector dbc;
 	@Autowired
 	private DAOComputer dao;
 	private Page<Computer> page;
@@ -63,7 +54,6 @@ public class DAOComputerTest {
 
 	public DAOComputerTest() {
 		this.page = new Page<Computer>("");
-		MockitoAnnotations.initMocks(this);
 		InputStream inputStream = null;
 		try {
 			inputStream = DAOCompanyTest.class.getResourceAsStream("/config.properties");
@@ -87,7 +77,6 @@ public class DAOComputerTest {
 	@Before
 	public void setUp() throws ClassNotFoundException, DatabaseUnitException, SQLException {
 		handleSetUpOperation();
-		dao.setDBC(dbc);
 	}
 
 	private IDataSet getDataSet() throws DataSetException {
@@ -128,7 +117,7 @@ public class DAOComputerTest {
 		assertEquals("Computer3", dao.findById(new Long(3L)).getName());
 	}
 
-	@Test
+	@Test(expected = PersistenceException.class)
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
@@ -159,8 +148,8 @@ public class DAOComputerTest {
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
 		computersName.add("Computer1");
-		computersName.add("Computer18");
 		computersName.add("Computer15");
+		computersName.add("Computer18");
 		page.setEntitiesPerPage(3);
 		page.setIdxCurrentPage(0);
 		page.setSearch("Computer1");
@@ -169,6 +158,7 @@ public class DAOComputerTest {
 		for (Computer comp : page.getEntities()) {
 			computersNameResult.add(comp.getName());
 		}
+		Collections.sort(computersNameResult);
 		assertEquals(computersName, computersNameResult);
 	}
 
@@ -272,84 +262,5 @@ public class DAOComputerTest {
 		Computer comp = new Computer.Builder().withName("ComputerAA").withCompanyId(new Long(4L)).withId(new Long(10L))
 				.build();
 		assertEquals(compDTO, dao.mapToDTO(comp));
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionCount() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.count();
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionSearchCount() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.searchCount("");
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionFindById() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findById(new Long(1L));
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionFindBatch() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findBatch(page);
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionDelete() throws PersistenceException, SQLException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.delete(new Long(2L));
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionSearchBatch() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.searchBatch(page);
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionOrderBatch() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		page.setOrder("computer");
-		dao.orderBatch(page);
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionOrderedSearch() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		page.setOrder("computer");
-		dao.orderedSearch(page);
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionCreate() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.create(new Computer.Builder().build());
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionUpdate() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.update(new Computer.Builder().build());
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionDeleteComputersOfCompany() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.deleteComputersOfCompany(new Long(5L));
 	}
 }

@@ -26,11 +26,7 @@ public class CompanyService {
 	}
 	
 	public void resetPages() {
-		try {
-			pageCompany.init(dao.count());
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during page init", e);
-		}
+		pageCompany.init(dao.count());
 	}
 	
 	public void nextPage() {
@@ -42,11 +38,7 @@ public class CompanyService {
 	}
 	
 	public Page<Company> selectAll() {
-		try {
-			dao.findAll(pageCompany);
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll", e);
-		}
+		dao.findAll(pageCompany);
 		return pageCompany;
 	}
 	
@@ -61,19 +53,11 @@ public class CompanyService {
 	}
 	
 	public Page<Company> selectPage() {
-		try {
-			dao.findBatch(pageCompany);
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectPage", e);
-		}
+		dao.findBatch(pageCompany);
 		return pageCompany;
 	}
 	
 	public void delete(Long id) {
-		try {
-			dao.delete(id);
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during delete", e);
-		}
+		dao.delete(id);
 	}
 }

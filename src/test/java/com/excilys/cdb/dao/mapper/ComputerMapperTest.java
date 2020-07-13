@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -34,6 +35,8 @@ public class ComputerMapperTest {
 
 	@Mock
 	private ResultSet resultSet;
+	@Autowired
+	private ComputerMapper mapper;
 
 	@Before
 	public void init() {
@@ -42,18 +45,18 @@ public class ComputerMapperTest {
 
 	@Test(expected = NullMappingSourceException.class)
 	public void mapNullSource() throws MappingException {
-		ComputerMapper.map(null);
+		mapper.map(null);
 	}
 	
 	@Test(expected = UnknownMappingSourceException.class)
 	public void mapUnknownSource() throws MappingException {
-		ComputerMapper.map(new DiagnosticCollector<List<Exception>>());
+		mapper.map(new DiagnosticCollector<List<Exception>>());
 	}
 
 	@Test
 	public void mapResultSetEmpty() throws SQLException, MappingException {
 		assertEquals(new Computer.Builder().build(),
-				ComputerMapper.map(resultSet));
+				mapper.map(resultSet));
 	}
 
 	@Test
@@ -66,7 +69,7 @@ public class ComputerMapperTest {
 		Computer computer = new Computer.Builder().withId(new Long(1L)).withName("Computer1")
 				.withIntroDate(new Date(1592900853L).toLocalDate()).withDiscDate(new Date(1592900862L).toLocalDate())
 				.withCompanyId(new Long(1L)).build();
-		assertEquals(computer, ComputerMapper.map(resultSet));
+		assertEquals(computer, mapper.map(resultSet));
 	}
 
 	@Test
@@ -95,7 +98,7 @@ public class ComputerMapperTest {
 		compList.add(comp3);
 		ArrayList<Computer> compListResult = new ArrayList<Computer>();
 		while (resultSet.next()) {
-			compListResult.add(ComputerMapper.map(resultSet));
+			compListResult.add(mapper.map(resultSet));
 		}
 		assertEquals(compList, compListResult);
 	}
@@ -106,6 +109,6 @@ public class ComputerMapperTest {
 				.withIntroDate("12/12/2012").build();
 		Computer compExpected = new Computer.Builder().withId(new Long(3L)).withName("Computer12")
 				.withIntroDate(LocalDate.of(2012, 12, 12)).build();
-		assertEquals(compExpected, ComputerMapper.map(computerDTO));
+		assertEquals(compExpected, mapper.map(computerDTO));
 	}
 }

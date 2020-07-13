@@ -1,18 +1,15 @@
 package com.excilys.cdb.dao;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.excilys.cdb.connector.DBConnector;
+import com.excilys.cdb.connector.MyDataSource;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.dto.mapper.DTOComputerMapper;
@@ -25,118 +22,47 @@ import com.excilys.cdb.model.Page;
 public class DAOComputer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
-	private DBConnector dbc;
+	private JdbcTemplate jdbcTemplate;
+	private ComputerMapper mapper;
 
 	@Autowired
-	public DAOComputer(DBConnector dbc) {
-		this.dbc = dbc;
+	public DAOComputer(MyDataSource dataSource, ComputerMapper mapper) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.mapper = mapper;
 		LOGGER.info("DAOComputer instantiated");
 	}
 
-	public void setDBC(DBConnector dbc) {
-		this.dbc = dbc;
-	}
-
 	public Computer findById(Long id) throws PersistenceException {
-		Computer computer = new Computer.Builder().build();
-		ResultSet results = null;
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_ONE.toString())) {
-			ps.setLong(1, id);
-			results = ps.executeQuery();
-			if (results.next()) {
-				computer = ComputerMapper.map(results);
-			}
-			conn.commit();
-		} catch (SQLException | MappingException e) {
-			LOGGER.error("Error during SELECT one computer", e);
-			throw new PersistenceException("Error during SELECT one computer", e);
+		List<Computer> listResult =	jdbcTemplate.query(SQLRequest.SELECT_ONE.toString(), mapper, id);
+		if (listResult.size() == 0) {
+			throw new PersistenceException("Results empty");
 		}
-		return computer;
+		return listResult.get(0);
 	}
 
-	public void findBatch(Page<Computer> page) throws PersistenceException {
-		ResultSet results = null;
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.SELECT_BATCH.toString())) {
-			ps.setInt(1, page.getIdxCurrentPage() * page.getEntitiesPerPage());
-			ps.setInt(2, page.getEntitiesPerPage());
-			page.getEntities().clear();
-			results = ps.executeQuery();
-			while (results.next()) {
-				page.getEntities().add(ComputerMapper.map(results));
-			}
-			conn.commit();
-		} catch (SQLException | MappingException e) {
-			LOGGER.error("Error during SELECT computers batch", e);
-			throw new PersistenceException("Error during SELECT computer batch", e);
-		}
+	public void findBatch(Page<Computer> page) {
+		page.setEntities(jdbcTemplate.query(SQLRequest.SELECT_BATCH.toString(), mapper,
+				page.getIdxCurrentPage() * page.getEntitiesPerPage(), page.getEntitiesPerPage()));
 	}
 
-	public void searchBatch(Page<Computer> page) throws PersistenceException {
-		ResultSet results = null;
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.SEARCH_BATCH.toString())) {
-			ps.setInt(11, page.getIdxCurrentPage() * page.getEntitiesPerPage());
-			ps.setInt(12, page.getEntitiesPerPage());
-			ps.setString(1, "%" + page.getSearch() + "%");
-			ps.setString(2, "%" + page.getSearch() + "%");
-			ps.setString(3, page.getSearch());
-			ps.setString(4, page.getSearch());
-			ps.setString(5, page.getSearch() + "%");
-			ps.setString(6, page.getSearch() + "%");
-			ps.setString(7, "%" + page.getSearch() + "%");
-			ps.setString(8, "%" + page.getSearch() + "%");
-			ps.setString(9, "%" + page.getSearch());
-			ps.setString(10, "%" + page.getSearch());
-			page.getEntities().clear();
-			results = ps.executeQuery();
-			while (results.next()) {
-				page.getEntities().add(ComputerMapper.map(results));
-			}
-			conn.commit();
-		} catch (SQLException | MappingException e) {
-			LOGGER.error("Error during SEARCH computers batch", e);
-			throw new PersistenceException("Error during SEARCH computers batch", e);
-		}
+	public void searchBatch(Page<Computer> page) {
+		String search = page.getSearch();
+		page.setEntities(jdbcTemplate.query(SQLRequest.SEARCH_BATCH.toString(), mapper, "%" + search + "%",
+				"%" + search + "%", search, search, search + "%", search + "%", "%" + search + "%", "%" + search + "%",
+				"%" + search, "%" + search, page.getIdxCurrentPage() * page.getEntitiesPerPage(),
+				page.getEntitiesPerPage()));
 	}
 
-	public void orderBatch(Page<Computer> page) throws PersistenceException {
-		ResultSet results = null;
+	public void orderBatch(Page<Computer> page) {
 		String query = formatQuery(SQLRequest.ORDER.toString(), page.getOrder());
-		try (Connection conn = dbc.getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
-			ps.setInt(1, page.getIdxCurrentPage() * page.getEntitiesPerPage());
-			ps.setInt(2, page.getEntitiesPerPage());
-			page.getEntities().clear();
-			results = ps.executeQuery();
-			while (results.next()) {
-				page.getEntities().add(ComputerMapper.map(results));
-			}
-			conn.commit();
-		} catch (SQLException | MappingException e) {
-			LOGGER.error("Error during ORDERED computers batch", e);
-			throw new PersistenceException("Error during ORDERED computers batch", e);
-		}
+		page.setEntities(jdbcTemplate.query(query, mapper, page.getIdxCurrentPage() * page.getEntitiesPerPage(),
+				page.getEntitiesPerPage()));
 	}
 
-	public void orderedSearch(Page<Computer> page) throws PersistenceException {
-		ResultSet results = null;
+	public void orderedSearch(Page<Computer> page) {
 		String query = formatQuery(SQLRequest.SEARCH_ORDER.toString(), page.getOrder());
-		try (Connection conn = dbc.getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
-			ps.setString(1, "%" + page.getSearch() + "%");
-			ps.setString(2, "%" + page.getSearch() + "%");
-			ps.setInt(3, page.getIdxCurrentPage() * page.getEntitiesPerPage());
-			ps.setInt(4, page.getEntitiesPerPage());
-			page.getEntities().clear();
-			results = ps.executeQuery();
-			while (results.next()) {
-				page.getEntities().add(ComputerMapper.map(results));
-			}
-			conn.commit();
-		} catch (SQLException | MappingException e) {
-			LOGGER.error("Error during ORDERED SEARCH computers", e);
-			throw new PersistenceException("Error during ORDERED SEARCH computers", e);
-		}
+		page.setEntities(jdbcTemplate.query(query, mapper, "%" + page.getSearch() + "%", "%" + page.getSearch() + "%",
+				page.getIdxCurrentPage() * page.getEntitiesPerPage(), page.getEntitiesPerPage()));
 	}
 
 	private String formatQuery(String query, String orderType) {
@@ -171,119 +97,46 @@ public class DAOComputer {
 		return query;
 	}
 
-	public void create(Computer computer) throws PersistenceException {
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.INSERT_COMPUTER.toString())) {
-			ps.setString(1, computer.getName());
-			LocalDate intro = computer.getIntroduced();
-			if (intro != null)
-				ps.setDate(2, Date.valueOf(intro));
-			else
-				ps.setNull(2, java.sql.Types.DATE);
-			LocalDate disc = computer.getDiscontinued();
-			if (disc != null)
-				ps.setDate(3, Date.valueOf(disc));
-			else
-				ps.setNull(3, java.sql.Types.DATE);
-			Long compId = computer.getCompanyId();
-			if (compId != null)
-				ps.setLong(4, compId);
-			else
-				ps.setNull(4, java.sql.Types.BIGINT);
-			ps.executeUpdate();
-			conn.commit();
-		} catch (SQLException e) {
-			LOGGER.error("Error during INSERT computer", e);
-			throw new PersistenceException("Error during INSERT computer", e);
-		}
+	public void create(Computer computer) {
+		String name = computer.getName();
+		Date intro = null;
+		if (computer.getIntroduced() != null)
+			intro = Date.valueOf(computer.getIntroduced());
+		Date disc = null;
+		if (computer.getDiscontinued() != null)
+			disc = Date.valueOf(computer.getDiscontinued());
+		Long compId = computer.getCompanyId();
+		jdbcTemplate.update(SQLRequest.INSERT_COMPUTER.toString(), name, intro, disc, compId);
 	}
 
-	public void update(Computer computer) throws PersistenceException {
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.UPDATE_COMPUTER.toString())) {
-			ps.setString(1, computer.getName());
-			LocalDate intro = computer.getIntroduced();
-			if (intro != null)
-				ps.setDate(2, Date.valueOf(intro));
-			else
-				ps.setNull(2, java.sql.Types.DATE);
-			LocalDate disc = computer.getDiscontinued();
-			if (disc != null)
-				ps.setDate(3, Date.valueOf(disc));
-			else
-				ps.setNull(3, java.sql.Types.DATE);
-			Long compId = computer.getCompanyId();
-			if (compId != null)
-				ps.setLong(4, compId);
-			else
-				ps.setNull(4, java.sql.Types.BIGINT);
-			ps.setLong(5, computer.getId());
-			ps.executeUpdate();
-			conn.commit();
-		} catch (SQLException e) {
-			LOGGER.error("Error during UPDATE computer", e);
-			throw new PersistenceException("Error during UPDATE computer", e);
-		}
+	public void update(Computer computer) {
+		String name = computer.getName();
+		Date intro = null;
+		if (computer.getIntroduced() != null)
+			intro = Date.valueOf(computer.getIntroduced());
+		Date disc = null;
+		if (computer.getDiscontinued() != null)
+			disc = Date.valueOf(computer.getDiscontinued());
+		Long compId = computer.getCompanyId();
+		Long id = computer.getId();
+		jdbcTemplate.update(SQLRequest.UPDATE_COMPUTER.toString(), name, intro, disc, compId, id);
+		
 	}
 
-	public void delete(Long id) throws PersistenceException {
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.DELETE_COMPUTER.toString())) {
-			ps.setLong(1, id);
-			ps.executeUpdate();
-			conn.commit();
-		} catch (SQLException e) {
-			LOGGER.error("Error during DELETE computer", e);
-			throw new PersistenceException("Error during DELETE computer", e);
-		}
+	public void delete(Long id) {
+		jdbcTemplate.update(SQLRequest.DELETE_COMPUTER.toString(), id);
 	}
 
-	public void deleteComputersOfCompany(Long id) throws PersistenceException {
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString())) {
-			ps.setLong(1, id);
-			ps.executeUpdate();
-			conn.commit();
-		} catch (SQLException e) {
-			LOGGER.error("Error during DELETE computers of company", e);
-			throw new PersistenceException("Error during DELETE computers of company", e);
-		}
+	public void deleteComputersOfCompany(Long id) {
+		jdbcTemplate.update(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString(), id);
 	}
 
-	public double count() throws PersistenceException {
-		ResultSet results = null;
-		double compCount = 0;
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.COUNT_COMPUTER.toString())) {
-			results = ps.executeQuery();
-			if (results.next()) {
-				compCount = results.getDouble("count");
-			}
-			conn.commit();
-		} catch (SQLException e) {
-			LOGGER.error("Error during COUNT computers", e);
-			throw new PersistenceException("Error during COUNT computers", e);
-		}
-		return compCount;
+	public double count() {
+		return jdbcTemplate.queryForObject(SQLRequest.COUNT_COMPUTER.toString(), Double.class);
 	}
 
-	public double searchCount(String search) throws PersistenceException {
-		ResultSet results = null;
-		double compCount = 0;
-		try (Connection conn = dbc.getConn();
-				PreparedStatement ps = conn.prepareStatement(SQLRequest.COUNT_SEARCH.toString())) {
-			ps.setString(1, "%" + search + "%");
-			ps.setString(2, "%" + search + "%");
-			results = ps.executeQuery();
-			if (results.next()) {
-				compCount = results.getDouble("count");
-			}
-			conn.commit();
-		} catch (SQLException e) {
-			LOGGER.error("Error during COUNT SEARCH computers", e);
-			throw new PersistenceException("Error during COUNT SEARCH computers", e);
-		}
-		return compCount;
+	public double searchCount(String search) {
+		return jdbcTemplate.queryForObject(SQLRequest.COUNT_SEARCH.toString(), Double.class, "%" + search + "%", "%" + search + "%");
 	}
 
 	public DTOComputer mapToDTO(Computer computer) {

@@ -23,8 +23,6 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.excilys.cdb.config.AppConfig;
-import com.excilys.cdb.connector.DBConnector;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
@@ -44,10 +41,6 @@ import com.excilys.cdb.model.Page;
 public class DAOCompanyTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompanyTest.class);
-	@Mock
-	private DBConnector dbcMocked;
-	@Autowired
-	private DBConnector dbc;
 	@Autowired
 	private DAOCompany dao;
 	private Page<Company> page;
@@ -107,14 +100,8 @@ public class DAOCompanyTest {
 	}
 
 	@Before
-	public void setUp() {
-		try {
-			handleSetUpOperation();
-		} catch (ClassNotFoundException | DatabaseUnitException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		dao.setDBC(dbc);;
+	public void setUp() throws ClassNotFoundException, DatabaseUnitException, SQLException {
+		handleSetUpOperation();
 	}
 
 	@Test
@@ -130,7 +117,7 @@ public class DAOCompanyTest {
 		assertEquals("Company2", dao.findById(new Long(2L)).getName());
 	}
 
-	@Test
+	@Test(expected = PersistenceException.class)
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
@@ -177,40 +164,5 @@ public class DAOCompanyTest {
 		page.setIdxCurrentPage(0);
 		dao.findBatch(page);
 		assertEquals(companies, page.getEntities());
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionCount() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.count();
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionFindById() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findById(new Long(1L));
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionFindAll() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findAll(page);
-	}
-
-	@Test(expected = PersistenceException.class)
-	public void exceptionFindBatch() throws SQLException, PersistenceException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.findBatch(page);
-	}
-	
-	@Test(expected = PersistenceException.class)
-	public void exceptionDelete() throws PersistenceException, SQLException {
-		dao.setDBC(dbcMocked);
-		Mockito.when(dbcMocked.getConn()).thenThrow(new SQLException("Mock"));
-		dao.delete(new Long(2L));
 	}
 }

@@ -21,11 +21,13 @@ public class ComputerService {
 	private Page<DTOComputer> pageCompDTO;
 	private Page<Computer> pageComp;
 	private DAOComputer dao;
+	private ComputerMapper mapper;
 	private final String pageHeader = "ID | Name | Intro | Disc | CompID\n";
 	
 	@Autowired
-	public ComputerService(DAOComputer dao) {
+	public ComputerService(DAOComputer dao, ComputerMapper mapper) {
 		this.dao = dao;
+		this.mapper = mapper;
 		pageComp = new Page<Computer>(pageHeader);
 		pageCompDTO = new Page<DTOComputer>(pageHeader);
 		LOGGER.info("ComputerService instantiated");
@@ -44,14 +46,10 @@ public class ComputerService {
 	
 	public Page<DTOComputer> selectAll() {
 		pageCompDTO.getEntities().clear();
-		try {
-			dao.findBatch(pageComp);
-			pageComp.getEntities()
-			.stream()
-			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectAll in service", e);
-		}
+		dao.findBatch(pageComp);
+		pageComp.getEntities()
+		.stream()
+		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
@@ -62,28 +60,20 @@ public class ComputerService {
 	public Page<DTOComputer> searchComp(String search) {
 		pageCompDTO.getEntities().clear();
 		pageComp.setSearch(search);
-		try {
-			dao.searchBatch(pageComp);
-			pageComp.getEntities()
-			.stream()
-			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during search in service", e);
-		}
+		dao.searchBatch(pageComp);
+		pageComp.getEntities()
+		.stream()
+		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
 	public Page<DTOComputer> orderComp(String orderType) {
 		pageCompDTO.getEntities().clear();
 		pageComp.setOrder(orderType);
-		try {
-			dao.orderBatch(pageComp);
-			pageComp.getEntities()
-			.stream()
-			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during order in service", e);
-		}
+		dao.orderBatch(pageComp);
+		pageComp.getEntities()
+		.stream()
+		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
@@ -91,34 +81,22 @@ public class ComputerService {
 		pageCompDTO.getEntities().clear();
 		pageComp.setOrder(orderType);
 		pageComp.setSearch(search);
-		try {
-			dao.orderedSearch(pageComp);
-			pageComp.getEntities()
-			.stream()
-			.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during search order in service", e);
-		}
+		dao.orderedSearch(pageComp);
+		pageComp.getEntities()
+		.stream()
+		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
 	public double getCount() {
 		double count = -1;
-		try {
-			count = dao.count();
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during default count in service", e);
-		}
+		count = dao.count();
 		return count;
 	}
 	
 	public double getSearchCount(String search) {
 		double count = -1;
-		try {
-			count = dao.searchCount(search);
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during search count in service", e);
-		}
+		count = dao.searchCount(search);
 		return count;
 	}
 	
@@ -146,18 +124,18 @@ public class ComputerService {
 	
 	public void create(DTOComputer computerDTO) {
 		try {
-			Computer computer = ComputerMapper.map(computerDTO);
+			Computer computer = mapper.map(computerDTO);
 			dao.create(computer);
-		} catch (MappingException | PersistenceException e) {
+		} catch (MappingException e) {
 			LOGGER.error("Error during create in service", e);
 		}	
 	}
 	
 	public void update(DTOComputer computerDTO) {
 		try {
-			Computer computer = ComputerMapper.map(computerDTO); 
+			Computer computer = mapper.map(computerDTO); 
 			dao.update(computer);
-		} catch (MappingException | PersistenceException e) {
+		} catch (MappingException e) {
 			LOGGER.error("Error during update in service", e);
 		}
 	}
@@ -165,7 +143,7 @@ public class ComputerService {
 	public void delete(DTOComputer computerDTO) {
 		try {
 			dao.delete(Long.valueOf(computerDTO.getId()));
-		} catch (NumberFormatException | PersistenceException e) {
+		} catch (NumberFormatException e) {
 			LOGGER.error("Error during delete in service", e);
 		}
 	}
