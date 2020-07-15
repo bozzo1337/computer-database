@@ -57,6 +57,11 @@ public class ComputerService {
 		return pageCompDTO;
 	}
 	
+	public void setEntitiesPerPage(int entitiesPerPage) {
+		pageComp.setEntitiesPerPage(entitiesPerPage);
+		pageCompDTO.setEntitiesPerPage(entitiesPerPage);
+	}
+	
 	public Page<DTOComputer> searchComp(String search) {
 		pageCompDTO.getEntities().clear();
 		pageComp.setSearch(search);

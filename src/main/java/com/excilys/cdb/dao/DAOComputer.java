@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.excilys.cdb.connector.MyDataSource;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.dto.mapper.DTOComputerMapper;
@@ -26,12 +25,16 @@ public class DAOComputer {
 	private ComputerMapper mapper;
 
 	@Autowired
-	public DAOComputer(MyDataSource dataSource, ComputerMapper mapper) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public DAOComputer(JdbcTemplate jdbcTemplate, ComputerMapper mapper) {
+		this.jdbcTemplate = jdbcTemplate;
 		this.mapper = mapper;
 		LOGGER.info("DAOComputer instantiated");
 	}
 
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+	
 	public Computer findById(Long id) throws PersistenceException {
 		List<Computer> listResult =	jdbcTemplate.query(SQLRequest.SELECT_ONE.toString(), mapper, id);
 		if (listResult.size() == 0) {

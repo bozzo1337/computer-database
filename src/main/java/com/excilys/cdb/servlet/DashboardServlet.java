@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,10 +13,6 @@ import com.excilys.cdb.config.ApplicationContextServlet;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.service.ComputerService;
 
-/**
- * Servlet implementation class DashboardServlet
- */
-@WebServlet(name = "dashboardServlet", urlPatterns = "/dashboard")
 public class DashboardServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private ComputerService computerService;
@@ -138,11 +133,11 @@ public class DashboardServlet extends HttpServlet {
 			throws ServletException, IOException {
 		currentPage = 0;
 		if (request.getParameter("button10") != null) {
-			computerService.getPageComp().setEntitiesPerPage(10);
+			computerService.setEntitiesPerPage(10);
 		} else if (request.getParameter("button50") != null) {
-			computerService.getPageComp().setEntitiesPerPage(50);
+			computerService.setEntitiesPerPage(50);
 		} else if (request.getParameter("button100") != null) {
-			computerService.getPageComp().setEntitiesPerPage(100);
+			computerService.setEntitiesPerPage(100);
 		}
 		doGet(request, response);
 	}

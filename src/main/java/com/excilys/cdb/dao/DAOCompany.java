@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.excilys.cdb.connector.MyDataSource;
 import com.excilys.cdb.dao.mapper.CompanyMapper;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
@@ -23,10 +22,18 @@ public class DAOCompany {
 	private CompanyMapper mapper;
 
 	@Autowired
-	public DAOCompany(MyDataSource dataSource, CompanyMapper mapper) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public DAOCompany(JdbcTemplate jdbcTemplate, CompanyMapper mapper) {
+		this.jdbcTemplate = jdbcTemplate;
 		this.mapper = mapper;
 		LOGGER.info("DAOCompany instantiated");
+	}
+	
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+	
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
 	}
 
 	public Company findById(Long id) throws PersistenceException {
@@ -41,10 +48,12 @@ public class DAOCompany {
 		page.setEntities(jdbcTemplate.query(SQLRequest.SELECT_COMPANIES.toString(), mapper));
 	}
 
-	@Transactional
+	@Transactional(value = "txManager")
 	public void delete(Long id) {
 		jdbcTemplate.update(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString(), id);
-		jdbcTemplate.update(SQLRequest.DELETE_COMPANY.toString(), id);
+		LOGGER.info("Computers of Company deleted");
+		jdbcTemplate.update(SQLRequest.DELETE_COMPANY.toString(), id);		
+		LOGGER.info("Company deleted");
 	}
 
 	public void findBatch(Page<Company> page) {
