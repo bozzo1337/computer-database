@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.config.ApplicationContextServlet;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.IncorrectDiscDateException;
 import com.excilys.cdb.exception.IncorrectIDException;
@@ -19,13 +19,8 @@ import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.spring.ApplicationContextServlet;
 import com.excilys.cdb.validation.Validator;
 
-/**
- * Servlet implementation class EditServlet
- */
-@WebServlet(name = "editServlet", urlPatterns = "/edit")
 public class EditServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private CompanyService cas;
@@ -36,15 +31,15 @@ public class EditServlet extends HttpServlet {
      */
     public EditServlet() {
         super();
-        this.cas = ApplicationContextServlet.getInstance().getCompanyService();
-        this.cs = ApplicationContextServlet.getInstance().getComputerService();
+        this.cas = ApplicationContextServlet.getCompanyService();
+        this.cs = ApplicationContextServlet.getComputerService();
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<Company> listCompanies = cas.selectAll();
+		List<Company> listCompanies = cas.selectAll().getEntities();
 		String compId = request.getParameter("computerId");
 		Boolean firstCall = Boolean.valueOf(request.getParameter("firstCall"));
 		Long computerId = null;

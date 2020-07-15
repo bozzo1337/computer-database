@@ -3,8 +3,8 @@ package com.excilys.cdb.dto.mapper;
 import java.time.format.DateTimeFormatter;
 
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.NullMappingSourceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
 public class DTOComputerMapper {
@@ -34,7 +34,7 @@ public class DTOComputerMapper {
 		builderDTO.withIntroDate(computer.getIntroduced() != null ? computer.getIntroduced().format(df) : "");
 		builderDTO.withDiscDate(computer.getDiscontinued() != null ? computer.getDiscontinued().format(df) : "");
 		builderDTO.withCompanyId(computer.getCompanyId() != null ? computer.getCompanyId().toString() : "0");
-		builderDTO.withCompanyName(computer.getCompany() != null ? computer.getCompany().getName() : "");
+		builderDTO.withCompanyName(computer.getCompanyName() != null ? computer.getCompanyName() : "");
 		return builderDTO.build();
 	}
 }

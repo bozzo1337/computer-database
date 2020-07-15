@@ -1,6 +1,6 @@
-package com.excilys.cdb.exception;
+package com.excilys.cdb.exception.mapping;
 
-public class UnknownMappingSourceException extends Exception {
+public class UnknownMappingSourceException extends MappingException {
 
 	/**
 	 * 

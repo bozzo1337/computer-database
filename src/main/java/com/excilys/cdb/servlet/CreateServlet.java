@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.cdb.config.ApplicationContextServlet;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.IncorrectDiscDateException;
 import com.excilys.cdb.exception.IncorrectIDException;
@@ -19,13 +19,8 @@ import com.excilys.cdb.exception.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.spring.ApplicationContextServlet;
 import com.excilys.cdb.validation.Validator;
 
-/**
- * Servlet implementation class CreateServlet
- */
-@WebServlet(name = "createServlet", urlPatterns = "/create")
 public class CreateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private CompanyService cas;
@@ -37,8 +32,8 @@ public class CreateServlet extends HttpServlet {
      */
     public CreateServlet() {
         super();	
-        this.cas = ApplicationContextServlet.getInstance().getCompanyService();
-        this.cs = ApplicationContextServlet.getInstance().getComputerService();
+        this.cas = ApplicationContextServlet.getCompanyService();
+        this.cs = ApplicationContextServlet.getComputerService();
         // TODO Auto-generated constructor stub
     }
 
@@ -46,7 +41,7 @@ public class CreateServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<Company> listCompanies = cas.selectAll();
+		List<Company> listCompanies = cas.selectAll().getEntities();
 		firstCallCreate = Boolean.parseBoolean(request.getParameter("firstCallCreate"));
 		request.setAttribute("firstCallCreate", firstCallCreate);
 		request.setAttribute("listCompanies", listCompanies);

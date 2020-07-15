@@ -3,17 +3,27 @@ package com.excilys.cdb.dao.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+
 import com.excilys.cdb.dto.DTOCompany;
-import com.excilys.cdb.exception.NullMappingSourceException;
-import com.excilys.cdb.exception.UnknownMappingSourceException;
+import com.excilys.cdb.exception.mapping.MappingException;
+import com.excilys.cdb.exception.mapping.MappingResultSetException;
+import com.excilys.cdb.exception.mapping.NullMappingSourceException;
+import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Company;
 
-public class CompanyMapper {
+@Component
+public class CompanyMapper implements RowMapper<Company> {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(CompanyMapper.class);
+	
 	private CompanyMapper() {
 	}
 	
-	public static Company map(Object source) throws NullMappingSourceException, UnknownMappingSourceException {
+	public Company map(Object source) throws MappingException {
 		Company company;
 		if (source == null) {
 			throw new NullMappingSourceException();
@@ -28,18 +38,30 @@ public class CompanyMapper {
 		return company;
 	}
 
-	private static Company mapFromResultSet(ResultSet results) {
-		Company company = null;
+	private Company mapFromResultSet(ResultSet results) throws MappingResultSetException {
+		Company company = new Company();
 		try {
-			company = new Company(results.getLong("company.id"), results.getString("company.name"));
+			Long id = results.getLong("company.id");
+			company = new Company(id != 0 ? id : null, results.getString("company.name"));
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error while mapping Computer from ResultSet", e);
+			throw new MappingResultSetException();
 		}
 		return company;
 	}
 
-	private static Company mapFromDTO(DTOCompany companyDTO) {
+	private Company mapFromDTO(DTOCompany companyDTO) {
 		return new Company(Long.valueOf(companyDTO.getId()), companyDTO.getName());
+	}
+
+	@Override
+	public Company mapRow(ResultSet rs, int rowNum) throws SQLException {
+		Company company = new Company();
+		try {
+			company = map(rs);
+		} catch (MappingException e) {
+			LOGGER.debug("Exception during mapRow Company", e);
+		}
+		return company;
 	}
 }

@@ -1,6 +1,6 @@
-package com.excilys.cdb.exception;
+package com.excilys.cdb.exception.mapping;
 
-public class NullMappingSourceException extends Exception {
+public class NullMappingSourceException extends MappingException {
 
 	/**
 	 * 
