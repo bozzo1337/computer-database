@@ -1,6 +1,6 @@
-package com.excilys.cdb.exception;
+package com.excilys.cdb.exception.validation;
 
-public class IncorrectNameException extends Exception {
+public class IncorrectNameException extends ValidationException {
 
 	/**
 	 * 

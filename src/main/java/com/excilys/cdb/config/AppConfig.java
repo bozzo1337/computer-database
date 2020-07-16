@@ -12,7 +12,7 @@ import com.excilys.cdb.connector.MyDataSource;
 
 @Configuration
 @ComponentScan(basePackages = { "com.excilys.cdb.dao", "com.excilys.cdb.service", "com.excilys.cdb.connector",
-		"com.excilys.cdb.config", "com.excilys.cdb.controller" })
+		"com.excilys.cdb.config", "com.excilys.cdb.controller", "com.excilys.cdb.controller.attributes" })
 public class AppConfig {
 
 	@Autowired

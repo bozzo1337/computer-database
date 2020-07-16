@@ -1,6 +1,6 @@
-package com.excilys.cdb.exception;
+package com.excilys.cdb.exception.validation;
 
-public class IncorrectIDException extends Exception {
+public class IncorrectIDException extends ValidationException {
 
 	/**
 	 * 

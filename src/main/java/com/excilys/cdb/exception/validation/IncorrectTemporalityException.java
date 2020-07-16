@@ -1,6 +1,6 @@
-package com.excilys.cdb.exception;
+package com.excilys.cdb.exception.validation;
 
-public class IncorrectTemporalityException extends Exception {
+public class IncorrectTemporalityException extends ValidationException {
 
 	/**
 	 * 

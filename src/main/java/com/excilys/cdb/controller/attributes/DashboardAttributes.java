@@ -1,15 +1,10 @@
-package com.excilys.cdb.config;
+package com.excilys.cdb.controller.attributes;
 
 import java.util.List;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import com.excilys.cdb.dto.DTOComputer;
 
-@Component
-@Scope("prototype")
-public class WebAttributes {
+public class DashboardAttributes {
 
 	private int currentPage = 0;
 	private int compCount;

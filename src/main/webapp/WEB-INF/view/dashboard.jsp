@@ -1,10 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Computer Database</title>
+<title><spring:message code="application" /></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8">
 <!-- Bootstrap -->
@@ -19,21 +20,20 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard?page=0"> Application -
-				Computer Database </a>
+			<a class="navbar-brand" href="?page=0"><spring:message
+					code="application" /></a>
 		</div>
 	</header>
 
 	<section id="main">
 		<div class="container">
 			<h1 id="homeTitle">
-				<c:out value="${ webAttributes.compCount }" />
-				computers found
+				<c:out value="${ dashboardAttributes.compCount }" />
+				<spring:message code="computersFound" />
 			</h1>
 			<div id="actions" class="form-horizontal">
 				<div class="pull-left">
-					<form id="searchForm" action="dashboard" method="GET"
-						class="form-inline">
+					<form id="searchForm" action="" method="GET" class="form-inline">
 
 						<input type="search" id="searchbox" name="search"
 							class="form-control" placeholder="Search name" /> <input
@@ -43,15 +43,16 @@
 				</div>
 				<div class="pull-right">
 					<a class="btn btn-success" id="addComputer"
-						href="create?firstCallCreate=true">Add Computer</a> <a
-						class="btn btn-default" id="editComputer" href="#"
-						onclick="$.fn.toggleEditMode();">Edit</a>
+						href="create?firstCallCreate=true"><spring:message
+							code="addComputer" /></a> <a class="btn btn-default"
+						id="editComputer" href="#" onclick="$.fn.toggleEditMode();"><spring:message
+							code="delete" /></a>
 				</div>
 			</div>
 		</div>
 
 		<form id="deleteForm"
-			action="delete?search=${ webAttributes.search }&order=${ webAttributes.order }&page=${ webAttributes.currentPage }"
+			action="delete?search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage }"
 			method="POST">
 			<input type="hidden" name="selection" value="">
 		</form>
@@ -71,50 +72,59 @@
 							</a>
 						</span></th>
 						<th><c:choose>
-								<c:when test="${ webAttributes.order == 'computer' }">
-									<a href="dashboard?search=${ webAttributes.search }&order=computerdesc">Computer
-										name</a>
+								<c:when test="${ dashboardAttributes.order == 'computer' }">
+									<a
+										href="?search=${ dashboardAttributes.search }&order=computerdesc"><spring:message
+											code="computerName" /></a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ webAttributes.search }&order=computer">Computer
-										name</a>
+									<a
+										href="?search=${ dashboardAttributes.search }&order=computer"><spring:message
+											code="computerName" /></a>
 								</c:otherwise>
 							</c:choose></th>
 						<th><c:choose>
-								<c:when test="${ webAttributes.order == 'introduced' }">
-									<a href="dashboard?search=${ webAttributes.search }&order=introduceddesc">Introduced
-										date (DD/MM/YYYY)</a>
+								<c:when test="${ dashboardAttributes.order == 'introduced' }">
+									<a
+										href="?search=${ dashboardAttributes.search }&order=introduceddesc"><spring:message
+											code="computerIntroduced" /></a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ webAttributes.search }&order=introduced">Introduced
-										date (DD/MM/YYYY)</a>
+									<a
+										href="?search=${ dashboardAttributes.search }&order=introduced"><spring:message
+											code="computerIntroduced" /></a>
 								</c:otherwise>
 							</c:choose></th>
 						<!-- Table header for Discontinued Date -->
 						<th><c:choose>
-								<c:when test="${ webAttributes.order == 'discontinued' }">
-									<a href="dashboard?search=${ webAttributes.search }&order=discontinueddesc">Discontinued
-										date (DD/MM/YYYY)</a>
+								<c:when test="${ dashboardAttributes.order == 'discontinued' }">
+									<a
+										href="?search=${ dashboardAttributes.search }&order=discontinueddesc"><spring:message
+											code="computerDiscontinued" /></a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ webAttributes.search }&order=discontinued">Discontinued
-										date (DD/MM/YYYY)</a>
+									<a
+										href="?search=${ dashboardAttributes.search }&order=discontinued"><spring:message
+											code="computerDiscontinued" /></a>
 								</c:otherwise>
 							</c:choose></th>
 						<!-- Table header for Company -->
 						<th><c:choose>
-								<c:when test="${ webAttributes.order == 'company' }">
-									<a href="dashboard?search=${ webAttributes.search }&order=companydesc">Company</a>
+								<c:when test="${ dashboardAttributes.order == 'company' }">
+									<a
+										href="?search=${ dashboardAttributes.search }&order=companydesc"><spring:message
+											code="computerCompany" /></a>
 								</c:when>
 								<c:otherwise>
-									<a href="dashboard?search=${ webAttributes.search }&order=company">Company</a>
+									<a href="?search=${ dashboardAttributes.search }&order=company"><spring:message
+											code="computerCompany" /></a>
 								</c:otherwise>
 							</c:choose></th>
 					</tr>
 				</thead>
 				<!-- Browse attribute computers -->
 				<tbody id="results">
-					<c:forEach var="comp" items="${ webAttributes.listComp }">
+					<c:forEach var="comp" items="${ dashboardAttributes.listComp }">
 						<tr>
 							<td class="editMode"><input type="checkbox" name="cb"
 								class="cb" value="${ comp.id }"></td>
@@ -133,33 +143,38 @@
 	<footer class="navbar-fixed-bottom">
 		<div class="container text-center">
 			<ul class="pagination">
-				<c:if test="${ webAttributes.currentPage > 0 }">
+				<c:if test="${ dashboardAttributes.currentPage > 0 }">
 					<li><a
-						href="dashboard?search=${ webAttributes.search }&order=${ webAttributes.order }&page=${ webAttributes.currentPage - 1 }"
+						href="?search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage - 1 }"
 						aria-label="Previous" id="previousPage"> <span
 							aria-hidden="true">&laquo;</span>
 					</a></li>
 				</c:if>
-				<c:forEach var="i" begin="${ Math.max(webAttributes.currentPage - 3, 0) }"
-					end="${ Math.min(webAttributes.maxPage + 0, webAttributes.currentPage + 3) }">
-					<li <c:if test="${ i eq webAttributes.currentPage }">class="active"</c:if>>
-						<a href="dashboard?search=${ webAttributes.search }&order=${ webAttributes.order }&page=${i}"><c:out
+				<c:forEach var="i"
+					begin="${ Math.max(dashboardAttributes.currentPage - 3, 0) }"
+					end="${ Math.min(dashboardAttributes.maxPage + 0, dashboardAttributes.currentPage + 3) }">
+					<li
+						<c:if test="${ i eq dashboardAttributes.currentPage }">class="active"</c:if>>
+						<a
+						href="?search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${i}"><c:out
 								value="${ i+1 }" /></a>
 					</li>
 
 				</c:forEach>
-				<c:if test="${ webAttributes.currentPage < webAttributes.maxPage }">
+				<c:if
+					test="${ dashboardAttributes.currentPage < dashboardAttributes.maxPage }">
 					<li><a
-						href="dashboard?search=${ webAttributes.search }&order=${ webAttributes.order }&page=${ webAttributes.currentPage + 1 }"
+						href="?search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage + 1 }"
 						aria-label="Next" id="nextPage"> <span aria-hidden="true">&raquo;</span>
 					</a></li>
 				</c:if>
 			</ul>
 			<div class="btn-group btn-group-sm pull-right" role="group">
-				<form action="dashboard?search=${ webAttributes.search }&order=${ webAttributes.order }"
+				<form
+					action="?search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }"
 					method="post">
 					<c:choose>
-						<c:when test="${ webAttributes.entitiesPerPage eq 10 }">
+						<c:when test="${ dashboardAttributes.entitiesPerPage eq 10 }">
 							<button type="submit" class="btn active" name="button10">10</button>
 						</c:when>
 						<c:otherwise>
@@ -167,7 +182,7 @@
 						</c:otherwise>
 					</c:choose>
 					<c:choose>
-						<c:when test="${ webAttributes.entitiesPerPage eq 50 }">
+						<c:when test="${ dashboardAttributes.entitiesPerPage eq 50 }">
 							<button type="submit" class="btn active" name="button50">50</button>
 						</c:when>
 						<c:otherwise>
@@ -175,7 +190,7 @@
 						</c:otherwise>
 					</c:choose>
 					<c:choose>
-						<c:when test="${ webAttributes.entitiesPerPage eq 100 }">
+						<c:when test="${ dashboardAttributes.entitiesPerPage eq 100 }">
 							<button type="submit" class="btn active" name="button100">100</button>
 						</c:when>
 						<c:otherwise>

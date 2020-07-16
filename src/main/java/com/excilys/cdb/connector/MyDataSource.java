@@ -21,7 +21,7 @@ public class MyDataSource extends HikariDataSource {
 	static {
 		InputStream inputStream = null;
 		try {
-			inputStream = DBConnector.class.getResourceAsStream("/config.properties");
+			inputStream = MyDataSource.class.getResourceAsStream("/config.properties");
 			Properties properties = new Properties();
 			properties.load(inputStream);
 			url = properties.getProperty("url");

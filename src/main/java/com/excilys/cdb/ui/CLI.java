@@ -8,13 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.excilys.cdb.connector.DBConnector;
+import com.excilys.cdb.connector.MyDataSource;
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.IncorrectDiscDateException;
-import com.excilys.cdb.exception.IncorrectIDException;
-import com.excilys.cdb.exception.IncorrectIntroDateException;
-import com.excilys.cdb.exception.IncorrectNameException;
-import com.excilys.cdb.exception.IncorrectTemporalityException;
+import com.excilys.cdb.exception.validation.IncorrectDiscDateException;
+import com.excilys.cdb.exception.validation.IncorrectIDException;
+import com.excilys.cdb.exception.validation.IncorrectIntroDateException;
+import com.excilys.cdb.exception.validation.IncorrectNameException;
+import com.excilys.cdb.exception.validation.IncorrectTemporalityException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
@@ -23,13 +23,13 @@ import com.excilys.cdb.validation.Validator;
 public class CLI {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
-	private DBConnector DBC;
+	private MyDataSource DBC;
 	private ComputerService cs;
 	private CompanyService cas;
 	private Scanner in = new Scanner(System.in);
 
 	@Autowired
-	public CLI(DBConnector dbc, CompanyService cas, ComputerService cs) {
+	public CLI(MyDataSource dbc, CompanyService cas, ComputerService cs) {
 		this.cas = cas;
 		this.cs = cs;
 		this.DBC = dbc;
@@ -38,7 +38,7 @@ public class CLI {
 	public void run() {
 		System.out.format("Système de gestion d'ordinateurs.%nConnexion...%n");
 		try {
-			if (DBC.getConn() == null) {
+			if (DBC.getConnection() == null) {
 				System.err.format("Erreur de connexion...%n");
 				LOGGER.error("Connection failed");
 				return;

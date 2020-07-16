@@ -1,6 +1,6 @@
-package com.excilys.cdb.exception;
+package com.excilys.cdb.exception.validation;
 
-public class IncorrectIntroDateException extends Exception {
+public class IncorrectIntroDateException extends ValidationException {
 
 	/**
 	 * 

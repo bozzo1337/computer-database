@@ -1,10 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Computer Database</title>
+<title><spring:message code="application"/></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
 <link href="static/css/bootstrap.min.css" rel="stylesheet"
@@ -24,8 +25,7 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard"> Application - Computer
-				Database </a>
+			<a class="navbar-brand" href="/web-cdb/"><spring:message code="application"/></a>
 		</div>
 	</header>
 	<section id="main">
@@ -34,37 +34,37 @@
 				<div class="col-xs-8 col-xs-offset-2 box">
 					<div class="label label-default pull-right">
 						<label for="computerId" id="computerID"> id : <c:out
-								value="${ computer.id }" />
+								value="${ editAttributes.computer.id }" />
 						</label>
 					</div>
-					<h1>Edit Computer</h1>
+					<h1><spring:message code="edit"/></h1>
 
-					<form action="edit?computerId=${ computer.id }" method="POST">
-						<input type="hidden" value="${ computer.id }" id="id" />
+					<form action="edit?computerId=${ editAttributes.computer.id }" method="POST">
+						<input type="hidden" value="${ editAttributes.computer.id }" id="id" />
 						<!-- TODO: Change this value with the computer id -->
 						<fieldset>
 							<div class="form-group">
-								<label for="computerName">Computer name *</label> <input
+								<label for="computerName"><spring:message code="computerName"/>*</label> <input
 									type="text" class="form-control" id="computerNameInput"
-									name="computerNameInput" value="${ computer.name }">
+									name="computerNameInput" value="${ editAttributes.computer.name }">
 							</div>
 							<div class="form-group">
-								<label for="introduced">Introduced date</label> <input
+								<label for="introduced"><spring:message code="computerIntroduced"/></label> <input
 									type="date" class="form-control" id="introduced"
-									name="introduced" value="${ computer.introduced }">
+									name="introduced" value="${ editAttributes.computer.introduced }">
 							</div>
 							<div class="form-group">
-								<label for="discontinued">Discontinued date</label> <input
+								<label for="discontinued"><spring:message code="computerDiscontinued"/></label> <input
 									type="date" class="form-control" id="discontinued"
-									name="discontinued" value="${ computer.discontinued }">
+									name="discontinued" value="${ editAttributes.computer.discontinued }">
 							</div>
 							<div class="form-group">
-								<label for="companyId">Company</label> <select
+								<label for="companyId"><spring:message code="computerCompany"/></label> <select
 									class="form-control" id="companyId" name="companyId">
-									<option value="${ computer.companyId }"><c:out
-											value="${ computer.companyName }" /></option>
+									<option value="${ editAttributes.computer.companyId }"><c:out
+											value="${ editAttributes.computer.companyName }" /></option>
 									<option value="0" />
-									<c:forEach var="company" items="${ listCompanies }">
+									<c:forEach var="company" items="${ editAttributes.listCompanies }">
 										<option value="${ company.id }"><c:out
 												value="${ company.name }" /></option>
 									</c:forEach>
@@ -72,23 +72,23 @@
 							</div>
 						</fieldset>
 						<div class="actions pull-right">
-							<input type="submit" value="Edit" class="btn btn-primary">
-							or <a href="dashboard" class="btn btn-default">Cancel</a>
+							<input type="submit" value="<spring:message code="editButton"/>" class="btn btn-primary">
+							<spring:message code="or"/> <a href="/web-cdb/" class="btn btn-default"><spring:message code="cancel"/></a>
 						</div>
 					</form>
 				</div>
 			</div>
 		</div>
 		<div class="container">
-			<c:if test="${ not firstCall }">
+			<c:if test="${ not editAttributes.firstCall }">
 				<c:choose>
-					<c:when test="${ updateOK }">
-						<p class="alert-success">Update successful</p>
+					<c:when test="${ editAttributes.updateOK }">
+						<p class="alert-success"><spring:message code="updateSuccess"/></p>
 					</c:when>
 					<c:otherwise>
 						<p class="alert-warning">
-							Error updating :
-							<c:out value="${ errMessage }" />
+							<spring:message code="updateError"/> :
+							<c:out value="${ editAttributes.errMessage }" />
 						</p>
 					</c:otherwise>
 				</c:choose>
