@@ -7,7 +7,7 @@
 
 	<groupId>com.excilys.cdb</groupId>
 	<artifactId>web-cdb</artifactId>
-	<version>1.2</version>
+	<version>1.2-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<name>web-cdb</name>
