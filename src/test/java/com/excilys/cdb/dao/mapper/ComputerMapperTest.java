@@ -21,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.excilys.cdb.config.AppConfig;
+import com.excilys.cdb.config.WebConfig;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
@@ -30,7 +32,8 @@ import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = AppConfig.class, loader = AnnotationConfigContextLoader.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = {WebConfig.class, AppConfig.class})
 public class ComputerMapperTest {
 
 	@Mock

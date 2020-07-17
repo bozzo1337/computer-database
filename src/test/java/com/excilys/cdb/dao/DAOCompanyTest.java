@@ -31,15 +31,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.excilys.cdb.config.AppConfig;
+import com.excilys.cdb.config.WebConfig;
 import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = AppConfig.class, loader = AnnotationConfigContextLoader.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = { WebConfig.class, AppConfig.class })
 public class DAOCompanyTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompanyTest.class);
@@ -52,6 +54,8 @@ public class DAOCompanyTest {
 	private String login;
 	private String password;
 	private String driver;
+	private JdbcTemplate jdbcTemplateSpy;
+	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 	public DAOCompanyTest() {
@@ -105,7 +109,7 @@ public class DAOCompanyTest {
 	@Before
 	public void setUp() throws ClassNotFoundException, DatabaseUnitException, SQLException {
 		handleSetUpOperation();
-		jdbcTemplate = Mockito.spy(dao.getJdbcTemplate());
+		dao.setJdbcTemplate(jdbcTemplate);
 	}
 
 	@Test
@@ -175,7 +179,9 @@ public class DAOCompanyTest {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		double initialCount = daoComputer.count();
-		Mockito.doThrow(new RuntimeException()).when(jdbcTemplate).update(SQLRequest.DELETE_COMPANY.toString(), new Long(5L));
+		jdbcTemplateSpy = Mockito.spy(jdbcTemplate);
+		dao.setJdbcTemplate(jdbcTemplateSpy);
+		Mockito.when(jdbcTemplateSpy.toString()).thenThrow(new RuntimeException());
 		try {
 			dao.delete(new Long(5L));
 		} catch (RuntimeException e) {

@@ -48,10 +48,11 @@ public class DAOCompany {
 		page.setEntities(jdbcTemplate.query(SQLRequest.SELECT_COMPANIES.toString(), mapper));
 	}
 
-	@Transactional(value = "txManager")
+	@Transactional
 	public void delete(Long id) {
 		jdbcTemplate.update(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString(), id);
 		LOGGER.info("Computers of Company deleted");
+		jdbcTemplate.toString();
 		jdbcTemplate.update(SQLRequest.DELETE_COMPANY.toString(), id);		
 		LOGGER.info("Company deleted");
 	}

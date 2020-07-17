@@ -36,7 +36,7 @@ public class WebConfig implements WebMvcConfigurer, WebApplicationInitializer {
 		return viewResolver;
 	}
 	
-	@Bean("messageSource")
+	@Bean
 	public MessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 		messageSource.setBasename("/WEB-INF/locale/messages");

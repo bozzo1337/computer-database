@@ -33,7 +33,7 @@ public class EditController {
 		editAttributes = new EditAttributes();
 	}
 
-	@GetMapping("")
+	@GetMapping
 	public String loadForm(Model model, @RequestParam String computerId, @RequestParam String firstCall) {
 		editAttributes.setListCompanies(companyService.selectAll().getEntities());
 		Boolean firstCallBool = Boolean.valueOf(firstCall);
@@ -55,7 +55,7 @@ public class EditController {
 		return "edit";
 	}
 
-	@PostMapping("")
+	@PostMapping
 	public String editComputer(Model model, @RequestParam String computerId,
 			@RequestParam String computerNameInput, @RequestParam(required = false) String introduced,
 			@RequestParam(required = false) String discontinued, @RequestParam(required = false) String companyId) {

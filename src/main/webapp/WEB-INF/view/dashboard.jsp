@@ -23,6 +23,9 @@
 			<a class="navbar-brand" href="?page=0"><spring:message
 					code="application" /></a>
 		</div>
+		<div>
+			<a href="?lang=en">EN</a><a href="?lang=fr">FR</a>
+		</div>
 	</header>
 
 	<section id="main">
