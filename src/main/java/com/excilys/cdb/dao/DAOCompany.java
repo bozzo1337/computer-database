@@ -22,8 +22,7 @@ public class DAOCompany {
 	private CompanyMapper mapper;
 
 	@Autowired
-	public DAOCompany(JdbcTemplate jdbcTemplate, CompanyMapper mapper) {
-		this.jdbcTemplate = jdbcTemplate;
+	public DAOCompany(CompanyMapper mapper) {
 		this.mapper = mapper;
 		LOGGER.info("DAOCompany instantiated");
 	}
@@ -52,7 +51,6 @@ public class DAOCompany {
 	public void delete(Long id) {
 		jdbcTemplate.update(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString(), id);
 		LOGGER.info("Computers of Company deleted");
-		jdbcTemplate.toString();
 		jdbcTemplate.update(SQLRequest.DELETE_COMPANY.toString(), id);		
 		LOGGER.info("Company deleted");
 	}

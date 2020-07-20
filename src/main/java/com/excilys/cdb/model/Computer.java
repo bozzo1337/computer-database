@@ -2,15 +2,26 @@ package com.excilys.cdb.model;
 
 import java.time.LocalDate;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+@Entity
+@Table(name = "computer")
 public class Computer {
-	
+
+	@Id
 	private Long id;
 	private String name;
 	private LocalDate introduced;
 	private LocalDate discontinued;
+	@Column(name = "company_id")
 	private Long companyId;
+	@Transient
 	private String companyName;
-	
+
 	public static class Builder {
 		private Long id;
 		private String name;
@@ -18,37 +29,37 @@ public class Computer {
 		private LocalDate discontinued;
 		private Long companyId;
 		private String companyName;
-		
+
 		public Builder withId(Long id) {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder withName(String name) {
 			this.name = name;
 			return this;
 		}
-		
+
 		public Builder withIntroDate(LocalDate introduced) {
 			this.introduced = introduced;
 			return this;
 		}
-		
+
 		public Builder withDiscDate(LocalDate discontinued) {
 			this.discontinued = discontinued;
 			return this;
 		}
-		
+
 		public Builder withCompanyId(Long companyId) {
 			this.companyId = companyId;
 			return this;
 		}
-		
+
 		public Builder withCompanyName(String companyName) {
 			this.companyName = companyName;
 			return this;
 		}
-		
+
 		public Computer build() {
 			Computer computer = new Computer();
 			computer.id = this.id;
@@ -60,10 +71,10 @@ public class Computer {
 			return computer;
 		}
 	}
-	
+
 	private Computer() {
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -103,11 +114,10 @@ public class Computer {
 	public void setCompanyId(Long companyId) {
 		this.companyId = companyId;
 	}
-	
+
 	@Override
 	public String toString() {
-		return id + " | " + name + " | " + introduced + " | " +
-				discontinued + " | " + companyId;
+		return id + " | " + name + " | " + introduced + " | " + discontinued + " | " + companyId;
 	}
 
 	public String getCompanyName() {

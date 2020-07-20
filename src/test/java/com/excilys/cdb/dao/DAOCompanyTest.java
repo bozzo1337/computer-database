@@ -181,7 +181,7 @@ public class DAOCompanyTest {
 		double initialCount = daoComputer.count();
 		jdbcTemplateSpy = Mockito.spy(jdbcTemplate);
 		dao.setJdbcTemplate(jdbcTemplateSpy);
-		Mockito.when(jdbcTemplateSpy.toString()).thenThrow(new RuntimeException());
+		Mockito.doThrow(new RuntimeException()).when(jdbcTemplateSpy).update(SQLRequest.DELETE_COMPANY.toString(), 5L);
 		try {
 			dao.delete(new Long(5L));
 		} catch (RuntimeException e) {

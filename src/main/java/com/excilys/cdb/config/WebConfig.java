@@ -60,7 +60,7 @@ public class WebConfig implements WebMvcConfigurer, WebApplicationInitializer {
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		AnnotationConfigWebApplicationContext ac = new AnnotationConfigWebApplicationContext();
-        ac.register(WebConfig.class, AppConfig.class);
+        ac.register(WebConfig.class, AppConfig.class, HibernateConfig.class);
         ac.setServletContext(servletContext);
 
         DispatcherServlet servlet = new DispatcherServlet(ac);

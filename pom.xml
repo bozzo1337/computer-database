@@ -31,6 +31,7 @@
 		<javax.servlet.version>3.1.0</javax.servlet.version>
 		<hikariCP.version>3.4.5</hikariCP.version>
 		<spring.version>5.2.7.RELEASE</spring.version>
+		<hibernate.version>5.4.18.Final</hibernate.version>
 	</properties>
 
 	<dependencies>
@@ -139,6 +140,18 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-orm -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 	</dependencies>

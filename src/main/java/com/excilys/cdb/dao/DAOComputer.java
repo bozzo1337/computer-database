@@ -1,8 +1,9 @@
 package com.excilys.cdb.dao;
 
 import java.sql.Date;
-import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,11 @@ public class DAOComputer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
 	private JdbcTemplate jdbcTemplate;
 	private ComputerMapper mapper;
+	private SessionFactory sessionFactory;
 
 	@Autowired
-	public DAOComputer(JdbcTemplate jdbcTemplate, ComputerMapper mapper) {
-		this.jdbcTemplate = jdbcTemplate;
+	public DAOComputer(SessionFactory sessionFactory, ComputerMapper mapper) {
+		this.sessionFactory = sessionFactory;
 		this.mapper = mapper;
 		LOGGER.info("DAOComputer instantiated");
 	}
@@ -36,11 +38,15 @@ public class DAOComputer {
 	}
 	
 	public Computer findById(Long id) throws PersistenceException {
-		List<Computer> listResult =	jdbcTemplate.query(SQLRequest.SELECT_ONE.toString(), mapper, id);
-		if (listResult.size() == 0) {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		Computer computer = session.createQuery(HQLRequest.SELECT_ONE.toString(), Computer.class).setParameter("id", id).getSingleResult();
+		if (computer == null) {
 			throw new PersistenceException("Results empty");
 		}
-		return listResult.get(0);
+		session.getTransaction().commit();
+		session.close();
+		return computer;
 	}
 
 	public void findBatch(Page<Computer> page) {
