@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.dto.mapper.DTOComputerMapper;
 import com.excilys.cdb.exception.PersistenceException;
@@ -25,13 +24,11 @@ public class DAOComputer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
 	private JdbcTemplate jdbcTemplate;
-	private ComputerMapper mapper;
 	private SessionFactory sessionFactory;
 
 	@Autowired
-	public DAOComputer(SessionFactory sessionFactory, ComputerMapper mapper) {
+	public DAOComputer(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
-		this.mapper = mapper;
 		LOGGER.info("DAOComputer instantiated");
 	}
 
@@ -70,10 +67,8 @@ public class DAOComputer {
 		session.beginTransaction();
 		List<Computer> computers = new ArrayList<Computer>();
 		computers = session.createQuery(HQLRequest.SEARCH_BATCH.toString(), Computer.class)
-				.setParameter("search", "%" + search + "%")
-				.setParameter("start", search + "%")
-				.setParameter("exact", search)
-				.setParameter("end", "%" + search)
+				.setParameter("search", "%" + search + "%").setParameter("start", search + "%")
+				.setParameter("exact", search).setParameter("end", "%" + search)
 				.setFirstResult(page.getIdxCurrentPage() * page.getEntitiesPerPage())
 				.setMaxResults(page.getEntitiesPerPage()).getResultList();
 		page.setEntities(computers);
@@ -82,15 +77,29 @@ public class DAOComputer {
 	}
 
 	public void orderBatch(Page<Computer> page) {
-		String query = formatQuery(SQLRequest.ORDER.toString(), page.getOrder());
-		page.setEntities(jdbcTemplate.query(query, mapper, page.getIdxCurrentPage() * page.getEntitiesPerPage(),
-				page.getEntitiesPerPage()));
+		String query = formatQuery(HQLRequest.ORDER.toString(), page.getOrder());
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		List<Computer> computers = new ArrayList<Computer>();
+		computers = session.createQuery(query, Computer.class)
+				.setFirstResult(page.getIdxCurrentPage() * page.getEntitiesPerPage())
+				.setMaxResults(page.getEntitiesPerPage()).getResultList();
+		page.setEntities(computers);
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public void orderedSearch(Page<Computer> page) {
-		String query = formatQuery(SQLRequest.SEARCH_ORDER.toString(), page.getOrder());
-		page.setEntities(jdbcTemplate.query(query, mapper, "%" + page.getSearch() + "%", "%" + page.getSearch() + "%",
-				page.getIdxCurrentPage() * page.getEntitiesPerPage(), page.getEntitiesPerPage()));
+		String query = formatQuery(HQLRequest.SEARCH_ORDER.toString(), page.getOrder());
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		List<Computer> computers = new ArrayList<Computer>();
+		computers = session.createQuery(query, Computer.class).setParameter("search", "%" + page.getSearch() + "%")
+				.setFirstResult(page.getIdxCurrentPage() * page.getEntitiesPerPage())
+				.setMaxResults(page.getEntitiesPerPage()).getResultList();
+		page.setEntities(computers);
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	private String formatQuery(String query, String orderType) {
@@ -114,10 +123,10 @@ public class DAOComputer {
 			query = String.format(query, "computer.discontinued DESC");
 			break;
 		case "company":
-			query = String.format(query, "computer.company_id ASC");
+			query = String.format(query, "company.name ASC");
 			break;
 		case "companydesc":
-			query = String.format(query, "computer.company_id DESC");
+			query = String.format(query, "company.name DESC");
 			break;
 		default:
 			return null;
