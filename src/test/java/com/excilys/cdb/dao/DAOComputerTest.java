@@ -208,6 +208,8 @@ public class DAOComputerTest {
 		assertNotNull(dataSet);
 		Computer comp = new Computer.Builder().withName("computerTest").withCompanyId(new Long(4L)).build();
 		dao.create(comp);
+		page.setEntitiesPerPage(1);
+		page.setIdxCurrentPage(0);
 		page.setSearch("ComputerTest");
 		dao.searchBatch(page);
 		assertEquals(comp.getName(), page.getEntities().get(0).getName());
@@ -239,7 +241,7 @@ public class DAOComputerTest {
 	public void deleteComputersOfCompany() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
-		dao.deleteComputersOfCompany(new Long(5L));
+		dao.deleteComputersOfCompany(new Long(5L)).getTransaction().commit();
 		assertEquals(6.0, dao.count(), 0.01);
 	}
 

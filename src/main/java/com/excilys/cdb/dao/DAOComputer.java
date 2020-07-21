@@ -1,6 +1,5 @@
 package com.excilys.cdb.dao;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,12 +8,10 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.dto.mapper.DTOComputerMapper;
-import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
@@ -23,7 +20,6 @@ import com.excilys.cdb.model.Page;
 public class DAOComputer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputer.class);
-	private JdbcTemplate jdbcTemplate;
 	private SessionFactory sessionFactory;
 
 	@Autowired
@@ -32,18 +28,11 @@ public class DAOComputer {
 		LOGGER.info("DAOComputer instantiated");
 	}
 
-	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
-
-	public Computer findById(Long id) throws PersistenceException {
+	public Computer findById(Long id) {
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
 		Computer computer = session.createQuery(HQLRequest.SELECT_ONE.toString(), Computer.class).setParameter("id", id)
 				.getSingleResult();
-		if (computer == null) {
-			throw new PersistenceException("Results empty");
-		}
 		session.getTransaction().commit();
 		session.close();
 		return computer;
@@ -135,46 +124,55 @@ public class DAOComputer {
 	}
 
 	public void create(Computer computer) {
-		String name = computer.getName();
-		Date intro = null;
-		if (computer.getIntroduced() != null)
-			intro = Date.valueOf(computer.getIntroduced());
-		Date disc = null;
-		if (computer.getDiscontinued() != null)
-			disc = Date.valueOf(computer.getDiscontinued());
-		Long compId = computer.getCompanyId();
-		jdbcTemplate.update(SQLRequest.INSERT_COMPUTER.toString(), name, intro, disc, compId);
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		session.save(computer);
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public void update(Computer computer) {
-		String name = computer.getName();
-		Date intro = null;
-		if (computer.getIntroduced() != null)
-			intro = Date.valueOf(computer.getIntroduced());
-		Date disc = null;
-		if (computer.getDiscontinued() != null)
-			disc = Date.valueOf(computer.getDiscontinued());
-		Long compId = computer.getCompanyId();
-		Long id = computer.getId();
-		jdbcTemplate.update(SQLRequest.UPDATE_COMPUTER.toString(), name, intro, disc, compId, id);
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		session.update(computer);
+		session.getTransaction().commit();
+		session.close();
 
 	}
 
 	public void delete(Long id) {
-		jdbcTemplate.update(SQLRequest.DELETE_COMPUTER.toString(), id);
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		session.delete(findById(id));
+		session.getTransaction().commit();
+		session.close();
 	}
 
-	public void deleteComputersOfCompany(Long id) {
-		jdbcTemplate.update(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString(), id);
+	public Session deleteComputersOfCompany(Long id) {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		session.createQuery(HQLRequest.SELECT_COMPUTERS_IN_COMPANY.toString(), Computer.class)
+				.setParameter("companyId", id).list().stream().forEach(comp -> session.delete(comp));
+		return session;
 	}
 
 	public double count() {
-		return jdbcTemplate.queryForObject(SQLRequest.COUNT_COMPUTER.toString(), Double.class);
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		Long count = session.createQuery(HQLRequest.COUNT_COMPUTER.toString(), Long.class).getSingleResult();
+		session.getTransaction().commit();
+		session.close();
+		return count.doubleValue();
 	}
 
 	public double searchCount(String search) {
-		return jdbcTemplate.queryForObject(SQLRequest.COUNT_SEARCH.toString(), Double.class, "%" + search + "%",
-				"%" + search + "%");
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		Long count = session.createQuery(HQLRequest.COUNT_SEARCH.toString(), Long.class)
+				.setParameter("search", "%" + search + "%").getSingleResult();
+		session.getTransaction().commit();
+		session.close();
+		return count.doubleValue();
 	}
 
 	public DTOComputer mapToDTO(Computer computer) {

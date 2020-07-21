@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.excilys.cdb.dao.DAOComputer;
 import com.excilys.cdb.dao.mapper.ComputerMapper;
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
@@ -119,11 +118,7 @@ public class ComputerService {
 	
 	public DTOComputer selectById(Long id) {
 		DTOComputer computerDTO = new DTOComputer.Builder().build();
-		try {
-			computerDTO = dao.mapToDTO(dao.findById(id));
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectById in service", e);
-		}
+		computerDTO = dao.mapToDTO(dao.findById(id));
 		return computerDTO;
 	}
 	
