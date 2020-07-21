@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.dao.DAOCompany;
-import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
@@ -44,11 +43,7 @@ public class CompanyService {
 	
 	public Company selectById(Long id) {
 		Company company = new Company();
-		try {
-			company = dao.findById(id);
-		} catch (PersistenceException e) {
-			LOGGER.error("Error during selectById", e);
-		}
+		company = dao.findById(id);
 		return company;
 	}
 	

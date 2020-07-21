@@ -2,15 +2,13 @@ package com.excilys.cdb.dao;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.excilys.cdb.dao.mapper.CompanyMapper;
-import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
@@ -18,49 +16,62 @@ import com.excilys.cdb.model.Page;
 public class DAOCompany {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOCompany.class);
-	private JdbcTemplate jdbcTemplate;
-	private CompanyMapper mapper;
+	private DAOComputer daoComputer;
+	private SessionFactory sessionFactory;
 
 	@Autowired
-	public DAOCompany(CompanyMapper mapper) {
-		this.mapper = mapper;
+	public DAOCompany(SessionFactory sessionFactory, DAOComputer daoComputer) {
+		this.daoComputer = daoComputer;
+		this.sessionFactory = sessionFactory;
 		LOGGER.info("DAOCompany instantiated");
 	}
-	
-	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
-	
-	public JdbcTemplate getJdbcTemplate() {
-		return jdbcTemplate;
-	}
 
-	public Company findById(Long id) throws PersistenceException {
-		List<Company> listResult = jdbcTemplate.query(SQLRequest.SELECT_ONE_COMPANY.toString(), mapper, id);
-		if (listResult.size() == 0) {
-			throw new PersistenceException("Results empty");
-		}
-		return listResult.get(0);
+	public Company findById(Long id) {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		Company company = session.createQuery(HQLRequest.SELECT_ONE_COMPANY.toString(), Company.class)
+				.setParameter("id", id).getSingleResult();
+		session.getTransaction().commit();
+		session.close();
+		return company;
 	}
 
 	public void findAll(Page<Company> page) {
-		page.setEntities(jdbcTemplate.query(SQLRequest.SELECT_COMPANIES.toString(), mapper));
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		List<Company> companies = session.createQuery(HQLRequest.SELECT_COMPANIES.toString(), Company.class)
+				.getResultList();
+		page.setEntities(companies);
+		session.getTransaction().commit();
+		session.close();
 	}
 
-	@Transactional
 	public void delete(Long id) {
-		jdbcTemplate.update(SQLRequest.DELETE_COMPUTERS_OF_COMPANY.toString(), id);
+		Session session = daoComputer.deleteComputersOfCompany(id);
 		LOGGER.info("Computers of Company deleted");
-		jdbcTemplate.update(SQLRequest.DELETE_COMPANY.toString(), id);		
+		session.delete(findById(id));
 		LOGGER.info("Company deleted");
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public void findBatch(Page<Company> page) {
-		page.setEntities(jdbcTemplate.query(SQLRequest.SELECT_BATCH_COMPANY.toString(), mapper,
-				page.getIdxCurrentPage() * page.getEntitiesPerPage(), page.getEntitiesPerPage()));
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		List<Company> companies = session.createQuery(HQLRequest.SELECT_BATCH_COMPANY.toString(), Company.class)
+				.setFirstResult(page.getIdxCurrentPage() * page.getEntitiesPerPage())
+				.setMaxResults(page.getEntitiesPerPage()).getResultList();
+		page.setEntities(companies);
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public double count() {
-		return jdbcTemplate.queryForObject(SQLRequest.COUNT_COMPANY.toString(), Double.class);
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		Long count = session.createQuery(HQLRequest.COUNT_COMPANY.toString(), Long.class).getSingleResult();
+		session.getTransaction().commit();
+		session.close();
+		return count.doubleValue();
 	}
 }

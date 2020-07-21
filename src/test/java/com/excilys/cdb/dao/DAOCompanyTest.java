@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.NoResultException;
+
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
@@ -23,19 +25,16 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.excilys.cdb.config.AppConfig;
 import com.excilys.cdb.config.WebConfig;
-import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
@@ -54,9 +53,6 @@ public class DAOCompanyTest {
 	private String login;
 	private String password;
 	private String driver;
-	private JdbcTemplate jdbcTemplateSpy;
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
 
 	public DAOCompanyTest() {
 		MockitoAnnotations.initMocks(this);
@@ -109,7 +105,6 @@ public class DAOCompanyTest {
 	@Before
 	public void setUp() throws ClassNotFoundException, DatabaseUnitException, SQLException {
 		handleSetUpOperation();
-		dao.setJdbcTemplate(jdbcTemplate);
 	}
 
 	@Test
@@ -125,7 +120,7 @@ public class DAOCompanyTest {
 		assertEquals("Company2", dao.findById(new Long(2L)).getName());
 	}
 
-	@Test(expected = PersistenceException.class)
+	@Test(expected = NoResultException.class)
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
@@ -151,6 +146,7 @@ public class DAOCompanyTest {
 		assertNotNull(dataSet);
 		dao.delete(new Long(1));
 		assertEquals(3.0, dao.count(), 0.01);
+		assertEquals(6.0, daoComputer.count(), 0.01);
 	}
 
 	@Test
@@ -179,16 +175,8 @@ public class DAOCompanyTest {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		double initialCount = daoComputer.count();
-		jdbcTemplateSpy = Mockito.spy(jdbcTemplate);
-		dao.setJdbcTemplate(jdbcTemplateSpy);
-		Mockito.doThrow(new RuntimeException()).when(jdbcTemplateSpy).update(SQLRequest.DELETE_COMPANY.toString(), 5L);
-		try {
-			dao.delete(new Long(5L));
-		} catch (RuntimeException e) {
-			LOGGER.debug("Runtime caught during breakTransaction Test");
-		} finally {
-			assertEquals(4.0, dao.count(), 0.01);
-			assertEquals(initialCount, daoComputer.count(), 0.01);
-		}
+		dao.delete(new Long(5L));
+		assertEquals(4.0, dao.count(), 0.01);
+		assertEquals(initialCount, daoComputer.count(), 0.01);
 	}
 }

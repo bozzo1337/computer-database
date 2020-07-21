@@ -27,10 +27,10 @@ public enum HQLRequest {
 			+ "computer.companyId, company.name) FROM Computer as computer LEFT JOIN Company as company ON "
 			+ "computer.companyId = company.id WHERE computer.name LIKE :search OR company.name LIKE :search "
 			+ "ORDER BY %s"),
-	SELECT_COMPANIES("SELECT company.id, company.name FROM company ORDER BY company.name;"),
-	SELECT_ONE_COMPANY("SELECT * FROM company WHERE id=?;"),
-	SELECT_BATCH_COMPANY("SELECT * FROM company LIMIT ?, ?;"),
-	COUNT_COMPANY("SELECT COUNT(id) AS count FROM company;"),
+	SELECT_COMPANIES("FROM Company as company ORDER BY company.name"),
+	SELECT_ONE_COMPANY("FROM Company as company WHERE company.id = :id"),
+	SELECT_BATCH_COMPANY("FROM Company"),
+	COUNT_COMPANY("SELECT COUNT(id) FROM Company"),
 	SELECT_COMPUTERS_IN_COMPANY("FROM Computer as computer WHERE computer.companyId = :companyId"),
 	DELETE_COMPANY("DELETE FROM company WHERE id=?;");
 
