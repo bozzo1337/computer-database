@@ -1,11 +1,14 @@
 package com.excilys.cdb.config;
 
+import java.util.Locale;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.WebApplicationInitializer;
@@ -24,6 +27,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
+@ComponentScan(basePackages = { "com.excilys.cdb.controller", "com.excilys.cdb.controller.attributes" })
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer, WebApplicationInitializer {
 	
@@ -41,20 +45,28 @@ public class WebConfig implements WebMvcConfigurer, WebApplicationInitializer {
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 		messageSource.setBasename("/WEB-INF/locale/messages");
 		messageSource.setDefaultEncoding("ISO-8859-1");
+		messageSource.setFallbackToSystemLocale(false);
 		return messageSource;
 	}
 	
 	@Bean
 	public LocaleResolver localeResolver() {
 		CookieLocaleResolver localeResolver = new CookieLocaleResolver();
+		localeResolver.setCookieName("lang");
+		localeResolver.setDefaultLocale(new Locale("en_EN"));
 		return localeResolver;
+	}
+	
+	@Bean
+	public LocaleChangeInterceptor localeChangeInterceptor() {
+		LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
+        localeChangeInterceptor.setParamName("lang");
+        return localeChangeInterceptor;
 	}
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-        LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
-        localeChangeInterceptor.setParamName("lang");
-        registry.addInterceptor(localeChangeInterceptor);
+        registry.addInterceptor(localeChangeInterceptor());
     }
 
 	@Override
@@ -66,7 +78,7 @@ public class WebConfig implements WebMvcConfigurer, WebApplicationInitializer {
         DispatcherServlet servlet = new DispatcherServlet(ac);
         ServletRegistration.Dynamic registration = servletContext.addServlet("dashboard", servlet);
         registration.setLoadOnStartup(1);
-        registration.addMapping("/");		
+        registration.addMapping("/");
 	}
 	
 	@Override

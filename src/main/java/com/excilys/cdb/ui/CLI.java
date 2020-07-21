@@ -6,8 +6,10 @@ import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import com.excilys.cdb.config.AppConfig;
+import com.excilys.cdb.config.HibernateConfig;
 import com.excilys.cdb.connector.MyDataSource;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.validation.IncorrectDiscDateException;
@@ -28,11 +30,17 @@ public class CLI {
 	private CompanyService cas;
 	private Scanner in = new Scanner(System.in);
 
-	@Autowired
 	public CLI(MyDataSource dbc, CompanyService cas, ComputerService cs) {
 		this.cas = cas;
 		this.cs = cs;
 		this.DBC = dbc;
+	}
+	
+	public static void main(String... args) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class, HibernateConfig.class);
+		CLI cli = new CLI(context.getBean(MyDataSource.class), context.getBean(CompanyService.class), context.getBean(ComputerService.class));
+		cli.run();
+		context.close();
 	}
 	
 	public void run() {
@@ -49,12 +57,14 @@ public class CLI {
 		System.out.format("Connexion OK, Bienvenue !%n");
 		System.out.format(
 				"Commandes disponibles :%nhelp, computers, companies, computer, create, update, delete, deleteCompany, quit%n>");
-		while (true) {
-			nextCommand(in.next());
+		boolean quitCommand = false;
+		while (!quitCommand) {
+			quitCommand = nextCommand(in.next());
 		}
 	}
 
-	private void nextCommand(String command) {
+	private boolean nextCommand(String command) {
+		boolean commandQuit = false;
 		switch (command) {
 		case "help":
 			commandHelp();
@@ -90,10 +100,12 @@ public class CLI {
 			break;
 		case "quit":
 			commandQuit();
+			commandQuit = true;
 			break;
 		default:
 			System.out.format("Commande non reconnue, tapez 'help' pour plus d'informations.%n>");
 		}
+		return commandQuit;
 	}
 
 	private void commandHelp() {
@@ -316,6 +328,5 @@ public class CLI {
 
 	private void commandQuit() {
 		System.out.format("Au revoir%n");
-		System.exit(0);
 	}
 }

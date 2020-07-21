@@ -34,7 +34,7 @@ public class AddController {
 		LOGGER.info("AddController instantiated");
 	}
 
-	@GetMapping("")
+	@GetMapping
 	public String loadForm(Model model, @RequestParam String firstCallCreate) {
 		addAttributes.setListCompanies(companyService.selectAll().getEntities());
 		boolean firstCallCreateBool = Boolean.parseBoolean(firstCallCreate);
@@ -43,7 +43,7 @@ public class AddController {
 		return "create";
 	}
 
-	@PostMapping("")
+	@PostMapping
 	public String addComputer(Model model, @RequestParam String computerNameInput,
 			@RequestParam(required = false) String introduced, @RequestParam(required = false) String discontinued,
 			@RequestParam(required = false) String companyId) {

@@ -22,9 +22,12 @@ import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,8 +178,15 @@ public class DAOCompanyTest {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		double initialCount = daoComputer.count();
-		dao.delete(new Long(5L));
-		assertEquals(4.0, dao.count(), 0.01);
-		assertEquals(initialCount, daoComputer.count(), 0.01);
+		DAOCompany daoSpied = Mockito.spy(dao);
+		Mockito.doThrow(new RuntimeException()).when(daoSpied).findById(Mockito.anyLong());
+		try {
+			daoSpied.delete(new Long(5L));
+		} catch (RuntimeException e) {
+			LOGGER.info("Runtime caught in breakTransaction test");
+		} finally {
+			assertEquals(4.0, daoSpied.count(), 0.01);
+			assertEquals(initialCount, daoComputer.count(), 0.01);
+		}
 	}
 }
