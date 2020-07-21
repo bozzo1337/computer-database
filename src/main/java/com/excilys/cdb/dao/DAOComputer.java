@@ -1,6 +1,8 @@
 package com.excilys.cdb.dao;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -36,11 +38,12 @@ public class DAOComputer {
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
-	
+
 	public Computer findById(Long id) throws PersistenceException {
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
-		Computer computer = session.createQuery(HQLRequest.SELECT_ONE.toString(), Computer.class).setParameter("id", id).getSingleResult();
+		Computer computer = session.createQuery(HQLRequest.SELECT_ONE.toString(), Computer.class).setParameter("id", id)
+				.getSingleResult();
 		if (computer == null) {
 			throw new PersistenceException("Results empty");
 		}
@@ -50,16 +53,32 @@ public class DAOComputer {
 	}
 
 	public void findBatch(Page<Computer> page) {
-		page.setEntities(jdbcTemplate.query(SQLRequest.SELECT_BATCH.toString(), mapper,
-				page.getIdxCurrentPage() * page.getEntitiesPerPage(), page.getEntitiesPerPage()));
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		List<Computer> computers = new ArrayList<Computer>();
+		computers = session.createQuery(HQLRequest.SELECT_BATCH.toString(), Computer.class)
+				.setFirstResult(page.getIdxCurrentPage() * page.getEntitiesPerPage())
+				.setMaxResults(page.getEntitiesPerPage()).getResultList();
+		page.setEntities(computers);
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public void searchBatch(Page<Computer> page) {
 		String search = page.getSearch();
-		page.setEntities(jdbcTemplate.query(SQLRequest.SEARCH_BATCH.toString(), mapper, "%" + search + "%",
-				"%" + search + "%", search, search, search + "%", search + "%", "%" + search + "%", "%" + search + "%",
-				"%" + search, "%" + search, page.getIdxCurrentPage() * page.getEntitiesPerPage(),
-				page.getEntitiesPerPage()));
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		List<Computer> computers = new ArrayList<Computer>();
+		computers = session.createQuery(HQLRequest.SEARCH_BATCH.toString(), Computer.class)
+				.setParameter("search", "%" + search + "%")
+				.setParameter("start", search + "%")
+				.setParameter("exact", search)
+				.setParameter("end", "%" + search)
+				.setFirstResult(page.getIdxCurrentPage() * page.getEntitiesPerPage())
+				.setMaxResults(page.getEntitiesPerPage()).getResultList();
+		page.setEntities(computers);
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public void orderBatch(Page<Computer> page) {
@@ -129,7 +148,7 @@ public class DAOComputer {
 		Long compId = computer.getCompanyId();
 		Long id = computer.getId();
 		jdbcTemplate.update(SQLRequest.UPDATE_COMPUTER.toString(), name, intro, disc, compId, id);
-		
+
 	}
 
 	public void delete(Long id) {
@@ -145,7 +164,8 @@ public class DAOComputer {
 	}
 
 	public double searchCount(String search) {
-		return jdbcTemplate.queryForObject(SQLRequest.COUNT_SEARCH.toString(), Double.class, "%" + search + "%", "%" + search + "%");
+		return jdbcTemplate.queryForObject(SQLRequest.COUNT_SEARCH.toString(), Double.class, "%" + search + "%",
+				"%" + search + "%");
 	}
 
 	public DTOComputer mapToDTO(Computer computer) {

@@ -2,7 +2,6 @@ package com.excilys.cdb.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+
+import javax.persistence.NoResultException;
 
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.database.DatabaseConnection;
@@ -34,7 +35,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import com.excilys.cdb.config.AppConfig;
 import com.excilys.cdb.config.WebConfig;
 import com.excilys.cdb.dto.DTOComputer;
-import com.excilys.cdb.exception.PersistenceException;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
 import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
 import com.excilys.cdb.model.Computer;
@@ -119,11 +119,11 @@ public class DAOComputerTest {
 		assertEquals("Computer3", dao.findById(new Long(3L)).getName());
 	}
 
-	@Test(expected = PersistenceException.class)
+	@Test(expected = NoResultException.class)
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
-		assertNull(dao.findById(new Long(20L)).getName());
+		dao.findById(new Long(20L)).getName();
 	}
 
 	@Test
