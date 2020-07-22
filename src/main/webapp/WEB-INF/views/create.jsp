@@ -28,6 +28,10 @@
 			<a class="navbar-brand" href="/web-cdb/"><spring:message
 					code="application" /></a>
 		</div>
+		<div class="container">
+			<a href="?lang=en&firstCallCreate=${ addAttributes.firstCallCreate }">EN</a>&nbsp;<a
+				href="?lang=fr&firstCallCreate=${ addAttributes.firstCallCreate }">FR</a>
+		</div>
 	</header>
 	<section id="main">
 		<div class="container">
@@ -71,7 +75,8 @@
 							</div>
 						</fieldset>
 						<div class="actions pull-right">
-							<input type="submit" value="<spring:message code="add"/>" class="btn btn-primary">
+							<input type="submit" value="<spring:message code="add"/>"
+								class="btn btn-primary">
 							<spring:message code="or" />
 							<a href="/web-cdb/" class="btn btn-default"><spring:message
 									code="cancel" /></a>
@@ -85,11 +90,14 @@
 			<div class="container">
 				<c:choose>
 					<c:when test="${ addAttributes.creationOK }">
-						<p class="alert-success"><spring:message code="createSuccess"/></p>
+						<p class="alert-success">
+							<spring:message code="createSuccess" />
+						</p>
 					</c:when>
 					<c:otherwise>
 						<p class="alert-warning">
-							<spring:message code="createError"/> :
+							<spring:message code="createError" />
+							:
 							<c:out value="${ addAttributes.errMessage }" />
 						</p>
 					</c:otherwise>

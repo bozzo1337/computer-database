@@ -23,8 +23,10 @@
 			<a class="navbar-brand" href="?page=0"><spring:message
 					code="application" /></a>
 		</div>
-		<div>
-			<a href="?lang=en">EN</a><a href="?lang=fr">FR</a>
+		<div class="container">
+			<a
+				href="?lang=en&search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage }">EN</a>&nbsp;<a
+				href="?lang=fr&search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage }">FR</a>
 		</div>
 	</header>
 
@@ -39,8 +41,8 @@
 					<form id="searchForm" action="" method="GET" class="form-inline">
 
 						<input type="search" id="searchbox" name="search"
-							class="form-control" placeholder="Search name" /> <input
-							type="submit" id="searchsubmit" value="Filter by name"
+							class="form-control" placeholder="<spring:message code="searchField"/>" /> <input
+							type="submit" id="searchsubmit" value="<spring:message code="searchButton"/>"
 							class="btn btn-primary" />
 					</form>
 				</div>
