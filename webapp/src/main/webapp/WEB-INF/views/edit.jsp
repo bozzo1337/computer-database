@@ -29,7 +29,7 @@
 					code="application" /></a>
 			<p align="right">
 				<a
-					href="?lang=en&computerId=${ editAttributes.computer.id }&firstCall=${ editAttributes.firstCall }"><img src="static/images/flag_uk.webp" height="40px" width="40px"/></a>&nbsp;
+					href="?lang=en&computerId=${ editAttributes.computer.id }&firstCall=${ editAttributes.firstCall }"><img src="static/images/flag_uk.webp" height="40px" width="40px"/></a>
 				<a
 					href="?lang=fr&computerId=${ editAttributes.computer.id }&firstCall=${ editAttributes.firstCall }"><img src="static/images/flag_fr.webp" height="40px" width="40px"/></a>
 			</p>
