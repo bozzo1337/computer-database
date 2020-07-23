@@ -1,0 +1,19 @@
+<!ELEMENT dataset (
+    company*,
+    computer*)>
+
+<!ELEMENT company EMPTY>
+<!ATTLIST company
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+>
+
+<!ELEMENT computer EMPTY>
+<!ATTLIST computer
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    introduced CDATA #IMPLIED
+    discontinued CDATA #IMPLIED
+    company_id CDATA #IMPLIED
+>
+
