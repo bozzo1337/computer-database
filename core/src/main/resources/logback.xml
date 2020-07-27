@@ -30,6 +30,10 @@
         <appender-ref ref="FILE-ROLLING"/>
     </logger>
 
+	<logger name="org.springframework" level="debug">
+		<appender-ref ref="CONSOLE"/>
+	</logger>
+	
     <root level="error">
         <appender-ref ref="FILE-ROLLING"/>
     </root>
