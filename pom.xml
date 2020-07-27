@@ -30,6 +30,7 @@
 		<selenium.version>3.141.59</selenium.version>
 		<hikariCP.version>3.4.5</hikariCP.version>
 		<spring.version>5.2.7.RELEASE</spring.version>
+		<spring-security.version>5.3.3.RELEASE</spring-security.version>
 		<hibernate.version>5.4.18.Final</hibernate.version>
 	</properties>
 
