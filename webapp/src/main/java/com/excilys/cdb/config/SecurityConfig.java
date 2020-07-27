@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter();
 		digestAuthenticationFilter.setUserDetailsService(userDetailsServiceBean());
 		digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint());
-		digestAuthenticationFilter.setPasswordAlreadyEncoded(false);
+		digestAuthenticationFilter.setPasswordAlreadyEncoded(true);
 		return digestAuthenticationFilter;
 	}
 	
@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public UserDetailsService userDetailsServiceBean() throws Exception {
 		JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 		jdbcUserDetailsManager.deleteUser("user");
-		jdbcUserDetailsManager.createUser(User.builder().username("user").password("user").disabled(false).authorities("ROLE_USER").build());
+		jdbcUserDetailsManager.createUser(User.builder().username("user").password(passwordEncoder().encode("user")).disabled(false).authorities("ROLE_USER").build());
 		return jdbcUserDetailsManager;
 	}
 	
@@ -57,8 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public Pbkdf2PasswordEncoder passwordEncoder() {
-		return new Pbkdf2PasswordEncoder();
+	public StandardPasswordEncoder passwordEncoder() {
+		return new StandardPasswordEncoder();
 	}
 	
 	@Override
