@@ -36,7 +36,7 @@ public class Validator {
 	}
 	
 	public static boolean validateName(String input) {
-		return input != null && !input.isEmpty();
+		return input != null && !input.trim().isEmpty();
 	}
 	
 	public static void validateDTO(DTOComputer computerDTO) throws IncorrectNameException, IncorrectIntroDateException, 

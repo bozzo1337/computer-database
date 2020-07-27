@@ -38,14 +38,16 @@ public class CLI {
 		this.cs = cs;
 		this.DBC = dbc;
 	}
-	
+
 	public static void main(String... args) {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(CoreConfig.class, BindingConfig.class, PersistenceConfig.class, ServiceConfig.class, HibernateConfig.class);
-		CLI cli = new CLI(context.getBean(MyDataSource.class), context.getBean(CompanyService.class), context.getBean(ComputerService.class));
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(CoreConfig.class,
+				BindingConfig.class, PersistenceConfig.class, ServiceConfig.class, HibernateConfig.class);
+		CLI cli = new CLI(context.getBean(MyDataSource.class), context.getBean(CompanyService.class),
+				context.getBean(ComputerService.class));
 		cli.run();
 		context.close();
 	}
-	
+
 	public void run() {
 		System.out.format("Système de gestion d'ordinateurs.%nConnexion...%n");
 		try {
@@ -246,7 +248,7 @@ public class CLI {
 				newDate = Validator.validateDate(in.next());
 				if (newDate != null) {
 					compToUpdate.setIntroduced(newDate.toString());
-					 try {
+					try {
 						Validator.validateDTO(compToUpdate);
 					} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException
 							| IncorrectIDException | IncorrectTemporalityException e) {
@@ -260,7 +262,7 @@ public class CLI {
 				newDate = Validator.validateDate(in.next());
 				if (newDate != null) {
 					compToUpdate.setDiscontinued(newDate.toString());
-					 try {
+					try {
 						Validator.validateDTO(compToUpdate);
 					} catch (IncorrectNameException | IncorrectIntroDateException | IncorrectDiscDateException
 							| IncorrectIDException | IncorrectTemporalityException e) {
