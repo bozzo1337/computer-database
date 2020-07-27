@@ -13,7 +13,7 @@ import com.excilys.cdb.connector.MyDataSource;
 public class HibernateConfig {
 
 	@Autowired
-	MyDataSource dataSource;
+	private MyDataSource dataSource;
 	
 	@Bean
 	public LocalSessionFactoryBean sessionFactory() {
