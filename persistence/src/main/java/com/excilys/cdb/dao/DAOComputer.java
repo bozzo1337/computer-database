@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.dto.mapper.DTOComputerMapper;
 import com.excilys.cdb.exception.mapping.MappingException;
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
@@ -112,10 +113,10 @@ public class DAOComputer {
 			query = String.format(query, "computer.discontinued DESC");
 			break;
 		case "company":
-			query = String.format(query, "company.name ASC");
+			query = String.format(query, "computer.company.name ASC");
 			break;
 		case "companydesc":
-			query = String.format(query, "company.name DESC");
+			query = String.format(query, "computer.company.name DESC");
 			break;
 		default:
 			return null;
@@ -148,12 +149,13 @@ public class DAOComputer {
 		session.close();
 	}
 
-	public Session deleteComputersOfCompany(Long id) {
+	public void deleteComputersOfCompany(Company company) {
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
 		session.createQuery(HQLRequest.SELECT_COMPUTERS_IN_COMPANY.toString(), Computer.class)
-				.setParameter("companyId", id).list().stream().forEach(comp -> session.delete(comp));
-		return session;
+				.setParameter("companyId", company.getId()).list().stream().forEach(comp -> session.delete(comp));
+		session.getTransaction().commit();
+		session.close();
 	}
 
 	public double count() {

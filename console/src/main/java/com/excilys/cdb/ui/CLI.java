@@ -8,19 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.config.BindingConfig;
+import com.excilys.cdb.config.CoreConfig;
+import com.excilys.cdb.config.HibernateConfig;
 import com.excilys.cdb.config.PersistenceConfig;
 import com.excilys.cdb.config.ServiceConfig;
-import com.excilys.cdb.config.HibernateConfig;
 import com.excilys.cdb.connector.MyDataSource;
+import com.excilys.cdb.dto.DTOCompany;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.validation.IncorrectDiscDateException;
 import com.excilys.cdb.exception.validation.IncorrectIDException;
 import com.excilys.cdb.exception.validation.IncorrectIntroDateException;
 import com.excilys.cdb.exception.validation.IncorrectNameException;
 import com.excilys.cdb.exception.validation.IncorrectTemporalityException;
-import com.excilys.cdb.model.Company;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
 import com.excilys.cdb.validation.Validator;
@@ -208,7 +208,6 @@ public class CLI {
 		System.out.format("ID de l'entreprise :%n>");
 		Long compId = Validator.validateID(in.next());
 		if (compId != null) {
-			newCompBuilder.withCompanyId(compId.toString());
 		}
 		cs.create(newCompBuilder.build());
 	}
@@ -273,8 +272,6 @@ public class CLI {
 				break;
 			case "company_id":
 				System.out.format("Nouvel identifiant d'entreprise :%n>");
-				Long newCompId = Validator.validateID(in.next());
-				compToUpdate.setCompanyId(newCompId.toString());
 				break;
 			case "ok":
 				System.out.format("Modification(s) terminée(s).%n");
@@ -314,13 +311,13 @@ public class CLI {
 		System.out.format("Sélection d'une entreprise par ID :%n>");
 		Long idRead = Validator.validateID(in.next());
 		if (idRead != null) {
-			Company compToDelete = cas.selectById(idRead);
+			DTOCompany compToDelete = cas.selectById(idRead);
 			if (compToDelete != null) {
 				System.out.format("Entreprise sélectionné :%n");
 				System.out.format(compToDelete.toString());
 				System.out.format("%nConfirmation de la suppression ? (y/N)%n>");
 				if (in.next().equals("y")) {
-					cas.delete(compToDelete.getId());
+					cas.delete(compToDelete);
 				}
 			} else {
 				System.out.format("Aucun résultat.");

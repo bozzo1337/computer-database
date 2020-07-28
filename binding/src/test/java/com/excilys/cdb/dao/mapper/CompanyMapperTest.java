@@ -14,12 +14,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.config.BindingConfig;
+import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
 import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
@@ -31,8 +30,6 @@ public class CompanyMapperTest {
 		
 	@Mock
 	private ResultSet resultSet;
-	@Autowired
-	private CompanyMapper mapper;
 	
 	public CompanyMapperTest() {
 		MockitoAnnotations.initMocks(this);
@@ -40,12 +37,12 @@ public class CompanyMapperTest {
 	
 	@Test(expected = NullMappingSourceException.class)
 	public void mapResultSetNull() throws MappingException {
-		mapper.map(null);		
+		CompanyMapper.map(null);		
 	}
 	
 	@Test(expected = UnknownMappingSourceException.class)
 	public void mapUnknownSource() throws MappingException {
-		mapper.map(new DiagnosticCollector<List<Exception>>());
+		CompanyMapper.map(new DiagnosticCollector<List<Exception>>());
 	}
 	
 	@Test(expected = UnknownMappingSourceException.class)
@@ -53,7 +50,7 @@ public class CompanyMapperTest {
 		Mockito.when(resultSet.getLong("company.id")).thenReturn(new Long(1L));
 		Mockito.when(resultSet.getString("company.name")).thenReturn("Company1");
 		Company company = new Company(new Long(1L), "Company1");
-		assertEquals(company, mapper.map(resultSet));
+		assertEquals(company, CompanyMapper.map(resultSet));
 	}
 	
 	@Test(expected = UnknownMappingSourceException.class)
@@ -67,7 +64,7 @@ public class CompanyMapperTest {
 		compList.add(new Company(new Long(6L), "Company6"));
 		ArrayList<Company> compListResult = new ArrayList<Company>();
 		while (resultSet.next()) {
-			compListResult.add(mapper.map(resultSet));
+			compListResult.add(CompanyMapper.map(resultSet));
 		}
 		assertEquals(compList, compListResult);
 	}

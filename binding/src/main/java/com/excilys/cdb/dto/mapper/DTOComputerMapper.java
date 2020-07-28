@@ -2,6 +2,7 @@ package com.excilys.cdb.dto.mapper;
 
 import java.time.format.DateTimeFormatter;
 
+import com.excilys.cdb.dto.DTOCompany;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
 import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
@@ -27,14 +28,13 @@ public class DTOComputerMapper {
 		return computerDTO;
 	}
 
-	private static DTOComputer mapFromComputer(Computer computer) {
+	private static DTOComputer mapFromComputer(Computer computer) throws NullMappingSourceException, UnknownMappingSourceException {
 		DTOComputer.Builder builderDTO = new DTOComputer.Builder();
 		builderDTO.withId(computer.getId().toString());
 		builderDTO.withName(computer.getName());
 		builderDTO.withIntroDate(computer.getIntroduced() != null ? computer.getIntroduced().format(df) : "");
 		builderDTO.withDiscDate(computer.getDiscontinued() != null ? computer.getDiscontinued().format(df) : "");
-		builderDTO.withCompanyId(computer.getCompanyId() != null ? computer.getCompanyId().toString() : "0");
-		builderDTO.withCompanyName(computer.getCompanyName() != null ? computer.getCompanyName() : "");
+		builderDTO.withCompanyDTO(computer.getCompany() != null ? DTOCompanyMapper.map(computer.getCompany()) : new DTOCompany("", ""));
 		return builderDTO.build();
 	}
 }

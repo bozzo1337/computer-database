@@ -20,13 +20,11 @@ public class ComputerService {
 	private Page<DTOComputer> pageCompDTO;
 	private Page<Computer> pageComp;
 	private DAOComputer dao;
-	private ComputerMapper mapper;
 	private final String pageHeader = "ID | Name | Intro | Disc | CompID\n";
 	
 	@Autowired
-	public ComputerService(DAOComputer dao, ComputerMapper mapper) {
+	public ComputerService(DAOComputer dao) {
 		this.dao = dao;
-		this.mapper = mapper;
 		pageComp = new Page<Computer>(pageHeader);
 		pageCompDTO = new Page<DTOComputer>(pageHeader);
 		LOGGER.info("ComputerService instantiated");
@@ -46,9 +44,7 @@ public class ComputerService {
 	public Page<DTOComputer> selectAll() {
 		pageCompDTO.getEntities().clear();
 		dao.findBatch(pageComp);
-		pageComp.getEntities()
-		.stream()
-		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
+		pageComp.getEntities().forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
@@ -65,9 +61,7 @@ public class ComputerService {
 		pageCompDTO.getEntities().clear();
 		pageComp.setSearch(search);
 		dao.searchBatch(pageComp);
-		pageComp.getEntities()
-		.stream()
-		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
+		pageComp.getEntities().forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
@@ -75,9 +69,7 @@ public class ComputerService {
 		pageCompDTO.getEntities().clear();
 		pageComp.setOrder(orderType);
 		dao.orderBatch(pageComp);
-		pageComp.getEntities()
-		.stream()
-		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
+		pageComp.getEntities().forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
@@ -86,9 +78,7 @@ public class ComputerService {
 		pageComp.setOrder(orderType);
 		pageComp.setSearch(search);
 		dao.orderedSearch(pageComp);
-		pageComp.getEntities()
-		.stream()
-		.forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
+		pageComp.getEntities().forEach(c -> pageCompDTO.getEntities().add(dao.mapToDTO(c)));
 		return pageCompDTO;
 	}
 	
@@ -124,7 +114,7 @@ public class ComputerService {
 	
 	public void create(DTOComputer computerDTO) {
 		try {
-			Computer computer = mapper.map(computerDTO);
+			Computer computer = ComputerMapper.map(computerDTO);
 			dao.create(computer);
 		} catch (MappingException e) {
 			LOGGER.error("Error during create in service", e);
@@ -133,7 +123,7 @@ public class ComputerService {
 	
 	public void update(DTOComputer computerDTO) {
 		try {
-			Computer computer = mapper.map(computerDTO); 
+			Computer computer = ComputerMapper.map(computerDTO); 
 			dao.update(computer);
 		} catch (MappingException e) {
 			LOGGER.error("Error during update in service", e);

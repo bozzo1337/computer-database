@@ -99,6 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 
 		}
+		http.csrf().disable();
 		http.addFilter(digestAuthenticationFilter()).exceptionHandling().authenticationEntryPoint(digestEntryPoint())
 				.and().authorizeRequests().antMatchers("/create*").authenticated();
 		http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.excilys.cdb.dto.DTOCompany;
+import com.excilys.cdb.dto.mapper.DTOCompanyMapper;
+import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 
@@ -46,10 +49,12 @@ public class DAOCompany {
 		session.close();
 	}
 
-	public void delete(Long id) {
-		Session session = daoComputer.deleteComputersOfCompany(id);
+	public void delete(Company company) {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		daoComputer.deleteComputersOfCompany(company);
 		LOGGER.info("Computers of Company deleted");
-		session.delete(findById(id));
+		session.delete(company);
 		LOGGER.info("Company deleted");
 		session.getTransaction().commit();
 		session.close();
@@ -73,5 +78,15 @@ public class DAOCompany {
 		session.getTransaction().commit();
 		session.close();
 		return count.doubleValue();
+	}
+
+	public DTOCompany mapToDTO(Company company) {
+		DTOCompany companyDTO = new DTOCompany("");
+		try {
+			companyDTO = DTOCompanyMapper.map(company);
+		} catch (MappingException e) {
+			LOGGER.error("Error during mapping to DTO", e);
+		}
+		return companyDTO;
 	}
 }

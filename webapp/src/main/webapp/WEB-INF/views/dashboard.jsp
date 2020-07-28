@@ -142,7 +142,7 @@
 								onclick=""><c:out value="${ comp.name }" /></a></td>
 							<td><c:out value="${ comp.introduced }" /></td>
 							<td><c:out value="${ comp.discontinued }" /></td>
-							<td><c:out value="${ comp.companyName }" /></td>
+							<td><c:out value="${ comp.companyDTO.name }" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

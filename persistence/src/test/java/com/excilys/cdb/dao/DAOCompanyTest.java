@@ -145,7 +145,7 @@ public class DAOCompanyTest {
 	public void delete() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
-		dao.delete(new Long(1));
+		dao.delete(new Company(5L, "Company5"));
 		assertEquals(3.0, dao.count(), 0.01);
 		assertEquals(6.0, daoComputer.count(), 0.01);
 	}
@@ -177,9 +177,9 @@ public class DAOCompanyTest {
 		assertNotNull(dataSet);
 		double initialCount = daoComputer.count();
 		DAOCompany daoSpied = Mockito.spy(dao);
-		Mockito.doThrow(new RuntimeException()).when(daoSpied).findById(Mockito.anyLong());
+		Mockito.doThrow(new RuntimeException()).when(daoSpied).delete(Mockito.any());
 		try {
-			daoSpied.delete(new Long(5L));
+			daoSpied.delete(new Company(5L, "Company5"));
 		} catch (RuntimeException e) {
 			LOGGER.info("Runtime caught in breakTransaction test");
 		} finally {

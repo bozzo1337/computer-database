@@ -6,16 +6,14 @@ public class DTOComputer {
 	private String name;
 	private String introduced;
 	private String discontinued;
-	private String companyId;
-	private String companyName;
+	private DTOCompany companyDTO;
 
 	public static class Builder {
 		private String id;
 		private String name;
 		private String introduced;
 		private String discontinued;
-		private String companyId;
-		private String companyName;
+		private DTOCompany companyDTO;
 
 		public Builder withId(String id) {
 			this.id = id;
@@ -37,13 +35,8 @@ public class DTOComputer {
 			return this;
 		}
 
-		public Builder withCompanyId(String companyId) {
-			this.companyId = companyId;
-			return this;
-		}
-
-		public Builder withCompanyName(String companyName) {
-			this.companyName = companyName;
+		public Builder withCompanyDTO(DTOCompany companyDTO) {
+			this.companyDTO = companyDTO;
 			return this;
 		}
 
@@ -53,8 +46,7 @@ public class DTOComputer {
 			computerDTO.name = this.name;
 			computerDTO.introduced = this.introduced;
 			computerDTO.discontinued = this.discontinued;
-			computerDTO.companyId = this.companyId;
-			computerDTO.companyName = this.companyName;
+			computerDTO.companyDTO = this.companyDTO;
 			return computerDTO;
 		}
 	}
@@ -75,21 +67,17 @@ public class DTOComputer {
 		return discontinued;
 	}
 
-	public String getCompanyId() {
-		return companyId;
-	}
-
 	public String getId() {
 		return id;
 	}
 
-	public String getCompanyName() {
-		return companyName;
+	public DTOCompany getCompanyDTO() {
+		return companyDTO;
 	}
 
 	@Override
 	public String toString() {
-		return id + " | " + name + " | " + introduced + " | " + discontinued + " | " + companyId + " | " + companyName;
+		return id + " | " + name + " | " + introduced + " | " + discontinued + " | " + companyDTO.getId() + " | " + companyDTO.getName();
 	}
 
 	public void setId(String id) {
@@ -108,20 +96,15 @@ public class DTOComputer {
 		this.discontinued = discontinued;
 	}
 
-	public void setCompanyId(String companyId) {
-		this.companyId = companyId;
-	}
-
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
+	public void setCompanyName(DTOCompany companyDTO) {
+		this.companyDTO = companyDTO;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((companyId == null) ? 0 : companyId.hashCode());
-		result = prime * result + ((companyName == null) ? 0 : companyName.hashCode());
+		result = prime * result + ((companyDTO == null) ? 0 : companyDTO.hashCode());
 		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
@@ -138,15 +121,10 @@ public class DTOComputer {
 		if (getClass() != obj.getClass())
 			return false;
 		DTOComputer other = (DTOComputer) obj;
-		if (companyId == null) {
-			if (other.companyId != null)
+		if (companyDTO == null) {
+			if (other.companyDTO != null)
 				return false;
-		} else if (!companyId.equals(other.companyId))
-			return false;
-		if (companyName == null) {
-			if (other.companyName != null)
-				return false;
-		} else if (!companyName.equals(other.companyName))
+		} else if (!companyDTO.equals(other.companyDTO))
 			return false;
 		if (discontinued == null) {
 			if (other.discontinued != null)

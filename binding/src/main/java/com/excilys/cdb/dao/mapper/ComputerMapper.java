@@ -16,13 +16,13 @@ import com.excilys.cdb.model.Computer;
 @Component
 public class ComputerMapper {
 
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final Logger LOGGER = LoggerFactory.getLogger(ComputerMapper.class);
 
 	private ComputerMapper() {
 	}
 
-	public Computer map(Object source) throws MappingException {
+	public static Computer map(Object source) throws MappingException {
 		Computer computer;
 		if (source == null) {
 			LOGGER.error("Null source while mapping Computer");
@@ -37,7 +37,7 @@ public class ComputerMapper {
 		return computer;
 	}
 
-	private Computer mapFromDTO(DTOComputer computerDTO) {
+	private static Computer mapFromDTO(DTOComputer computerDTO) throws MappingException {
 		Long id;
 		if (computerDTO.getId() == null || computerDTO.getId().isEmpty()) {
 			id = null;
@@ -56,15 +56,8 @@ public class ComputerMapper {
 		} else {
 			disc = LocalDate.parse(computerDTO.getDiscontinued(), df);
 		}
-		String compIdString = computerDTO.getCompanyId();
-		Long compId;
-		if(compIdString == null || "0".equals(computerDTO.getCompanyId())) {
-			compId = null;
-		} else {
-			compId = Long.valueOf(compIdString);
-		}
 		Computer computer = new Computer.Builder().withId(id).withName(computerDTO.getName()).withIntroDate(intro)
-				.withDiscDate(disc).withCompanyId(compId).build();
+				.withDiscDate(disc).withCompany(CompanyMapper.map(computerDTO.getCompanyDTO())).build();
 		return computer;
 	}
 }

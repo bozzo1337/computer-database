@@ -60,9 +60,9 @@ public class Validator {
 				throw new IncorrectDiscDateException("Incorrect disc date format", e);
 			}
 		}
-		if (!computerDTO.getCompanyId().equals("0")) {
+		if (!computerDTO.getCompanyDTO().getId().equals("0")) {
 			try {
-				validateID(computerDTO.getCompanyId());
+				validateID(computerDTO.getCompanyDTO().getId());
 			} catch (NumberFormatException e) {
 				throw new IncorrectIDException("Incorrect ID format", e);
 			}

@@ -31,7 +31,7 @@
     </logger>
 
 	<logger name="org.springframework" level="debug">
-		<appender-ref ref="CONSOLE"/>
+		<appender-ref ref="FILE-ROLLING"/>
 	</logger>
 	
     <root level="error">

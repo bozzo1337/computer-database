@@ -77,8 +77,8 @@
 								<label for="companyId"><spring:message
 										code="computerCompany" /></label> <select class="form-control"
 									id="companyId" name="companyId">
-									<option value="${ editAttributes.computer.companyId }"><c:out
-											value="${ editAttributes.computer.companyName }" /></option>
+									<option value="${ editAttributes.computer.companyDTO.id }"><c:out
+											value="${ editAttributes.computer.companyDTO.name }" /></option>
 									<option value="0" />
 									<c:forEach var="company"
 										items="${ editAttributes.listCompanies }">

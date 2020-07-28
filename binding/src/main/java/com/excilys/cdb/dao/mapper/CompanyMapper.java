@@ -19,7 +19,7 @@ public class CompanyMapper {
 	private CompanyMapper() {
 	}
 	
-	public Company map(Object source) throws MappingException {
+	public static Company map(Object source) throws MappingException {
 		Company company;
 		if (source == null) {
 			LOGGER.error("Null mapping source while mapping Company");
@@ -33,7 +33,7 @@ public class CompanyMapper {
 		return company;
 	}
 
-	private Company mapFromDTO(DTOCompany companyDTO) {
+	private static Company mapFromDTO(DTOCompany companyDTO) {
 		return new Company(Long.valueOf(companyDTO.getId()), companyDTO.getName());
 	}
 }

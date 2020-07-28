@@ -31,18 +31,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.config.BindingConfig;
-import com.excilys.cdb.config.PersistenceConfig;
+import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.config.HibernateConfig;
+import com.excilys.cdb.config.PersistenceConfig;
+import com.excilys.cdb.dto.DTOCompany;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
 import com.excilys.cdb.exception.mapping.UnknownMappingSourceException;
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.Page;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {CoreConfig.class, BindingConfig.class, PersistenceConfig.class, HibernateConfig.class})
+@ContextConfiguration(classes = { CoreConfig.class, BindingConfig.class, PersistenceConfig.class,
+		HibernateConfig.class })
 public class DAOComputerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAOComputerTest.class);
@@ -119,6 +122,13 @@ public class DAOComputerTest {
 		assertEquals("Computer3", dao.findById(new Long(3L)).getName());
 	}
 
+	@Test
+	public void companyIncluded() throws Exception {
+		IDataSet dataSet = getDatabaseDataSet();
+		assertNotNull(dataSet);
+		assertEquals("Company5", dao.findById(new Long(999L)).getCompany().getName());
+	}
+
 	@Test(expected = NoResultException.class)
 	public void findByIdIncorrect() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
@@ -131,16 +141,14 @@ public class DAOComputerTest {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
 		List<String> computersName = new ArrayList<String>();
-		computersName.add("Computer44");
-		computersName.add("Computer15");
-		computersName.add("Computer999");
+		computersName.add("Computer18");
+		computersName.add("Computer22");
+		computersName.add("Computer42");
 		page.setEntitiesPerPage(3);
 		page.setIdxCurrentPage(1);
 		dao.findBatch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : page.getEntities()) {
-			computersNameResult.add(comp.getName());
-		}
+		page.getEntities().forEach(comp -> computersNameResult.add(comp.getName()));
 		assertEquals(computersName, computersNameResult);
 	}
 
@@ -157,9 +165,7 @@ public class DAOComputerTest {
 		page.setSearch("Computer1");
 		dao.searchBatch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : page.getEntities()) {
-			computersNameResult.add(comp.getName());
-		}
+		page.getEntities().forEach(comp -> computersNameResult.add(comp.getName()));
 		Collections.sort(computersNameResult);
 		assertEquals(computersName, computersNameResult);
 	}
@@ -177,9 +183,7 @@ public class DAOComputerTest {
 		page.setOrder("computer");
 		dao.orderBatch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : page.getEntities()) {
-			computersNameResult.add(comp.getName());
-		}
+		page.getEntities().forEach(comp -> computersNameResult.add(comp.getName()));
 		assertEquals(computersName, computersNameResult);
 	}
 
@@ -196,9 +200,7 @@ public class DAOComputerTest {
 		page.setSearch("Computer4");
 		dao.orderedSearch(page);
 		List<String> computersNameResult = new ArrayList<String>();
-		for (Computer comp : page.getEntities()) {
-			computersNameResult.add(comp.getName());
-		}
+		page.getEntities().forEach(comp -> computersNameResult.add(comp.getName()));
 		assertEquals(computersName, computersNameResult);
 	}
 
@@ -206,7 +208,7 @@ public class DAOComputerTest {
 	public void create() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
-		Computer comp = new Computer.Builder().withName("computerTest").withCompanyId(new Long(4L)).build();
+		Computer comp = new Computer.Builder().withName("ComputerTest").build();
 		dao.create(comp);
 		page.setEntitiesPerPage(1);
 		page.setIdxCurrentPage(0);
@@ -221,10 +223,7 @@ public class DAOComputerTest {
 		assertNotNull(dataSet);
 		Computer comp = dao.findById(new Long(3L));
 		comp.setName("3Computer");
-		comp.setCompanyId(new Long(4L));
-		comp.setCompanyName("Company4");
 		dao.update(comp);
-		
 		assertEquals(comp, dao.findById(new Long(3L)));
 	}
 
@@ -241,7 +240,7 @@ public class DAOComputerTest {
 	public void deleteComputersOfCompany() throws Exception {
 		IDataSet dataSet = getDatabaseDataSet();
 		assertNotNull(dataSet);
-		dao.deleteComputersOfCompany(new Long(5L)).getTransaction().commit();
+		dao.deleteComputersOfCompany(new Company(5L, "Company5"));
 		assertEquals(6.0, dao.count(), 0.01);
 	}
 
@@ -262,9 +261,8 @@ public class DAOComputerTest {
 	@Test
 	public void mapToDto() throws NullMappingSourceException, UnknownMappingSourceException {
 		DTOComputer compDTO = new DTOComputer.Builder().withName("ComputerAA").withIntroDate("").withDiscDate("")
-				.withCompanyName("").withCompanyId("4").withId("10").build();
-		Computer comp = new Computer.Builder().withName("ComputerAA").withCompanyId(new Long(4L)).withId(new Long(10L))
-				.build();
+				.withId("10").withCompanyDTO(new DTOCompany("")).build();
+		Computer comp = new Computer.Builder().withName("ComputerAA").withId(new Long(10L)).build();
 		assertEquals(compDTO, dao.mapToDTO(comp));
 	}
 }

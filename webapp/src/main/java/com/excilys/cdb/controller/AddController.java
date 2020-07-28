@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.excilys.cdb.controller.attributes.AddAttributes;
+import com.excilys.cdb.dto.DTOCompany;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.validation.ValidationException;
 import com.excilys.cdb.service.CompanyService;
@@ -50,7 +51,7 @@ public class AddController {
 		boolean creationOK = false;
 		boolean validDTO = true;
 		DTOComputer computerDTO = new DTOComputer.Builder().withName(computerNameInput).withIntroDate(introduced)
-				.withDiscDate(discontinued).withCompanyId(companyId).build();
+				.withDiscDate(discontinued).withCompanyDTO(new DTOCompany(companyId)).build();
 		String errMessage = null;
 		try {
 			Validator.validateDTO(computerDTO);
