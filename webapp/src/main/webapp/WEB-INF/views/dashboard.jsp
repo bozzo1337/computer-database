@@ -22,6 +22,7 @@
 		<div class="container">
 			<a class="navbar-brand" href="?page=0"><spring:message
 					code="application" /></a>
+			<p align="right"><a href="logout">Logout</a></p>
 			<p align="right"><a
 				href="?lang=en&search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage }"><img src="static/images/flag_uk.webp" height="40px" width="40px"/></a>&nbsp;<a
 				href="?lang=fr&search=${ dashboardAttributes.search }&order=${ dashboardAttributes.order }&page=${ dashboardAttributes.currentPage }"><img src="static/images/flag_fr.webp" height="40px" width="40px"/></a>

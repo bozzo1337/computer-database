@@ -22,8 +22,6 @@ import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.config.BindingConfig;
-import com.excilys.cdb.config.PersistenceConfig;
+import com.excilys.cdb.config.CoreConfig;
 import com.excilys.cdb.config.HibernateConfig;
+import com.excilys.cdb.config.PersistenceConfig;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Page;
 

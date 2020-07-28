@@ -24,6 +24,7 @@ public class DashboardController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DashboardController.class);
 	private ComputerService computerService;
 	private DashboardAttributes dashboardAttributes;
+	
 
 	@Autowired
 	public DashboardController(ComputerService computerService) {
