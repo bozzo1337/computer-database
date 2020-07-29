@@ -56,6 +56,7 @@
 		<module>persistence</module>
 		<module>service</module>
 		<module>webapp</module>
+		<module>webservice</module>
 	</modules>
 
 </project>
