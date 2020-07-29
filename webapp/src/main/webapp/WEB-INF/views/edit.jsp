@@ -79,7 +79,7 @@
 									id="companyId" name="companyId">
 									<option value="${ editAttributes.computer.companyDTO.id }"><c:out
 											value="${ editAttributes.computer.companyDTO.name }" /></option>
-									<option value="0" />
+									<option value="" />
 									<c:forEach var="company"
 										items="${ editAttributes.listCompanies }">
 										<option value="${ company.id }"><c:out

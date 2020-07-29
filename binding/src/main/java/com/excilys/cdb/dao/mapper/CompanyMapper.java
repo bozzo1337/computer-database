@@ -34,6 +34,9 @@ public class CompanyMapper {
 	}
 
 	private static Company mapFromDTO(DTOCompany companyDTO) {
-		return new Company(Long.valueOf(companyDTO.getId()), companyDTO.getName());
+		if (!"".equals(companyDTO.getId())) {
+			return new Company(Long.valueOf(companyDTO.getId()), companyDTO.getName());
+		}
+		return null;
 	}
 }

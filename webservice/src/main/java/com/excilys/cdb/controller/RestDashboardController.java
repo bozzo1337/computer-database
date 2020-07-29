@@ -47,7 +47,7 @@ public class RestDashboardController {
 	}
 
 	@PostMapping
-	public String setPostRequestParams(Model model, @RequestParam(required = false) String search,
+	public List<DTOComputer> setPostRequestParams(Model model, @RequestParam(required = false) String search,
 			@RequestParam(required = false) String order, @RequestParam(required = false) String button10,
 			@RequestParam(required = false) String button50, @RequestParam(required = false) String button100) {
 		dashboardAttributes.setSearch(search);
@@ -63,18 +63,17 @@ public class RestDashboardController {
 		return setEntitiesPerPage(model);
 	}
 
-	public String setEntitiesPerPage(Model model) {
+	public List<DTOComputer> setEntitiesPerPage(Model model) {
 		computerService.setEntitiesPerPage(dashboardAttributes.getEntitiesPerPage());
-		setUpListComp("0");
-		return display(model);
+		return setUpListComp("0");
 	}
 
 	@PostMapping("/delete")
-	public String deleteComputers(Model model, @RequestParam String selection) {
+	public ResponseEntity<List<DTOComputer>> deleteComputers(Model model, @RequestParam String selection) {
 		List<String> idsComputersToDelete = Arrays.asList(selection.split(","));
 		idsComputersToDelete.stream().mapToLong(Long::parseLong)
 				.forEach(id -> computerService.delete(computerService.selectById(Long.valueOf(id))));
-		return "redirect:/";
+		return setGetRequestParams(model, "" + dashboardAttributes.getCurrentPage(), dashboardAttributes.getSearch(), dashboardAttributes.getOrder());
 	}
 
 	private List<DTOComputer> setUpDashboard(String page, String search, String order) {

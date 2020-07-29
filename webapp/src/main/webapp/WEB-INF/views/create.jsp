@@ -64,7 +64,7 @@
 								<label for="companyId"><spring:message
 										code="computerCompany" /></label> <select class="form-control"
 									id="companyId" name="companyId">
-									<option value="0" />
+									<option value="" />
 									<c:forEach var="company"
 										items="${ addAttributes.listCompanies }">
 										<option value="${ company.id }"><c:out

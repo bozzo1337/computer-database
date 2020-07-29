@@ -3,6 +3,8 @@ package com.excilys.cdb.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +37,7 @@ public class RestEditController {
 	}
 
 	@GetMapping
-	public DTOComputer loadForm(@RequestParam String computerId, @RequestParam String firstCall) {
+	public ResponseEntity<DTOComputer> loadForm(@RequestParam String computerId, @RequestParam String firstCall) {
 		editAttributes.setListCompanies(companyService.selectAll().getEntities());
 		Boolean firstCallBool = Boolean.valueOf(firstCall);
 		Long compId = null;
@@ -52,15 +54,18 @@ public class RestEditController {
 		}
 		editAttributes.setFirstCall(firstCallBool);
 		editAttributes.setComputer(computer);
-		return computer;
+		return new ResponseEntity<DTOComputer>(computer, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public DTOComputer editComputer(Model model, @RequestParam String computerId,
+	public ResponseEntity<DTOComputer> editComputer(Model model, @RequestParam String computerId,
 			@RequestParam String computerNameInput, @RequestParam(required = false) String introduced,
 			@RequestParam(required = false) String discontinued, @RequestParam(required = false) String companyId) {
 		boolean updateOK = false;
 		boolean validDTO = true;
+		introduced = introduced != null ? introduced : "";
+		discontinued = discontinued != null ? discontinued : "";
+		companyId = companyId != null ? companyId : "";
 		DTOComputer computerDTO = new DTOComputer.Builder().withId(computerId).withName(computerNameInput)
 				.withIntroDate(introduced).withDiscDate(discontinued).withCompanyDTO(new DTOCompany(companyId)).build();
 		String errMessage = null;

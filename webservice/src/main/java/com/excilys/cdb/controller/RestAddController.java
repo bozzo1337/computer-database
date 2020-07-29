@@ -1,9 +1,12 @@
 package com.excilys.cdb.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,20 +40,24 @@ public class RestAddController {
 	}
 
 	@GetMapping
-	public String loadForm(Model model, @RequestParam String firstCallCreate) {
-		addAttributes.setListCompanies(companyService.selectAll().getEntities());
+	public ResponseEntity<List<DTOCompany>> loadForm(Model model, @RequestParam String firstCallCreate) {
+		List<DTOCompany> listCompanies = companyService.selectAll().getEntities();
+		addAttributes.setListCompanies(listCompanies);
 		boolean firstCallCreateBool = Boolean.parseBoolean(firstCallCreate);
 		addAttributes.setFirstCallCreate(firstCallCreateBool);
 		model.addAttribute(addAttributes);
-		return "create";
+		return new ResponseEntity<List<DTOCompany>>(listCompanies, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public String addComputer(Model model, @RequestParam String computerNameInput,
+	public ResponseEntity<DTOComputer> addComputer(Model model, @RequestParam String computerNameInput,
 			@RequestParam(required = false) String introduced, @RequestParam(required = false) String discontinued,
 			@RequestParam(required = false) String companyId) {
 		boolean creationOK = false;
 		boolean validDTO = true;
+		introduced = introduced != null ? introduced : "";
+		discontinued = discontinued != null ? discontinued : "";
+		companyId = companyId != null ? companyId : "";
 		DTOComputer computerDTO = new DTOComputer.Builder().withName(computerNameInput).withIntroDate(introduced)
 				.withDiscDate(discontinued).withCompanyDTO(new DTOCompany(companyId)).build();
 		String errMessage = null;
@@ -66,6 +73,6 @@ public class RestAddController {
 		}
 		addAttributes.setCreationOK(creationOK);
 		addAttributes.setErrMessage(errMessage);
-		return loadForm(model, "false");
+		return new ResponseEntity<DTOComputer>(computerDTO, HttpStatus.OK);
 	}
 }
