@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
@@ -25,6 +26,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -39,30 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private MyDataSource dataSource;
 
 	@Bean
-	public DigestAuthenticationFilter digestAuthenticationFilter() throws Exception {
-		DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter();
-		digestAuthenticationFilter.setUserDetailsService(userDetailsServiceBean());
-		digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint());
-		digestAuthenticationFilter.setPasswordAlreadyEncoded(false);
-		return digestAuthenticationFilter;
-	}
-
-	@Bean
 	@Override
 	public UserDetailsService userDetailsServiceBean() throws Exception {
 		JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-		jdbcUserDetailsManager.deleteUser("user");
-		jdbcUserDetailsManager.createUser(
-				User.builder().username("user").password("user").disabled(false).authorities("ROLE_USER").build());
 		return jdbcUserDetailsManager;
-	}
-
-	@Bean
-	public DigestAuthenticationEntryPoint digestEntryPoint() {
-		DigestAuthenticationEntryPoint entryPoint = new DigestAuthenticationEntryPoint();
-		entryPoint.setRealmName("CDB Realm");
-		entryPoint.setKey("quarante-deux");
-		return entryPoint;
 	}
 
 	@Bean
@@ -80,30 +62,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
+		return new BCryptPasswordEncoder(12);
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		class CustomLogoutHandler implements LogoutHandler {
-
-			@Override
-			public void logout(HttpServletRequest request, HttpServletResponse response,
-					Authentication authentication) {
-				authentication.setAuthenticated(false);
-				try {
-					request.logout();
-				} catch (ServletException e) {
-					e.printStackTrace();
-				}
-			}
-
-		}
 		http.csrf().disable();
-		http.addFilter(digestAuthenticationFilter()).exceptionHandling().authenticationEntryPoint(digestEntryPoint())
-				.and().authorizeRequests().antMatchers("/create*").authenticated();
-		http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-				.addLogoutHandler(new CustomLogoutHandler()).logoutSuccessUrl("/").deleteCookies("JSESSIONID")
-				.invalidateHttpSession(true).clearAuthentication(true).permitAll();
+		http.formLogin().defaultSuccessUrl("/");
+		http.authorizeRequests().antMatchers("/create*").hasAnyRole("ADMIN").antMatchers("/edit*").hasAnyRole("ADMIN")
+				.antMatchers("/**").permitAll();
+		http.logout().logoutUrl("/logout").logoutSuccessUrl("/").deleteCookies("JSESSIONID").invalidateHttpSession(true)
+				.clearAuthentication(true).permitAll();
 	}
 }
