@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.excilys.cdb.config.BindingConfig;
 import com.excilys.cdb.config.CoreConfig;
+import com.excilys.cdb.dto.DTOCompany;
 import com.excilys.cdb.dto.DTOComputer;
 import com.excilys.cdb.exception.mapping.MappingException;
 import com.excilys.cdb.exception.mapping.NullMappingSourceException;
@@ -100,7 +101,7 @@ public class ComputerMapperTest {
 	@Test
 	public void mapFromDTO() throws MappingException {
 		DTOComputer computerDTO = new DTOComputer.Builder().withId("3").withName("Computer12")
-				.withIntroDate("12/12/2012").build();
+				.withIntroDate("12/12/2012").withCompanyDTO(new DTOCompany("")).build();
 		Computer compExpected = new Computer.Builder().withId(new Long(3L)).withName("Computer12")
 				.withIntroDate(LocalDate.of(2012, 12, 12)).build();
 		assertEquals(compExpected, ComputerMapper.map(computerDTO));
