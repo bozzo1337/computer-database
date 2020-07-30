@@ -61,7 +61,7 @@ public class DAOComputerTest {
 		this.page = new Page<Computer>("");
 		InputStream inputStream = null;
 		try {
-			inputStream = DAOCompanyTest.class.getResourceAsStream("/config.properties");
+			inputStream = DAOComputerTest.class.getResourceAsStream("/config.properties");
 			Properties properties = new Properties();
 			properties.load(inputStream);
 			url = properties.getProperty("url");

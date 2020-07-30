@@ -32,7 +32,7 @@ public class DashboardController {
 		dashboardAttributes = new DashboardAttributes();
 	}
 
-	@GetMapping
+	@GetMapping("")
 	public String setGetRequestParams(Model model, @RequestParam(required = false) String page,
 			@RequestParam(required = false) String search, @RequestParam(required = false) String order) {
 		setUpDashboard(page, search, order);
@@ -44,7 +44,7 @@ public class DashboardController {
 		return "dashboard";
 	}
 
-	@PostMapping
+	@PostMapping("")
 	public String setPostRequestParams(Model model, @RequestParam(required = false) String search,
 			@RequestParam(required = false) String order, @RequestParam(required = false) String button10,
 			@RequestParam(required = false) String button50, @RequestParam(required = false) String button100) {
