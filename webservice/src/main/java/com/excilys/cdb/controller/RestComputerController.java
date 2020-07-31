@@ -1,5 +1,6 @@
 package com.excilys.cdb.controller;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,33 +31,31 @@ public class RestComputerController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestComputerController.class);
 	private ComputerService computerService;
+	private ObjectMapper objectMapper;
 
 	@Autowired
-	public RestComputerController(ComputerService computerService) {
+	public RestComputerController(ComputerService computerService, ObjectMapper objectMapper) {
 		this.computerService = computerService;
+		this.objectMapper = objectMapper;
+		SimpleModule module = new SimpleModule();
+		module.addSerializer(new SerializerComputer());
+		objectMapper.registerModule(module);
 		LOGGER.info("RestComputerController instantiated");
 	}
 
-	@GetMapping("")
+	@GetMapping
 	public ResponseEntity<String> getAll() {
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleModule module = new SimpleModule();
-		module.addSerializer(new SerializerComputer());
-		mapper.registerModule(module);
-		String computers = "";
-		try {
-			computers = computerService.getPageComp().getEntities().stream().map(t -> {
-				try {
-					return mapper.writeValueAsString(t);
-				} catch (JsonProcessingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return null;
-			}).collect(Collectors.joining());
-		} catch (Exception e) {
-			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-		}
+		List<DTOComputer> listComp = computerService.selectAll().getEntities();
+		String computers = listComp.stream().map(comp -> writeValueAsStringLambda(comp)).collect(Collectors.joining());
+		return new ResponseEntity<String>(computers, HttpStatus.OK);
+	}
+
+	@GetMapping("/page/{idxPage}")
+	public ResponseEntity<String> getPage(@PathVariable int idxPage) {
+		computerService.resetPages("");
+		computerService.selectPage(idxPage);
+		List<DTOComputer> listComp = computerService.selectAll().getEntities();
+		String computers = listComp.stream().map(comp -> writeValueAsStringLambda(comp)).collect(Collectors.joining());
 		return new ResponseEntity<String>(computers, HttpStatus.OK);
 	}
 
@@ -66,7 +65,7 @@ public class RestComputerController {
 		try {
 			computer = computerService.selectById(id);
 		} catch (PersistenceException e) {
-			return new ResponseEntity<DTOComputer>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<DTOComputer>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<DTOComputer>(computer, HttpStatus.OK);
 	}
@@ -84,5 +83,15 @@ public class RestComputerController {
 			return new ResponseEntity<DTOComputer>(HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<DTOComputer>(newComputer, HttpStatus.CREATED);
+	}
+
+	private String writeValueAsStringLambda(DTOComputer comp) {
+		try {
+
+			return objectMapper.writeValueAsString(comp);
+		} catch (JsonProcessingException e) {
+			LOGGER.debug("Object mapping error");
+			return null;
+		}
 	}
 }

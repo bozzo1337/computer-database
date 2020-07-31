@@ -1,5 +1,8 @@
 package com.excilys.cdb.serializer;
 
+import static com.excilys.cdb.config.RestConfig.COMPANIES_ENDPOINT;
+import static com.excilys.cdb.config.RestConfig.COMPUTERS_ENDPOINT;
+
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -10,7 +13,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-
 public class SerializerComputer extends StdSerializer<DTOComputer> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SerializerComputer.class);
@@ -19,17 +21,16 @@ public class SerializerComputer extends StdSerializer<DTOComputer> {
 	public SerializerComputer() {
 		this(DTOComputer.class);
 	}
-	
+
 	protected SerializerComputer(Class<DTOComputer> t) {
 		super(t);
 	}
 
 	@Override
-	public void serialize(DTOComputer computerDTO, JsonGenerator gen, SerializerProvider provider)
-			throws IOException {
+	public void serialize(DTOComputer computerDTO, JsonGenerator gen, SerializerProvider provider) throws IOException {
 		try {
 			gen.writeStartObject();
-			gen.writeNumberField("id", Long.parseLong(computerDTO.getId()));
+			gen.writeStringField("id", computerDTO.getId());
 			gen.writeStringField("name", computerDTO.getName());
 			gen.writeStringField("companyId", computerDTO.getCompanyDTO().getId());
 			writeLinksDTO(computerDTO, gen);
@@ -41,17 +42,19 @@ public class SerializerComputer extends StdSerializer<DTOComputer> {
 	private void writeLinksDTO(DTOComputer computerDTO, JsonGenerator gen) throws IOException {
 		gen.writeArrayFieldStart("links");
 		gen.writeStartObject();
-		gen.writeStringField("href", "computers/" + computerDTO.getId());
+		gen.writeStringField("href", COMPUTERS_ENDPOINT + "/" + computerDTO.getId());
 		gen.writeStringField("rel", "self");
 		gen.writeStringField("type", "GET");
 		gen.writeEndObject();
-		gen.writeStartObject();
-		gen.writeStringField("href", "companies/" + computerDTO.getCompanyDTO().getId());
-		gen.writeStringField("rel", "company");
-		gen.writeStringField("type", "GET");
-		gen.writeEndObject();
-		gen.writeEndArray();
-		gen.writeEndObject();
+		if (!computerDTO.getCompanyDTO().getId().equals("")) {
+			gen.writeStartObject();
+			gen.writeStringField("href", COMPANIES_ENDPOINT + "/" + computerDTO.getCompanyDTO().getId());
+			gen.writeStringField("rel", "company");
+			gen.writeStringField("type", "GET");
+			gen.writeEndObject();
+			gen.writeEndArray();
+			gen.writeEndObject();
+		}
 	}
 
 }
