@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,7 +49,7 @@ public class RestComputerController {
 	public ResponseEntity<String> getAll() {
 		List<DTOComputer> listComp = computerService.selectAll().getEntities();
 		String computers = listComp.stream().map(comp -> writeValueAsStringLambda(comp)).collect(Collectors.joining());
-		return new ResponseEntity<String>(computers, HttpStatus.OK);
+		return new ResponseEntity<String>(computers, HttpStatus.ACCEPTED);
 	}
 
 	@GetMapping("/page/{idxPage}")
@@ -56,7 +58,7 @@ public class RestComputerController {
 		computerService.selectPage(idxPage);
 		List<DTOComputer> listComp = computerService.selectAll().getEntities();
 		String computers = listComp.stream().map(comp -> writeValueAsStringLambda(comp)).collect(Collectors.joining());
-		return new ResponseEntity<String>(computers, HttpStatus.OK);
+		return new ResponseEntity<String>(computers, HttpStatus.ACCEPTED);
 	}
 
 	@GetMapping("/{id}")
@@ -68,6 +70,12 @@ public class RestComputerController {
 			return new ResponseEntity<DTOComputer>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<DTOComputer>(computer, HttpStatus.OK);
+	}
+	
+	@PostMapping
+	public ResponseEntity<String> setEntitiesPerPage(@RequestBody int entitiesPerPage) {
+		computerService.setEntitiesPerPage(entitiesPerPage);
+		return getAll();
 	}
 
 	@PutMapping(value = { "/add/{name}/intro={intro}/disc={disc}/companyId={companyId}" })
